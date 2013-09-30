@@ -16,8 +16,8 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 
 ---
- drivers/tty/serial/8250/8250_pci.c |  119 ++++++++++++++++++++++++++++++++++++-
- 1 file changed, 118 insertions(+), 1 deletion(-)
+ drivers/tty/serial/8250/8250_pci.c |  125 ++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 124 insertions(+), 1 deletion(-)
 
 --- a/drivers/tty/serial/8250/8250_pci.c
 +++ b/drivers/tty/serial/8250/8250_pci.c
@@ -30,7 +30,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  #include <linux/module.h>
  #include <linux/init.h>
  #include <linux/pci.h>
-@@ -1343,6 +1343,76 @@ pci_brcm_trumanage_setup(struct serial_p
+@@ -1343,6 +1343,82 @@ pci_brcm_trumanage_setup(struct serial_p
  	return ret;
  }
  
@@ -43,6 +43,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +	unsigned long iobase;
 +	unsigned long ciobase = 0;
 +	u8 config_base;
++	u8 data;
 +
 +	/* FIXME: read these from the PCI config space */
 +	switch (idx) {
@@ -75,6 +76,9 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +		ciobase = (int)(base + (0x8 * idx));
 +	}
 +
++	dev_dbg(&pdev->dev, "%s: idx=%d iobase=0x%lx ciobase=0x%lx config_base=0x%2x\n",
++		__func__, idx, iobase, ciobase, config_base);
++
 +	/* Enable uart I/O port */
 +	pci_write_config_byte(pdev, config_base + 0x00, 0x01);
 +
@@ -90,7 +94,12 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +	/* irq number */
 +	pci_write_config_byte(pdev, config_base + 0x06, pdev->irq);
 +
-+	dev_dbg(&priv->dev->dev, "%s: iobase=%lx ciobase=%lx\n", __func__, iobase, ciobase);
++	/* verify irq was set */
++	pci_read_config_byte(pdev, config_base + 0x06, &data);
++	dev_dbg(&pdev->dev, "%s: irq = 0x%2x data=0x%02x\n", __func__, pdev->irq, data);
++	if (data != pdev->irq) {
++		dev_err(&pdev->dev, "Can not set irq!\n");
++	}
 +
 +	port->port.iotype = UPIO_PORT;
 +	port->port.iobase = iobase;
@@ -98,16 +107,13 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +	port->port.membase = NULL;
 +	port->port.regshift = 0;
 +
-+	dev_dbg(&priv->dev->dev, "%s: idx=%d iobase=%lx\n",
-+		__func__, idx, iobase);
-+
 +	return 0;
 +}
 +
  static int skip_tx_en_setup(struct serial_private *priv,
  			const struct pciserial_board *board,
  			struct uart_8250_port *port, int idx)
-@@ -2252,6 +2322,27 @@ static struct pci_serial_quirk pci_seria
+@@ -2252,6 +2328,27 @@ static struct pci_serial_quirk pci_seria
  		.subdevice	= PCI_ANY_ID,
  		.setup		= pci_brcm_trumanage_setup,
  	},
@@ -135,7 +141,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	/*
  	 * Default "match everything" terminator entry
-@@ -2449,6 +2540,9 @@ enum pci_board_num_t {
+@@ -2449,6 +2546,9 @@ enum pci_board_num_t {
  	pbn_omegapci,
  	pbn_NETMOS9900_2s_115200,
  	pbn_brcm_trumanage,
@@ -145,7 +151,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  };
  
  /*
-@@ -3199,6 +3293,24 @@ static struct pciserial_board pci_boards
+@@ -3199,6 +3299,24 @@ static struct pciserial_board pci_boards
  		.reg_shift	= 2,
  		.base_baud	= 115200,
  	},
@@ -170,7 +176,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  };
  
  static const struct pci_device_id blacklist[] = {
-@@ -4916,6 +5028,11 @@ static struct pci_device_id serial_pci_t
+@@ -4916,6 +5034,11 @@ static struct pci_device_id serial_pci_t
  		0,
  		0, pbn_exar_XR17V358 },
  
