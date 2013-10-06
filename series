@@ -15,8 +15,7 @@ serial-8250_pci-add-support-for-fintek-4-8-and-12-port-cards.patch
 
 # dev_groups to struct class work
 
-
-
+usb-serial-option-add-support-for-inovia-sew858-device.patch
 
 0001-Simulate-fake-Fn-key-on-PS-2-keyboards-w-o-one-eg.-C.patch
 
