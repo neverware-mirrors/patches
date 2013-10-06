@@ -1,0 +1,49 @@
+---
+ drivers/amba/bus.c |   22 ++++++++++------------
+ 1 file changed, 10 insertions(+), 12 deletions(-)
+
+--- a/drivers/amba/bus.c
++++ b/drivers/amba/bus.c
+@@ -64,24 +64,22 @@ static ssize_t name##_show(struct device
+ {									\
+ 	struct amba_device *dev = to_amba_device(_dev);			\
+ 	return sprintf(buf, fmt, arg);					\
+-}
+-
+-#define amba_attr(name,fmt,arg...)	\
+-amba_attr_func(name,fmt,arg)		\
+-static DEVICE_ATTR(name, S_IRUGO, name##_show, NULL)
++}									\
++static DEVICE_ATTR_RO(name);
+ 
+ amba_attr_func(id, "%08x\n", dev->periphid);
+-amba_attr(irq0, "%u\n", dev->irq[0]);
+-amba_attr(irq1, "%u\n", dev->irq[1]);
++amba_attr_func(irq0, "%u\n", dev->irq[0]);
++amba_attr_func(irq1, "%u\n", dev->irq[1]);
+ amba_attr_func(resource, "\t%016llx\t%016llx\t%016lx\n",
+ 	 (unsigned long long)dev->res.start, (unsigned long long)dev->res.end,
+ 	 dev->res.flags);
+ 
+-static struct device_attribute amba_dev_attrs[] = {
+-	__ATTR_RO(id),
+-	__ATTR_RO(resource),
+-	__ATTR_NULL,
++static struct attribute *amba_dev_attrs[] = {
++	&dev_attr_id.attr,
++	&dev_attr_resource.attr,
++	NULL,
+ };
++ATTRIBUTE_GROUPS(amba_dev);
+ 
+ #ifdef CONFIG_PM_SLEEP
+ 
+@@ -302,7 +300,7 @@ static const struct dev_pm_ops amba_pm =
+  */
+ struct bus_type amba_bustype = {
+ 	.name		= "amba",
+-	.dev_attrs	= amba_dev_attrs,
++	.dev_groups	= amba_dev_groups,
+ 	.match		= amba_match,
+ 	.uevent		= amba_uevent,
+ 	.pm		= AMBA_PM,

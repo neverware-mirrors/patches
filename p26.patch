@@ -1,0 +1,86 @@
+---
+ drivers/macintosh/macio_asic.c  |    4 ++--
+ drivers/macintosh/macio_sysfs.c |   29 +++++++++++++++++++++--------
+ 2 files changed, 23 insertions(+), 10 deletions(-)
+
+--- a/drivers/macintosh/macio_asic.c
++++ b/drivers/macintosh/macio_asic.c
+@@ -132,7 +132,7 @@ static int macio_device_resume(struct de
+ 	return 0;
+ }
+ 
+-extern struct device_attribute macio_dev_attrs[];
++extern const struct attribute_group *macio_dev_groups[];
+ 
+ struct bus_type macio_bus_type = {
+        .name	= "macio",
+@@ -143,7 +143,7 @@ struct bus_type macio_bus_type = {
+        .shutdown = macio_device_shutdown,
+        .suspend	= macio_device_suspend,
+        .resume	= macio_device_resume,
+-       .dev_attrs = macio_dev_attrs,
++       .dev_groups = macio_dev_groups,
+ };
+ 
+ static int __init macio_bus_driver_init(void)
+--- a/drivers/macintosh/macio_sysfs.c
++++ b/drivers/macintosh/macio_sysfs.c
+@@ -10,7 +10,8 @@ field##_show (struct device *dev, struct
+ {									\
+ 	struct macio_dev *mdev = to_macio_device (dev);			\
+ 	return sprintf (buf, format_string, mdev->ofdev.dev.of_node->field); \
+-}
++}									\
++static DEVICE_ATTR_RO(field);
+ 
+ static ssize_t
+ compatible_show (struct device *dev, struct device_attribute *attr, char *buf)
+@@ -37,6 +38,7 @@ compatible_show (struct device *dev, str
+ 
+ 	return length;
+ }
++static DEVICE_ATTR_RO(compatible);
+ 
+ static ssize_t modalias_show (struct device *dev, struct device_attribute *attr,
+ 			      char *buf)
+@@ -48,6 +50,7 @@ static ssize_t modalias_show (struct dev
+ 
+ 	return len+1;
+ }
++static DEVICE_ATTR_RO(modalias);
+ 
+ static ssize_t devspec_show(struct device *dev,
+ 				struct device_attribute *attr, char *buf)
+@@ -57,15 +60,25 @@ static ssize_t devspec_show(struct devic
+ 	ofdev = to_platform_device(dev);
+ 	return sprintf(buf, "%s\n", ofdev->dev.of_node->full_name);
+ }
++static DEVICE_ATTR_RO(devspec);
+ 
+ macio_config_of_attr (name, "%s\n");
+ macio_config_of_attr (type, "%s\n");
+ 
+-struct device_attribute macio_dev_attrs[] = {
+-	__ATTR_RO(name),
+-	__ATTR_RO(type),
+-	__ATTR_RO(compatible),
+-	__ATTR_RO(modalias),
+-	__ATTR_RO(devspec),
+-	__ATTR_NULL
++static struct attribute *macio_dev_attrs[] = {
++	&dev_attr_name.attr,
++	&dev_attr_type.attr,
++	&dev_attr_compatible.attr,
++	&dev_attr_modalias.attr,
++	&dev_attr_devspec.attr,
++	NULL,
++};
++
++static const struct attribute_group macio_dev_group = {
++	.attrs = macio_dev_attrs,
++};
++
++const struct attribute_group *macio_dev_groups[] = {
++	&macio_dev_group,
++	NULL,
+ };

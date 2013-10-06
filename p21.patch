@@ -1,0 +1,38 @@
+---
+ arch/sparc/kernel/vio.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
+
+--- a/arch/sparc/kernel/vio.c
++++ b/arch/sparc/kernel/vio.c
+@@ -97,6 +97,7 @@ static ssize_t devspec_show(struct devic
+ 
+ 	return sprintf(buf, "%s\n", str);
+ }
++static DEVICE_ATTR_RO(devspec);
+ 
+ static ssize_t type_show(struct device *dev,
+ 		struct device_attribute *attr, char *buf)
+@@ -104,16 +105,18 @@ static ssize_t type_show(struct device *
+ 	struct vio_dev *vdev = to_vio_dev(dev);
+ 	return sprintf(buf, "%s\n", vdev->type);
+ }
++static DEVICE_ATTR_RO(type);
+ 
+-static struct device_attribute vio_dev_attrs[] = {
+-	__ATTR_RO(devspec),
+-	__ATTR_RO(type),
+-	__ATTR_NULL
++static struct attribute *vio_dev_attrs[] = {
++	&dev_attr_devspec.attr,
++	&dev_attr_type.attr,
++	NULL,
+ };
++ATTRIBUTE_GROUPS(vio_dev);
+ 
+ static struct bus_type vio_bus_type = {
+ 	.name		= "vio",
+-	.dev_attrs	= vio_dev_attrs,
++	.dev_groups	= vio_dev_groups,
+ 	.match		= vio_bus_match,
+ 	.probe		= vio_device_probe,
+ 	.remove		= vio_device_remove,

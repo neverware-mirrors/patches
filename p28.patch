@@ -1,0 +1,52 @@
+---
+ arch/powerpc/kernel/ibmebus.c |   16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
+
+--- a/arch/powerpc/kernel/ibmebus.c
++++ b/arch/powerpc/kernel/ibmebus.c
+@@ -389,6 +389,7 @@ static ssize_t devspec_show(struct devic
+ 	ofdev = to_platform_device(dev);
+ 	return sprintf(buf, "%s\n", ofdev->dev.of_node->full_name);
+ }
++static DEVICE_ATTR_RO(devspec);
+ 
+ static ssize_t name_show(struct device *dev,
+ 				struct device_attribute *attr, char *buf)
+@@ -398,6 +399,7 @@ static ssize_t name_show(struct device *
+ 	ofdev = to_platform_device(dev);
+ 	return sprintf(buf, "%s\n", ofdev->dev.of_node->name);
+ }
++static DEVICE_ATTR_RO(name);
+ 
+ static ssize_t modalias_show(struct device *dev,
+ 				struct device_attribute *attr, char *buf)
+@@ -407,13 +409,15 @@ static ssize_t modalias_show(struct devi
+ 	buf[len+1] = 0;
+ 	return len+1;
+ }
++static DEVICE_ATTR_RO(modalias);
+ 
+-struct device_attribute ibmebus_bus_device_attrs[] = {
+-	__ATTR_RO(devspec),
+-	__ATTR_RO(name),
+-	__ATTR_RO(modalias),
+-	__ATTR_NULL
++static struct attribute *ibmebus_bus_device_attrs[] = {
++	&dev_attr_devspec.attr,
++	&dev_attr_name.attr,
++	&dev_attr_modalias.attr,
++	NULL,
+ };
++ATTRIBUTE_GROUPS(ibmebus_bus_device);
+ 
+ #ifdef CONFIG_PM_SLEEP
+ static int ibmebus_bus_legacy_suspend(struct device *dev, pm_message_t mesg)
+@@ -720,7 +724,7 @@ struct bus_type ibmebus_bus_type = {
+ 	.probe     = ibmebus_bus_device_probe,
+ 	.remove    = ibmebus_bus_device_remove,
+ 	.shutdown  = ibmebus_bus_device_shutdown,
+-	.dev_attrs = ibmebus_bus_device_attrs,
++	.dev_groups = ibmebus_bus_device_groups,
+ 	.pm        = IBMEBUS_BUS_PM_OPS_PTR,
+ };
+ EXPORT_SYMBOL(ibmebus_bus_type);
