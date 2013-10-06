@@ -1,3 +1,17 @@
+From foo@baz Sun Oct  6 13:34:21 PDT 2013
+Date: Sun, 06 Oct 2013 13:34:21 -0700
+To: Greg KH <gregkh@linuxfoundation.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: PNP: convert bus code to use dev_groups
+
+The dev_attrs field of struct bus_type is going away soon, dev_groups
+should be used instead.  This converts the PNP bus code to use the
+correct field.
+
+Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
  drivers/pnp/base.h      |    2 +-
  drivers/pnp/driver.c    |    2 +-

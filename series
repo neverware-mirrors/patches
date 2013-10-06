@@ -62,7 +62,6 @@ p02.patch
 p03.patch
 p04.patch
 p05.patch
-qlcnic_sysfs.patch
 p06.patch
 p07.patch
 p08.patch
@@ -87,3 +86,6 @@ p26.patch
 p27.patch
 p28.patch
 p29.patch
+
+qlcnic_sysfs.patch
+

@@ -1,4 +1,22 @@
+From foo@baz Sun Oct  6 13:26:44 PDT 2013
+Date: Sun, 06 Oct 2013 13:26:44 -0700
+To: Greg KH <gregkh@linuxfoundation.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: ide: convert bus code to use dev_groups
+
+The dev_attrs field of struct bus_type is going away soon, dev_groups
+should be used instead.  This converts the ide bus code to use the
+correct field.
+
+Cc: David S. Miller <davem@davemloft.net>
+Cc: <linux-ide@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
+
+David, I can take this through my driver-core tree if you don't want to
+take it through yours, just let me know what works best for you.
+
  drivers/ide/ide-sysfs.c |   35 ++++++++++++++++++++++++++---------
  drivers/ide/ide.c       |    2 +-
  include/linux/ide.h     |    2 +-
