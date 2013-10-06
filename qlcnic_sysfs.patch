@@ -141,8 +141,8 @@
  void qlcnic_create_sysfs_entries(struct qlcnic_adapter *adapter)
  {
  	struct device *dev = &adapter->pdev->dev;
-@@ -1272,6 +1273,11 @@ void qlcnic_remove_sysfs_entries(struct
- void qlcnic_create_diag_entries(struct qlcnic_adapter *adapter)
+@@ -1264,6 +1265,11 @@ void qlcnic_create_sysfs_entries(struct
+ void qlcnic_remove_sysfs_entries(struct qlcnic_adapter *adapter)
  {
  	struct device *dev = &adapter->pdev->dev;
 +	int err;
@@ -151,5 +151,5 @@
 +	if (err)
 +		dev_err(dev, "error creating sysfs files\n");
  
- 	if (device_create_bin_file(dev, &bin_attr_port_stats))
- 		dev_info(dev, "failed to create port stats sysfs entry");
+ 	if (adapter->ahw->capabilities & QLCNIC_FW_CAPABILITY_BDG)
+ 		device_remove_file(dev, &dev_attr_bridged_mode);

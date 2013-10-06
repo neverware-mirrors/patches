@@ -107,7 +107,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  			       device_info->inbound.bytes_avail_toread);
 --- a/include/linux/hyperv.h
 +++ b/include/linux/hyperv.h
-@@ -429,15 +429,6 @@ struct hv_ring_buffer_info {
+@@ -432,15 +432,6 @@ struct hv_ring_buffer_info {
  	u32 ring_data_startoffset;
  };
  
@@ -123,7 +123,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  /*
   *
   * hv_get_ringbuffer_availbytes()
-@@ -1166,14 +1157,6 @@ extern int vmbus_recvpacket_raw(struct v
+@@ -1169,14 +1160,6 @@ extern int vmbus_recvpacket_raw(struct v
  
  extern void vmbus_ontimer(unsigned long data);
  

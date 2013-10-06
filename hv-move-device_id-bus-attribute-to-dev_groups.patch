@@ -99,7 +99,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	__ATTR(server_monitor_conn_id, S_IRUGO, vmbus_show_device_attr, NULL),
 --- a/include/linux/hyperv.h
 +++ b/include/linux/hyperv.h
-@@ -900,7 +900,6 @@ enum vmbus_channel_state {
+@@ -903,7 +903,6 @@ enum vmbus_channel_state {
  };
  
  struct vmbus_channel_debug_info {

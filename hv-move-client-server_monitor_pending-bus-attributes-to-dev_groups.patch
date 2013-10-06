@@ -158,7 +158,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
 --- a/include/linux/hyperv.h
 +++ b/include/linux/hyperv.h
-@@ -900,10 +900,8 @@ enum vmbus_channel_state {
+@@ -903,10 +903,8 @@ enum vmbus_channel_state {
  };
  
  struct vmbus_channel_debug_info {
