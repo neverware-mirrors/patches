@@ -1,3 +1,15 @@
+From foo@baz Mon Oct  7 18:14:24 PDT 2013
+Date: Mon, 07 Oct 2013 18:14:24 -0700
+To: Greg KH <gregkh@linuxfoundation.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: memstick: convert bus code to use dev_groups
+
+The dev_attrs field of struct bus_type is going away soon, dev_groups
+should be used instead.  This converts the memstick bus code to use the
+correct field.
+
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  drivers/memstick/core/memstick.c |   18 +++++++++---------
  1 file changed, 9 insertions(+), 9 deletions(-)

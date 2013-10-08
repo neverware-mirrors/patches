@@ -1,3 +1,16 @@
+From foo@baz Mon Oct  7 18:00:52 PDT 2013
+Date: Mon, 07 Oct 2013 18:00:52 -0700
+To: Greg KH <gregkh@linuxfoundation.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 01/02] input: serio: use DEVICE_ATTR_RO()
+
+Convert the serio sysfs fiels to use the DEVICE_ATTR_RO() macros to make
+it easier to audit the correct sysfs file permission usage.
+
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: <linux-input@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
  drivers/input/serio/serio.c |   16 ++++++++--------
  1 file changed, 8 insertions(+), 8 deletions(-)
