@@ -17,7 +17,6 @@ driver-core-remove-struct-bus_type.drv_attrs.patch
 
 # dev_groups to struct class work
 
-usb-serial-option-add-support-for-inovia-sew858-device.patch
 
 0001-Simulate-fake-Fn-key-on-PS-2-keyboards-w-o-one-eg.-C.patch
 
@@ -88,5 +87,6 @@ p27.patch
 p28.patch
 p29.patch
 
+p30.patch
 qlcnic_sysfs.patch
 
