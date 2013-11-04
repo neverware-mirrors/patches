@@ -64,16 +64,21 @@ hsi-convert-bus-code-to-use-dev_groups.patch
 
 driver-core-remove-struct-bus_type.dev_attrs.patch
 
-s01.patch
-s02.patch
-i01.patch
-i02.patch
-p12.patch
-p13.patch
-p14.patch
-p15.patch
-p16.patch
-p17.patch
+input-serio-use-device_attr_ro.patch
+input-serio-remove-bus-usage-of-dev_attrs.patch
+
+ide-convert-bus-code-to-use-dev_groups.patch
+ipack-convert-bus-code-to-use-dev_groups.patch
+
+input-gameport-convert-bus-code-to-use-dev_groups.patch
+spi-convert-bus-code-to-use-dev_groups.patch
+virtio-convert-bus-code-to-use-dev_groups.patch
+tifm-convert-bus-code-to-use-dev_groups.patch
+memstick-convert-bus-code-to-use-dev_groups.patch
+i2o-convert-bus-code-to-use-dev_groups.patch
+
+uwb-clean-up-attribute-use-by-using-attribute_groups.patch
+
 p18.patch
 p19.patch
 p20.patch
@@ -87,6 +92,6 @@ p27.patch
 p28.patch
 p29.patch
 
-p30.patch
 qlcnic_sysfs.patch
 
+d01.patch

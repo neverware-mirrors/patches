@@ -1,3 +1,14 @@
+From foo@baz Sat Oct 19 20:13:26 PDT 2013
+Date: Sat, 19 Oct 2013 20:13:26 -0700
+To: Greg KH <gregkh@linuxfoundation.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: UWB: clean up attribute use by using ATTRIBUTE_GROUPS()
+
+The ATTRIBUTE_GROUPS() macro can be used in the uwb code to reduce the
+number of lines of code.
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
  drivers/uwb/lc-dev.c |   16 +++-------------
  1 file changed, 3 insertions(+), 13 deletions(-)
