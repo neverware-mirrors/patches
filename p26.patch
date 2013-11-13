@@ -5,7 +5,7 @@
 
 --- a/drivers/macintosh/macio_asic.c
 +++ b/drivers/macintosh/macio_asic.c
-@@ -132,7 +132,7 @@ static int macio_device_resume(struct de
+@@ -134,7 +134,7 @@ static int macio_device_resume(struct de
  	return 0;
  }
  
@@ -14,7 +14,7 @@
  
  struct bus_type macio_bus_type = {
         .name	= "macio",
-@@ -143,7 +143,7 @@ struct bus_type macio_bus_type = {
+@@ -145,7 +145,7 @@ struct bus_type macio_bus_type = {
         .shutdown = macio_device_shutdown,
         .suspend	= macio_device_suspend,
         .resume	= macio_device_resume,

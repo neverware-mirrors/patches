@@ -90,7 +90,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		klist_del(&dev->p->knode_bus);
 --- a/include/linux/device.h
 +++ b/include/linux/device.h
-@@ -63,7 +63,6 @@ extern void bus_remove_file(struct bus_t
+@@ -64,7 +64,6 @@ extern void bus_remove_file(struct bus_t
   * @name:	The name of the bus.
   * @dev_name:	Used for subsystems to enumerate devices like ("foo%u", dev->id).
   * @dev_root:	Default device to use as the parent.
@@ -98,7 +98,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
   * @bus_groups:	Default attributes of the bus.
   * @dev_groups:	Default attributes of the devices on the bus.
   * @drv_groups: Default attributes of the device drivers on the bus.
-@@ -104,7 +103,6 @@ struct bus_type {
+@@ -105,7 +104,6 @@ struct bus_type {
  	const char		*name;
  	const char		*dev_name;
  	struct device		*dev_root;
