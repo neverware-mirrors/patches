@@ -355,7 +355,7 @@
  {
 --- a/drivers/scsi/megaraid/megaraid_sas_base.c
 +++ b/drivers/scsi/megaraid/megaraid_sas_base.c
-@@ -5374,50 +5374,43 @@ static struct pci_driver megasas_pci_dri
+@@ -5376,50 +5376,43 @@ static struct pci_driver megasas_pci_dri
  /*
   * Sysfs driver attributes
   */
@@ -417,7 +417,7 @@
  {
  	int retval = count;
  	if(sscanf(buf,"%u",&megasas_dbg_lvl)<1){
-@@ -5427,8 +5420,7 @@ megasas_sysfs_set_dbg_lvl(struct device_
+@@ -5429,8 +5422,7 @@ megasas_sysfs_set_dbg_lvl(struct device_
  	return retval;
  }
  
@@ -459,7 +459,7 @@
  };
  
  static const int check_condition_result =
-@@ -2864,13 +2866,13 @@ static int scsi_debug_show_info(struct s
+@@ -2873,13 +2875,13 @@ static int scsi_debug_show_info(struct s
  	return 0;
  }
  
@@ -476,7 +476,7 @@
  {
          int delay;
  	char work[20];
-@@ -2883,16 +2885,15 @@ static ssize_t sdebug_delay_store(struct
+@@ -2892,16 +2894,15 @@ static ssize_t sdebug_delay_store(struct
  	}
  	return -EINVAL;
  }
@@ -497,7 +497,7 @@
  {
          int opts;
  	char work[20];
-@@ -2912,15 +2913,14 @@ opts_done:
+@@ -2921,15 +2922,14 @@ opts_done:
  	scsi_debug_cmnd_count = 0;
  	return count;
  }
@@ -517,7 +517,7 @@
  {
          int n;
  
-@@ -2930,14 +2930,14 @@ static ssize_t sdebug_ptype_store(struct
+@@ -2939,14 +2939,14 @@ static ssize_t sdebug_ptype_store(struct
  	}
  	return -EINVAL;
  }
@@ -536,7 +536,7 @@
  {
          int n;
  
-@@ -2947,15 +2947,14 @@ static ssize_t sdebug_dsense_store(struc
+@@ -2956,15 +2956,14 @@ static ssize_t sdebug_dsense_store(struc
  	}
  	return -EINVAL;
  }
@@ -556,7 +556,7 @@
  {
          int n;
  
-@@ -2965,15 +2964,14 @@ static ssize_t sdebug_fake_rw_store(stru
+@@ -2974,15 +2973,14 @@ static ssize_t sdebug_fake_rw_store(stru
  	}
  	return -EINVAL;
  }
@@ -576,7 +576,7 @@
  {
          int n;
  
-@@ -2983,15 +2981,14 @@ static ssize_t sdebug_no_lun_0_store(str
+@@ -2992,15 +2990,14 @@ static ssize_t sdebug_no_lun_0_store(str
  	}
  	return -EINVAL;
  }
@@ -596,7 +596,7 @@
  {
          int n;
  
-@@ -3002,27 +2999,26 @@ static ssize_t sdebug_num_tgts_store(str
+@@ -3011,27 +3008,26 @@ static ssize_t sdebug_num_tgts_store(str
  	}
  	return -EINVAL;
  }
@@ -632,7 +632,7 @@
  {
          int nth;
  
-@@ -3033,15 +3029,14 @@ static ssize_t sdebug_every_nth_store(st
+@@ -3042,15 +3038,14 @@ static ssize_t sdebug_every_nth_store(st
  	}
  	return -EINVAL;
  }
@@ -652,7 +652,7 @@
  {
          int n;
  
-@@ -3052,15 +3047,14 @@ static ssize_t sdebug_max_luns_store(str
+@@ -3061,15 +3056,14 @@ static ssize_t sdebug_max_luns_store(str
  	}
  	return -EINVAL;
  }
@@ -672,7 +672,7 @@
  {
          int n;
  
-@@ -3071,27 +3065,26 @@ static ssize_t sdebug_max_queue_store(st
+@@ -3080,27 +3074,26 @@ static ssize_t sdebug_max_queue_store(st
  	}
  	return -EINVAL;
  }
@@ -708,7 +708,7 @@
  {
          int n;
  
-@@ -3104,16 +3097,15 @@ static ssize_t sdebug_virtual_gb_store(s
+@@ -3113,16 +3106,15 @@ static ssize_t sdebug_virtual_gb_store(s
  	}
  	return -EINVAL;
  }
@@ -729,7 +729,7 @@
  {
  	int delta_hosts;
  
-@@ -3130,16 +3122,14 @@ static ssize_t sdebug_add_host_store(str
+@@ -3139,16 +3131,14 @@ static ssize_t sdebug_add_host_store(str
  	}
  	return count;
  }
@@ -750,7 +750,7 @@
  {
  	int n;
  
-@@ -3149,40 +3139,39 @@ static ssize_t sdebug_vpd_use_hostno_sto
+@@ -3158,40 +3148,39 @@ static ssize_t sdebug_vpd_use_hostno_sto
  	}
  	return -EINVAL;
  }
@@ -772,7 +772,7 @@
  	return scnprintf(buf, PAGE_SIZE, "%d\n", scsi_debug_dix);
  }
 -DRIVER_ATTR(dix, S_IRUGO, sdebug_dix_show, NULL);
-+static DRIVER_ATTR_RO(dix);
++static DRIVER_ATTR_RO(dix)
  
 -static ssize_t sdebug_dif_show(struct device_driver *ddp, char *buf)
 +static ssize_t dif_show(struct device_driver *ddp, char *buf)
@@ -785,7 +785,7 @@
 -static ssize_t sdebug_guard_show(struct device_driver *ddp, char *buf)
 +static ssize_t guard_show(struct device_driver *ddp, char *buf)
  {
- 	return scnprintf(buf, PAGE_SIZE, "%d\n", scsi_debug_guard);
+ 	return scnprintf(buf, PAGE_SIZE, "%u\n", scsi_debug_guard);
  }
 -DRIVER_ATTR(guard, S_IRUGO, sdebug_guard_show, NULL);
 +static DRIVER_ATTR_RO(guard);
@@ -803,7 +803,7 @@
  {
  	ssize_t count;
  
-@@ -3197,15 +3186,14 @@ static ssize_t sdebug_map_show(struct de
+@@ -3206,15 +3195,14 @@ static ssize_t sdebug_map_show(struct de
  
  	return count;
  }
@@ -823,7 +823,7 @@
  {
  	int n;
  
-@@ -3215,74 +3203,42 @@ static ssize_t sdebug_removable_store(st
+@@ -3224,74 +3212,42 @@ static ssize_t sdebug_removable_store(st
  	}
  	return -EINVAL;
  }
@@ -929,7 +929,7 @@
  
  struct device *pseudo_primary;
  
-@@ -3447,12 +3403,6 @@ static int __init scsi_debug_init(void)
+@@ -3456,12 +3412,6 @@ static int __init scsi_debug_init(void)
  			ret);
  		goto bus_unreg;
  	}
@@ -942,7 +942,7 @@
  
  	init_all_queued();
  
-@@ -3473,9 +3423,6 @@ static int __init scsi_debug_init(void)
+@@ -3482,9 +3432,6 @@ static int __init scsi_debug_init(void)
  	}
  	return 0;
  
@@ -952,7 +952,7 @@
  bus_unreg:
  	bus_unregister(&pseudo_lld_bus);
  dev_unreg:
-@@ -3497,7 +3444,6 @@ static void __exit scsi_debug_exit(void)
+@@ -3506,7 +3453,6 @@ static void __exit scsi_debug_exit(void)
  	stop_all_queued();
  	for (; k; k--)
  		sdebug_remove_adapter();

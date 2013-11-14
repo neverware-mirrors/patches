@@ -24,7 +24,6 @@ xen-disable-clock-timer-when-shutting-down.patch
 
 
 
-pci-convert-bus-code-to-use-dev_groups.patch
 
 driver-core-remove-struct-bus_type.dev_attrs.patch
 

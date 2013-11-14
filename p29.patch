@@ -77,7 +77,7 @@
  	vio_bus_type.bus_groups = vio_bus_groups;
  }
  #else /* CONFIG_PPC_SMLPAR */
-@@ -1549,12 +1556,13 @@ static ssize_t modalias_show(struct devi
+@@ -1548,12 +1555,13 @@ static ssize_t modalias_show(struct devi
  	return sprintf(buf, "vio:T%sS%s\n", vio_dev->type, cp);
  }
  
@@ -96,7 +96,7 @@
  
  void vio_unregister_device(struct vio_dev *viodev)
  {
-@@ -1590,7 +1598,7 @@ static int vio_hotplug(struct device *de
+@@ -1589,7 +1597,7 @@ static int vio_hotplug(struct device *de
  
  struct bus_type vio_bus_type = {
  	.name = "vio",
