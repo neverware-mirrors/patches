@@ -1,0 +1,130 @@
+---
+ drivers/pci/msi.c   |   85 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/pci.h |    1 
+ 2 files changed, 86 insertions(+)
+
+--- a/drivers/pci/msi.c
++++ b/drivers/pci/msi.c
+@@ -363,6 +363,9 @@ void write_msi_msg(unsigned int irq, str
+ static void free_msi_irqs(struct pci_dev *dev)
+ {
+ 	struct msi_desc *entry, *tmp;
++	struct attribute **msi_attrs;
++	struct device_attribute *dev_attr;
++	int count = 0;
+ 
+ 	list_for_each_entry(entry, &dev->msi_list, list) {
+ 		int i, nvec;
+@@ -398,6 +401,22 @@ static void free_msi_irqs(struct pci_dev
+ 		list_del(&entry->list);
+ 		kfree(entry);
+ 	}
++
++	if (dev->msi_irq_groups) {
++		sysfs_remove_groups(&dev->dev.kobj, dev->msi_irq_groups);
++		msi_attrs = dev->msi_irq_groups[0]->attrs;
++		list_for_each_entry(entry, &dev->msi_list, list) {
++			dev_attr = container_of(msi_attrs[count],
++						struct device_attribute, attr);
++			kfree(dev_attr->attr.name);
++			kfree(dev_attr);
++			++count;
++		}
++		kfree(msi_attrs);
++		kfree(dev->msi_irq_groups[0]);
++		kfree(dev->msi_irq_groups);
++		dev->msi_irq_groups = NULL;
++	}
+ }
+ 
+ static struct msi_desc *alloc_msi_entry(struct pci_dev *dev)
+@@ -527,13 +546,79 @@ static struct kobj_type msi_irq_ktype =
+ 	.default_attrs = msi_irq_default_attrs,
+ };
+ 
++static ssize_t msi_mode_show(struct device *dev, struct device_attribute *attr,
++			     char *buf)
++{
++	struct pci_dev *pdev = to_pci_dev(dev);
++	struct msi_desc *entry;
++	unsigned long irq;
++	int retval;
++
++	retval = kstrtoul(attr->attr.name, 10, &irq);
++	if (retval)
++		return retval;
++
++	list_for_each_entry(entry, &pdev->msi_list, list) {
++		if (entry->irq == irq) {
++			return sprintf(buf, "%s\n",
++				       entry->msi_attrib.is_msix ? "msix" : "msi");
++		}
++	}
++	return -ENODEV;
++}
++
+ static int populate_msi_sysfs(struct pci_dev *pdev)
+ {
++	struct attribute **msi_attrs;
++	struct device_attribute *msi_dev_attr;
++	struct attribute_group *msi_irq_group;
++	const struct attribute_group **msi_irq_groups;
+ 	struct msi_desc *entry;
+ 	struct kobject *kobj;
+ 	int ret;
++	int num_msi = 0;
+ 	int count = 0;
+ 
++	/* Determine how many msi entries we have */
++	list_for_each_entry(entry, &pdev->msi_list, list) {
++		++num_msi;
++	}
++	if (!num_msi)
++		return 0;
++
++	/* Dynamically create the MSI attributes for the PCI device */
++	msi_attrs = kzalloc(sizeof(void *) * (num_msi + 1), GFP_KERNEL);
++	if (!msi_attrs)
++		return -ENOMEM;
++	list_for_each_entry(entry, &pdev->msi_list, list) {
++		char *name = kmalloc(20, GFP_KERNEL);
++		msi_dev_attr = kzalloc(sizeof(*msi_dev_attr), GFP_KERNEL);
++		if (!msi_dev_attr)
++			return -ENOMEM;
++		sprintf(name, "%d", entry->irq);
++		msi_dev_attr->attr.name = name;
++		msi_dev_attr->attr.mode = S_IRUGO;
++		msi_dev_attr->show = msi_mode_show;
++		msi_attrs[count] = &msi_dev_attr->attr;
++		++count;
++	}
++
++	msi_irq_group = kzalloc(sizeof(*msi_irq_group), GFP_KERNEL);
++	if (!msi_irq_group)
++		return -ENOMEM;
++	msi_irq_group->name = "msi_irqs_2";
++	msi_irq_group->attrs = msi_attrs;
++
++	msi_irq_groups = kzalloc(sizeof(void *) * 2, GFP_KERNEL);
++	if (!msi_irq_groups)
++		return -ENOMEM;
++	msi_irq_groups[0] = msi_irq_group;
++
++	ret = sysfs_create_groups(&pdev->dev.kobj, msi_irq_groups);
++	if (ret)
++		return ret;
++	pdev->msi_irq_groups = msi_irq_groups;
++
+ 	pdev->msi_kset = kset_create_and_add("msi_irqs", NULL, &pdev->dev.kobj);
+ 	if (!pdev->msi_kset)
+ 		return -ENOMEM;
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -352,6 +352,7 @@ struct pci_dev {
+ #ifdef CONFIG_PCI_MSI
+ 	struct list_head msi_list;
+ 	struct kset *msi_kset;
++	const struct attribute_group **msi_irq_groups;
+ #endif
+ 	struct pci_vpd *vpd;
+ #ifdef CONFIG_PCI_ATS
