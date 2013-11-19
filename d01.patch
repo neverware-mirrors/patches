@@ -772,7 +772,7 @@
  	return scnprintf(buf, PAGE_SIZE, "%d\n", scsi_debug_dix);
  }
 -DRIVER_ATTR(dix, S_IRUGO, sdebug_dix_show, NULL);
-+static DRIVER_ATTR_RO(dix)
++static DRIVER_ATTR_RO(dix);
  
 -static ssize_t sdebug_dif_show(struct device_driver *ddp, char *buf)
 +static ssize_t dif_show(struct device_driver *ddp, char *buf)
