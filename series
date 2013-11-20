@@ -1,4 +1,9 @@
 staging-exfat-add-filesystem-to-drivers-staging-exfat.patch
+staging-exfat-add-filesystem-to-the-build.patch
+staging-exfat-include-aio.h.patch
+staging-exfat-hlist_for_each-api-change.patch
+staging-exfat-truncage_pagecache-api-change.patch
+staging-exfat-readdir-to-iterate-change.patch
 
 
 

@@ -1,0 +1,23 @@
+From foo@baz Tue Nov 19 09:14:33 PST 2013
+Date: Tue, 19 Nov 2013 09:14:33 -0800
+To: Greg KH <gregkh@linuxfoundation.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: staging: exfat: include aio.h
+
+aio.h needs to be included in order to resolve some structures.
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/staging/exfat/exfat_super.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/drivers/staging/exfat/exfat_super.c
++++ b/drivers/staging/exfat/exfat_super.c
+@@ -59,6 +59,7 @@
+ #include <linux/buffer_head.h>
+ #include <linux/exportfs.h>
+ #include <linux/mount.h>
++#include <linux/aio.h>
+ #include <linux/vfs.h>
+ #include <linux/parser.h>
+ #include <linux/uio.h>

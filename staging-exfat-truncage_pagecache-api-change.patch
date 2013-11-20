@@ -1,0 +1,25 @@
+From foo@baz Tue Nov 19 09:16:24 PST 2013
+Date: Tue, 19 Nov 2013 09:16:24 -0800
+To: Greg KH <gregkh@linuxfoundation.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: staging: exfat: truncage_pagecache() api change
+
+truncate_pagecache() has changed the parameters, removing an unneeded
+one, so make the same change to the exfat code.
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/staging/exfat/exfat_super.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/drivers/staging/exfat/exfat_super.c
++++ b/drivers/staging/exfat/exfat_super.c
+@@ -1286,7 +1286,7 @@ static void exfat_write_failed(struct ad
+ {
+ 	struct inode *inode = mapping->host;
+ 	if (to > i_size_read(inode)) {
+-		truncate_pagecache(inode, to, i_size_read(inode));
++		truncate_pagecache(inode, i_size_read(inode));
+ 		EXFAT_I(inode)->fid.size = i_size_read(inode);
+ 		_exfat_truncate(inode, i_size_read(inode));
+ 	}

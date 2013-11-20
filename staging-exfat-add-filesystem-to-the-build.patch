@@ -1,0 +1,61 @@
+From foo@baz Mon Nov 18 14:29:30 PST 2013
+Date: Mon, 18 Nov 2013 14:29:30 -0800
+To: Greg KH <gregkh@linuxfoundation.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: staging: exfat: add filesystem to the build
+
+This adds the needed Kconfig file and changes the Makefile for the
+filesytem to build properly within the kernel build system.
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ drivers/staging/Kconfig        |    2 ++
+ drivers/staging/Makefile       |    1 +
+ drivers/staging/exfat/Kconfig  |    4 ++++
+ drivers/staging/exfat/Makefile |   14 ++++----------
+ 4 files changed, 11 insertions(+), 10 deletions(-)
+
+--- a/drivers/staging/Kconfig
++++ b/drivers/staging/Kconfig
+@@ -150,4 +150,6 @@ source "drivers/staging/dgnc/Kconfig"
+ 
+ source "drivers/staging/dgap/Kconfig"
+ 
++source "drivers/staging/exfat/Kconfig"
++
+ endif # STAGING
+--- a/drivers/staging/Makefile
++++ b/drivers/staging/Makefile
+@@ -67,3 +67,4 @@ obj-$(CONFIG_XILLYBUS)		+= xillybus/
+ obj-$(CONFIG_DGNC)			+= dgnc/
+ obj-$(CONFIG_DGAP)			+= dgap/
+ obj-$(CONFIG_MTD_SPINAND_MT29F)	+= mt29f_spinand/
++obj-$(CONFIG_EXFAT_FS)		+= exfat/
+--- /dev/null
++++ b/drivers/staging/exfat/Kconfig
+@@ -0,0 +1,4 @@
++config EXFAT_FS
++	tristate "EXFAT filesystem support"
++	help
++	  If you want to use a EX-FAT filesystem, select this option.
+--- a/drivers/staging/exfat/Makefile
++++ b/drivers/staging/exfat/Makefile
+@@ -1,13 +1,7 @@
+-obj-m += exfat_core.o exfat_fs.o
++obj-$(CONFIG_EXFAT_FS)	+= exfat_core.o exfat_fs.o
+ 
+ exfat_fs-y	:= exfat_super.o
+ 
+-exfat_core-y	:= exfat.o exfat_api.o exfat_blkdev.o exfat_cache.o \
+-			   exfat_data.o exfat_global.o exfat_nls.o exfat_oal.o exfat_upcase.o
+-
+-all:
+-	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+-
+-clean:
+-	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
+-	
++exfat_core-y	:= exfat.o exfat_api.o exfat_blkdev.o exfat_cache.o	\
++			exfat_data.o exfat_global.o exfat_nls.o		\
++			exfat_oal.o exfat_upcase.o
