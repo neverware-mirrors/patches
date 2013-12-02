@@ -1,3 +1,10 @@
+k1
+k2
+k3
+k4
+k5
+k6
+
 staging-exfat-add-filesystem-to-drivers-staging-exfat.patch
 staging-exfat-add-filesystem-to-the-build.patch
 staging-exfat-include-aio.h.patch
@@ -8,12 +15,6 @@ staging-exfat-readdir-to-iterate-change.patch
 
 
 pci-msi-fix.patch
-k1
-k2
-k3
-k4
-k5
-k6
 xen-disable-clock-timer-when-shutting-down.patch
 
 # patches already in my git trees, but still here so I don't loose them.
