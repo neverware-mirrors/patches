@@ -1,7 +1,7 @@
 Date: Fri, 16 Aug 2013 12:52:00 -0800
 Subject: staging: exfat: add filesystem to drivers/staging/exfat
 
-From: Joe Kim <someone@samsung.com>
+From: Someone <someone@samsung.com>
 
 This is the exfat code version 1.2.4 as found on the
 http://opensource.samsung.com site in the zip file exfat_1.2.4.zip with
