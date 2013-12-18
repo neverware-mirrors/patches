@@ -1,10 +1,5 @@
-k1
-k2
-k3
-k4
-k5
-k6
 
+usb_debug_removal.patch
 staging-exfat-add-filesystem-to-drivers-staging-exfat.patch
 staging-exfat-add-filesystem-to-the-build.patch
 staging-exfat-include-aio.h.patch
