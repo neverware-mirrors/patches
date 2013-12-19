@@ -31,10 +31,40 @@ msix).
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/msi.c   |  152 +++++++++++++++++++++++++---------------------------
- include/linux/pci.h |    2 
- 2 files changed, 76 insertions(+), 78 deletions(-)
+ Documentation/ABI/testing/sysfs-bus-pci |   11 --
+ drivers/pci/msi.c                       |  166 +++++++++++++++++---------------
+ include/linux/pci.h                     |    2 
+ 3 files changed, 96 insertions(+), 83 deletions(-)
 
+v3: attribute creation properly tagged for lockdep.
+    error handling if creation of attributes fails.
+
+v2: add documentation for sysfs attributes.
+--- a/Documentation/ABI/testing/sysfs-bus-pci
++++ b/Documentation/ABI/testing/sysfs-bus-pci
+@@ -70,18 +70,15 @@ Date:		September, 2011
+ Contact:	Neil Horman <nhorman@tuxdriver.com>
+ Description:
+ 		The /sys/devices/.../msi_irqs directory contains a variable set
+-		of sub-directories, with each sub-directory being named after a
+-		corresponding msi irq vector allocated to that device.  Each
+-		numbered sub-directory N contains attributes of that irq.
+-		Note that this directory is not created for device drivers which
+-		do not support msi irqs
++		of files, with each file being named after a corresponding msi
++		irq vector allocated to that device.
+ 
+-What:		/sys/bus/pci/devices/.../msi_irqs/<N>/mode
++What:		/sys/bus/pci/devices/.../msi_irqs/<N>
+ Date:		September 2011
+ Contact:	Neil Horman <nhorman@tuxdriver.com>
+ Description:
+ 		This attribute indicates the mode that the irq vector named by
+-		the parent directory is in (msi vs. msix)
++		the file is in (msi vs. msix)
+ 
+ What:		/sys/bus/pci/devices/.../remove
+ Date:		January 2009
 --- a/drivers/pci/msi.c
 +++ b/drivers/pci/msi.c
 @@ -363,6 +363,9 @@ void write_msi_msg(unsigned int irq, str
@@ -70,7 +100,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  }
  
  static struct msi_desc *alloc_msi_entry(struct pci_dev *dev)
-@@ -471,96 +490,79 @@ void pci_restore_msi_state(struct pci_de
+@@ -471,94 +490,95 @@ void pci_restore_msi_state(struct pci_de
  }
  EXPORT_SYMBOL_GPL(pci_restore_msi_state);
  
@@ -112,23 +142,23 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 -static struct msi_attribute mode_attribute =
 -	__ATTR(mode, S_IRUGO, show_msi_mode, NULL);
 -
+-
+-static struct attribute *msi_irq_default_attrs[] = {
+-	&mode_attribute.attr,
+-	NULL
+-};
 +	struct pci_dev *pdev = to_pci_dev(dev);
 +	struct msi_desc *entry;
 +	unsigned long irq;
 +	int retval;
  
--static struct attribute *msi_irq_default_attrs[] = {
--	&mode_attribute.attr,
--	NULL
--};
+-static void msi_kobj_release(struct kobject *kobj)
+-{
+-	struct msi_desc *entry = to_msi_desc(kobj);
 +	retval = kstrtoul(attr->attr.name, 10, &irq);
 +	if (retval)
 +		return retval;
  
--static void msi_kobj_release(struct kobject *kobj)
--{
--	struct msi_desc *entry = to_msi_desc(kobj);
--
 -	pci_dev_put(entry->dev);
 +	list_for_each_entry(entry, &pdev->msi_list, list) {
 +		if (entry->irq == irq) {
@@ -148,20 +178,31 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  static int populate_msi_sysfs(struct pci_dev *pdev)
  {
 +	struct attribute **msi_attrs;
++	struct attribute *msi_attr;
 +	struct device_attribute *msi_dev_attr;
 +	struct attribute_group *msi_irq_group;
 +	const struct attribute_group **msi_irq_groups;
  	struct msi_desc *entry;
 -	struct kobject *kobj;
- 	int ret;
+-	int ret;
++	int ret = -ENOMEM;
 +	int num_msi = 0;
  	int count = 0;
  
 -	pdev->msi_kset = kset_create_and_add("msi_irqs", NULL, &pdev->dev.kobj);
 -	if (!pdev->msi_kset)
 -		return -ENOMEM;
--
 +	/* Determine how many msi entries we have */
++	list_for_each_entry(entry, &pdev->msi_list, list) {
++		++num_msi;
++	}
++	if (!num_msi)
++		return 0;
+ 
++	/* Dynamically create the MSI attributes for the PCI device */
++	msi_attrs = kzalloc(sizeof(void *) * (num_msi + 1), GFP_KERNEL);
++	if (!msi_attrs)
++		return -ENOMEM;
  	list_for_each_entry(entry, &pdev->msi_list, list) {
 -		kobj = &entry->kobj;
 -		kobj->kset = pdev->msi_kset;
@@ -170,60 +211,63 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 -				     "%u", entry->irq);
 -		if (ret)
 -			goto out_unroll;
--
--		count++;
-+		++num_msi;
- 	}
-+	if (!num_msi)
-+		return 0;
- 
--	return 0;
--
--out_unroll:
-+	/* Dynamically create the MSI attributes for the PCI device */
-+	msi_attrs = kzalloc(sizeof(void *) * (num_msi + 1), GFP_KERNEL);
-+	if (!msi_attrs)
-+		return -ENOMEM;
- 	list_for_each_entry(entry, &pdev->msi_list, list) {
--		if (!count)
--			break;
--		kobject_del(&entry->kobj);
--		kobject_put(&entry->kobj);
--		count--;
 +		char *name = kmalloc(20, GFP_KERNEL);
 +		msi_dev_attr = kzalloc(sizeof(*msi_dev_attr), GFP_KERNEL);
 +		if (!msi_dev_attr)
-+			return -ENOMEM;
++			goto error_attrs;
 +		sprintf(name, "%d", entry->irq);
++		sysfs_attr_init(&msi_dev_attr->attr);
 +		msi_dev_attr->attr.name = name;
 +		msi_dev_attr->attr.mode = S_IRUGO;
 +		msi_dev_attr->show = msi_mode_show;
 +		msi_attrs[count] = &msi_dev_attr->attr;
 +		++count;
- 	}
--	return ret;
++	}
 +
 +	msi_irq_group = kzalloc(sizeof(*msi_irq_group), GFP_KERNEL);
 +	if (!msi_irq_group)
-+		return -ENOMEM;
++		goto error_attrs;
 +	msi_irq_group->name = "msi_irqs";
 +	msi_irq_group->attrs = msi_attrs;
 +
 +	msi_irq_groups = kzalloc(sizeof(void *) * 2, GFP_KERNEL);
 +	if (!msi_irq_groups)
-+		return -ENOMEM;
++		goto error_irq_group;
 +	msi_irq_groups[0] = msi_irq_group;
-+
+ 
+-		count++;
+-	}
 +	ret = sysfs_create_groups(&pdev->dev.kobj, msi_irq_groups);
 +	if (ret)
-+		return ret;
++		goto error_irq_groups;
 +	pdev->msi_irq_groups = msi_irq_groups;
-+
-+	return 0;
- }
  
- /**
-@@ -925,8 +927,6 @@ void pci_disable_msi(struct pci_dev *dev
+ 	return 0;
+ 
+-out_unroll:
+-	list_for_each_entry(entry, &pdev->msi_list, list) {
+-		if (!count)
+-			break;
+-		kobject_del(&entry->kobj);
+-		kobject_put(&entry->kobj);
+-		count--;
++error_irq_groups:
++	kfree(msi_irq_groups);
++error_irq_group:
++	kfree(msi_irq_group);
++error_attrs:
++	count = 0;
++	msi_attr = msi_attrs[count];
++	while (msi_attr) {
++		msi_dev_attr = container_of(msi_attr, struct device_attribute, attr);
++		kfree(msi_attr->name);
++		kfree(msi_dev_attr);
++		++count;
++		msi_attr = msi_attrs[count];
+ 	}
+ 	return ret;
+ }
+@@ -925,8 +945,6 @@ void pci_disable_msi(struct pci_dev *dev
  
  	pci_msi_shutdown(dev);
  	free_msi_irqs(dev);
@@ -232,7 +276,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  }
  EXPORT_SYMBOL(pci_disable_msi);
  
-@@ -1023,8 +1023,6 @@ void pci_disable_msix(struct pci_dev *de
+@@ -1023,8 +1041,6 @@ void pci_disable_msix(struct pci_dev *de
  
  	pci_msix_shutdown(dev);
  	free_msi_irqs(dev);

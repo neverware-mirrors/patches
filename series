@@ -1,3 +1,4 @@
+pci-msi-fix.patch
 
 usb_debug_removal.patch
 staging-exfat-add-filesystem-to-drivers-staging-exfat.patch
@@ -9,7 +10,6 @@ staging-exfat-readdir-to-iterate-change.patch
 
 
 
-pci-msi-fix.patch
 xen-disable-clock-timer-when-shutting-down.patch
 
 # patches already in my git trees, but still here so I don't loose them.
