@@ -1,6 +1,10 @@
 pci-msi-fix.patch
 
-usb_debug_removal.patch
+usb-c67x00-remove-config_usb_debug-dependancy.patch
+usb-gadget-fix-up-some-comments-about-config_usb_debug.patch
+usb-core-remove-config_usb_debug-usage.patch
+watchdog-pcwd_usb-remove-config_usb_debug-usage.patch
+
 staging-exfat-add-filesystem-to-drivers-staging-exfat.patch
 staging-exfat-add-filesystem-to-the-build.patch
 staging-exfat-include-aio.h.patch

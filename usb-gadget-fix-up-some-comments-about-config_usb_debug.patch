@@ -1,0 +1,40 @@
+From foo@baz Thu Dec 19 15:36:20 PST 2013
+Date: Thu, 19 Dec 2013 15:36:20 -0800
+To: Greg KH <gregkh@linuxfoundation.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH] USB: gadget: fix up some comments about CONFIG_USB_DEBUG
+
+These two gadget drivers said that their #endif was for
+CONFIG_USB_DEBUG, but they really were not, so fix them up to be
+correct.
+
+Cc: Felipe Balbi <balbi@ti.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ drivers/usb/gadget/acm_ms.c |    2 +-
+ drivers/usb/gadget/multi.c  |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+--- a/drivers/usb/gadget/acm_ms.c
++++ b/drivers/usb/gadget/acm_ms.c
+@@ -107,7 +107,7 @@ static unsigned int fsg_num_buffers = CO
+  */
+ #define fsg_num_buffers	CONFIG_USB_GADGET_STORAGE_NUM_BUFFERS
+ 
+-#endif /* CONFIG_USB_DEBUG */
++#endif /* CONFIG_USB_GADGET_DEBUG_FILES */
+ 
+ FSG_MODULE_PARAMETERS(/* no prefix */, fsg_mod_data);
+ 
+--- a/drivers/usb/gadget/multi.c
++++ b/drivers/usb/gadget/multi.c
+@@ -134,7 +134,7 @@ static unsigned int fsg_num_buffers = CO
+  */
+ #define fsg_num_buffers	CONFIG_USB_GADGET_STORAGE_NUM_BUFFERS
+ 
+-#endif /* CONFIG_USB_DEBUG */
++#endif /* CONFIG_USB_GADGET_DEBUG_FILES */
+ 
+ FSG_MODULE_PARAMETERS(/* no prefix */, fsg_mod_data);
+ 
