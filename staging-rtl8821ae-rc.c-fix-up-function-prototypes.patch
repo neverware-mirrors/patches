@@ -1,0 +1,33 @@
+From foo@baz Thu Jan 23 09:08:14 PST 2014
+Date: Thu, 23 Jan 2014 09:08:14 -0800
+To: Greg KH <gregkh@linuxfoundation.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH] Staging: rtl8821ae: rc.c: fix up function prototypes
+
+These function parameters are incorrect for the callbacks.  Luckily the
+functions don't actually do anything, so the code still "works" just
+fine...
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/staging/rtl8821ae/rc.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+--- a/drivers/staging/rtl8821ae/rc.c
++++ b/drivers/staging/rtl8821ae/rc.c
+@@ -228,6 +228,7 @@ static void rtl_tx_status(void *ppriv,
+ 
+ static void rtl_rate_init(void *ppriv,
+ 			  struct ieee80211_supported_band *sband,
++			  struct cfg80211_chan_def *chandef,
+ 			  struct ieee80211_sta *sta, void *priv_sta)
+ {
+ }
+@@ -242,6 +243,7 @@ static void rtl_rate_update(void *ppriv,
+ #else
+ static void rtl_rate_update(void *ppriv,
+ 			    struct ieee80211_supported_band *sband,
++			    struct cfg80211_chan_def *chandef,
+ 			    struct ieee80211_sta *sta, void *priv_sta,
+ 			    u32 changed)
+ {

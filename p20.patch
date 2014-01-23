@@ -4,7 +4,7 @@
 
 --- a/arch/parisc/kernel/drivers.c
 +++ b/arch/parisc/kernel/drivers.c
-@@ -587,7 +587,8 @@ static ssize_t name##_show(struct device
+@@ -575,7 +575,8 @@ static ssize_t name##_show(struct device
  {									\
  	struct parisc_device *padev = to_parisc_device(dev);		\
  	return sprintf(buf, format_string, padev->field);		\
@@ -14,7 +14,7 @@
  
  #define pa_dev_attr_id(field, format) pa_dev_attr(field, id.field, format)
  
-@@ -601,22 +602,24 @@ static ssize_t modalias_show(struct devi
+@@ -589,22 +590,24 @@ static ssize_t modalias_show(struct devi
  {
  	return make_modalias(dev, buf);
  }

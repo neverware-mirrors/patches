@@ -16,7 +16,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/base/bus.c
 +++ b/drivers/base/bus.c
-@@ -453,35 +453,6 @@ int bus_for_each_drv(struct bus_type *bu
+@@ -464,35 +464,6 @@ int bus_for_each_drv(struct bus_type *bu
  }
  EXPORT_SYMBOL_GPL(bus_for_each_drv);
  
@@ -52,7 +52,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  /**
   * bus_add_device - add device to bus
   * @dev: device being added
-@@ -497,16 +468,13 @@ int bus_add_device(struct device *dev)
+@@ -508,16 +479,13 @@ int bus_add_device(struct device *dev)
  
  	if (bus) {
  		pr_debug("bus: '%s': add device %s\n", bus->name, dev_name(dev));
@@ -71,7 +71,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		error = sysfs_create_link(&dev->kobj,
  				&dev->bus->p->subsys.kobj, "subsystem");
  		if (error)
-@@ -519,8 +487,6 @@ out_subsys:
+@@ -530,8 +498,6 @@ out_subsys:
  	sysfs_remove_link(&bus->p->devices_kset->kobj, dev_name(dev));
  out_groups:
  	device_remove_groups(dev, bus->dev_groups);
@@ -80,7 +80,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  out_put:
  	bus_put(dev->bus);
  	return error;
-@@ -580,7 +546,6 @@ void bus_remove_device(struct device *de
+@@ -591,7 +557,6 @@ void bus_remove_device(struct device *de
  	sysfs_remove_link(&dev->kobj, "subsystem");
  	sysfs_remove_link(&dev->bus->p->devices_kset->kobj,
  			  dev_name(dev));

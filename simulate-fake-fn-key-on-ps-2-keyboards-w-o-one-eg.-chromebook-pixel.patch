@@ -1,8 +1,7 @@
->From 2b68920c417303e3adb90631ed9a9cbf864c0a94 Mon Sep 17 00:00:00 2001
+From 2b68920c417303e3adb90631ed9a9cbf864c0a94 Mon Sep 17 00:00:00 2001
 From: Dirk Hohndel <dirk@hohndel.org>
 Date: Wed, 1 May 2013 11:23:28 -0700
-Subject: [PATCH 1/1] Simulate fake Fn key on PS/2 keyboards w/o one (eg.
- Chromebook Pixel)
+Subject: [PATCH 1/1] Simulate fake Fn key on PS/2 keyboards w/o one (eg. Chromebook Pixel)
 
 This establishes a somewhat generic way to do this and implements a
 specific solution for the Pixel where the right ALT key is redefined

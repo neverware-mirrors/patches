@@ -2,12 +2,7 @@ staging-rtl8812ae-add-realtek-8821-pci-wifi-driver.patch
 staging-rtl8821ae-rc.c-fix-up-function-prototypes.patch
 staging-rtl8821ae-removed-unused-functions-and-variables.patch
 staging-rtl8821ae-add-todo-file.patch
-pci-msi-fix.patch
 
-usb-c67x00-remove-config_usb_debug-dependancy.patch
-usb-gadget-fix-up-some-comments-about-config_usb_debug.patch
-usb-core-remove-config_usb_debug-usage.patch
-watchdog-pcwd_usb-remove-config_usb_debug-usage.patch
 
 staging-exfat-add-filesystem-to-drivers-staging-exfat.patch
 staging-exfat-add-filesystem-to-the-build.patch
@@ -34,8 +29,7 @@ xen-disable-clock-timer-when-shutting-down.patch
 # dev_groups to struct class work
 
 
-0001-Simulate-fake-Fn-key-on-PS-2-keyboards-w-o-one-eg.-C.patch
-
+simulate-fake-fn-key-on-ps-2-keyboards-w-o-one-eg.-chromebook-pixel.patch
 
 #gregkh/gkh-version.patch
 
