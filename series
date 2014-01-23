@@ -1,3 +1,4 @@
+staging-rtl8812ae-add-realtek-8821-pci-wifi-driver.patch
 pci-msi-fix.patch
 
 usb-c67x00-remove-config_usb_debug-dependancy.patch
