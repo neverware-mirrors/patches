@@ -12,6 +12,7 @@ After the btcoexist driver gets merged upstream, I'll pull it out of
 here, and will continue to work on removing this version of rtlwifi in
 order to use the in-kernel one.
 
+Cc: Larry Finger <Larry.Finger@lwfinger.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  drivers/staging/Kconfig                               |    2 

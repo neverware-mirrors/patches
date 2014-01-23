@@ -3,7 +3,6 @@ staging-rtl8821ae-rc.c-fix-up-function-prototypes.patch
 staging-rtl8821ae-removed-unused-functions-and-variables.patch
 staging-rtl8821ae-add-todo-file.patch
 
-
 staging-exfat-add-filesystem-to-drivers-staging-exfat.patch
 staging-exfat-add-filesystem-to-the-build.patch
 staging-exfat-include-aio.h.patch
@@ -12,14 +11,11 @@ staging-exfat-truncage_pagecache-api-change.patch
 staging-exfat-readdir-to-iterate-change.patch
 
 
-
 xen-disable-clock-timer-when-shutting-down.patch
 
 # patches already in my git trees, but still here so I don't loose them.
 
 # usb DEBUG cleanups
-
-
 
 
 # My specific stuff, at the top to make it easier to work stuff below.
@@ -33,17 +29,7 @@ simulate-fake-fn-key-on-ps-2-keyboards-w-o-one-eg.-chromebook-pixel.patch
 
 #gregkh/gkh-version.patch
 
-
-
-
-
-
-
 driver-core-remove-struct-bus_type.dev_attrs.patch
-
-
-
-
 
 p18.patch
 p19.patch
