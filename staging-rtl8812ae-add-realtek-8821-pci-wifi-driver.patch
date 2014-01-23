@@ -3,10 +3,14 @@ From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Date: Tue, 21 Jan 2014 11:20:45 -0800
 Subject: Staging: rtl8812ae: Add Realtek 8821 PCI WIFI driver
 
-This comes directly from the Realtek tarball.
+This comes directly from the Realtek tarball, filename:
+	wifi_driver_8821ae_0018.1129.2013.tar.gz
 
 I mushed the three modules (btcoexist, rtlwifi and rtl8821ae) together
 into one, in order to make it all build as one stand-alone module.
+After the btcoexist driver gets merged upstream, I'll pull it out of
+here, and will continue to work on removing this version of rtlwifi in
+order to use the in-kernel one.
 
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
@@ -18,7 +22,6 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  drivers/staging/rtl8821ae/base.h                      |  159 
  drivers/staging/rtl8821ae/btcoexist/HalBtc8812a1Ant.c | 3976 ++++++++++++
  drivers/staging/rtl8821ae/btcoexist/HalBtc8812a1Ant.h |  205 
- drivers/staging/rtl8821ae/btcoexist/Makefile          |   37 
  drivers/staging/rtl8821ae/btcoexist/habtc8723a1ant.c  | 1614 +++++
  drivers/staging/rtl8821ae/btcoexist/habtc8723a1ant.h  |  176 
  drivers/staging/rtl8821ae/btcoexist/halbt_precomp.h   |   99 
@@ -53,7 +56,6 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  drivers/staging/rtl8821ae/rc.h                        |   47 
  drivers/staging/rtl8821ae/regd.c                      |  503 +
  drivers/staging/rtl8821ae/regd.h                      |   69 
- drivers/staging/rtl8821ae/rtl8821ae/Makefile          |   47 
  drivers/staging/rtl8821ae/rtl8821ae/btc.h             |   87 
  drivers/staging/rtl8821ae/rtl8821ae/def.h             |  442 +
  drivers/staging/rtl8821ae/rtl8821ae/dm.c              | 3166 +++++++++
@@ -86,7 +88,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  drivers/staging/rtl8821ae/stats.c                     |  283 
  drivers/staging/rtl8821ae/stats.h                     |   46 
  drivers/staging/rtl8821ae/wifi.h                      | 2532 +++++++
- 76 files changed, 72272 insertions(+)
+ 74 files changed, 72188 insertions(+)
  create mode 100644 drivers/staging/rtl8821ae/Kconfig
  create mode 100644 drivers/staging/rtl8821ae/Makefile
  create mode 100644 drivers/staging/rtl8821ae/Module.symvers
@@ -6462,46 +6464,6 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +	 	u8				opLen,
 +	 	u8 				*pData
 +	);
---- /dev/null
-+++ b/drivers/staging/rtl8821ae/btcoexist/Makefile
-@@ -0,0 +1,37 @@
-+
-+CC = gcc
-+KVER  := $(shell uname -r)
-+KSRC := /lib/modules/$(KVER)/build
-+MODDESTDIR := /lib/modules/$(KVER)/kernel/drivers/net/wireless/
-+PWD := $(shell pwd)
-+
-+EXTRA_CFLAGS += -O2
-+#EXTRA_CFLAGS += -DRTK_FW_HDR
-+
-+####################################################
-+obj-m := btcoexist.o
-+
-+
-+BT_COEXIST_OBJS:=	halbtc8192e2ant.o\
-+			halbtc8723b1ant.o\
-+			halbtc8723b2ant.o\
-+			halbtcoutsrc.o\
-+			rtl_btc.o	\
-+
-+####################################################
-+
-+btcoexist-objs += $(BT_COEXIST_OBJS)
-+
-+default:
-+	        $(MAKE) -C $(KSRC) M=$(PWD) modules
-+
-+.PHONY:clean
-+clean:
-+	rm -fr *.mod.c *.mod *.o .*.cmd *.ko *~
-+	rm -fr .tmp_versions
-+	rm -fr Modules.symvers
-+	rm -fr Module.symvers
-+	rm -fr Module.markers
-+	rm -fr modules.order
-+	rm -fr tags
-+
 --- /dev/null
 +++ b/drivers/staging/rtl8821ae/btcoexist/habtc8723a1ant.c
 @@ -0,0 +1,1614 @@
@@ -41195,56 +41157,6 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +#endif
 +
 +#endif
---- /dev/null
-+++ b/drivers/staging/rtl8821ae/rtl8821ae/Makefile
-@@ -0,0 +1,47 @@
-+
-+CC = gcc
-+KVER  := $(shell uname -r)
-+KSRC := /lib/modules/$(KVER)/build
-+MODDESTDIR := /lib/modules/$(KVER)/kernel/drivers/net/wireless/
-+PWD := $(shell pwd)
-+
-+EXTRA_CFLAGS += -O2
-+#EXTRA_CFLAGS += -DRTK_FW_HDR
-+
-+####################################################
-+obj-m := rtl8821ae.o
-+
-+
-+PCI_8821AE_HAL_OBJS:=	\
-+	hw.o		\
-+	table.o		\
-+	sw.o		\
-+	trx.o		\
-+	led.o		\
-+	fw.o		\
-+	phy.o		\
-+	rf.o		\
-+	dm.o		\
-+	pwrseq.o	\
-+	pwrseqcmd.o	\
-+	hal_btc.o	\
-+	hal_bt_coexist.o	\
-+
-+####################################################
-+
-+rtl8821ae-objs += $(PCI_8821AE_HAL_OBJS)
-+
-+
-+default:
-+	        $(MAKE) -C $(KSRC) M=$(PWD) modules
-+
-+.PHONY:clean
-+clean:
-+	rm -fr *.mod.c *.mod *.o .*.cmd *.ko *~
-+	rm -fr .tmp_versions
-+	rm -fr Modules.symvers
-+	rm -fr Module.symvers
-+	rm -fr Module.markers
-+	rm -fr modules.order
-+	rm -fr tags
-+
 --- /dev/null
 +++ b/drivers/staging/rtl8821ae/rtl8821ae/btc.h
 @@ -0,0 +1,87 @@
