@@ -1,0 +1,78 @@
+From foo@baz Fri Jan 24 11:26:09 PST 2014
+Date: Fri, 24 Jan 2014 11:26:09 -0800
+To: Greg KH <gregkh@linuxfoundation.org>
+From: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>
+Subject: [PATCH] Input: xpad: Set the correct LED number
+
+The LED number should not just be incremented every time, that doesn't
+work, set the number based on the number it actually is.
+
+Note, the joydev subsystem doesn't allow us to easily find out the minor
+number, so we have to walk all devices in order to find a joystick
+device by looking at the name of the device.  Odds are, this isn't the
+best way to do it, but I don't know of any other way at the moment.
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ drivers/input/joystick/xpad.c |   25 ++++++++++++++++++++-----
+ 1 file changed, 20 insertions(+), 5 deletions(-)
+
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -292,6 +292,7 @@ struct usb_xpad {
+ 
+ 	int mapping;			/* map d-pad to buttons or to axes */
+ 	int xtype;			/* type of xbox device */
++	int joydev_id;			/* the minor of the device */
+ 	const char *name;		/* name of the device */
+ };
+ 
+@@ -788,11 +789,6 @@ static int xpad_led_probe(struct usb_xpa
+ 		return error;
+ 	}
+ 
+-	/*
+-	 * Light up the segment corresponding to controller number
+-	 */
+-	xpad_send_led_command(xpad, (led_no % 4) + 2);
+-
+ 	return 0;
+ }
+ 
+@@ -858,9 +854,17 @@ static void xpad_set_up_abs(struct input
+ 	}
+ }
+ 
++static int xpad_find_joydev(struct device *dev, void *data)
++{
++	if (strstr(dev_name(dev), "js"))
++		return 1;
++	return 0;
++}
++
+ static int xpad_init_input(struct usb_xpad *xpad)
+ {
+ 	struct input_dev *input_dev;
++	struct device *joydev_dev;
+ 	int i, error;
+ 
+ 	input_dev = input_allocate_device();
+@@ -925,6 +929,17 @@ static int xpad_init_input(struct usb_xp
+ 	if (error)
+ 		goto fail_input_register;
+ 
++	joydev_dev = device_find_child(&xpad->dev->dev, NULL,
++				       xpad_find_joydev);
++	if (joydev_dev) {
++		dev_dbg(&xpad->dev->dev, "Found xpad with minor %i\n",
++			MINOR(joydev_dev->devt));
++		xpad->joydev_id = MINOR(joydev_dev->devt);
++
++		/* Light up the segment corresponding to controller number */
++		xpad_send_led_command(xpad, (xpad->joydev_id % 4) + 2);
++	}
++
+ fail_init_ff:
+ 	input_ff_destroy(input_dev);
+ 

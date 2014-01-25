@@ -1,0 +1,87 @@
+From foo@baz Fri Jan 24 11:59:45 PST 2014
+Date: Fri, 24 Jan 2014 11:59:45 -0800
+To: Greg KH <gregkh@linuxfoundation.org>
+From: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>
+Subject: [PATCH] Input: xpad: handle "present" and "gone" correctly
+
+From: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>
+
+Handle the "a new device is present" message properly by dynamically
+creating the input device at this point in time.  This requires a
+workqueue as we are in interrupt context when we learn about this.
+
+Also properly disconnect any devices that we are told are removed.
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ drivers/input/joystick/xpad.c |   37 ++++++++++++++++++++++++++++++++-----
+ 1 file changed, 32 insertions(+), 5 deletions(-)
+
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -294,8 +294,11 @@ struct usb_xpad {
+ 	int xtype;			/* type of xbox device */
+ 	int joydev_id;			/* the minor of the device */
+ 	const char *name;		/* name of the device */
++	struct work_struct work;	/* to init/remove device from callback */
+ };
+ 
++static int xpad_init_input(struct usb_xpad *xpad);
++
+ /*
+  *	xpad_process_packet
+  *
+@@ -438,6 +441,22 @@ static void xpad360_process_packet(struc
+ 	input_sync(dev);
+ }
+ 
++static void presence_work_function(struct work_struct *work)
++{
++	struct usb_xpad *xpad = container_of(work, struct usb_xpad, work);
++	int error;
++
++	if (xpad->pad_present) {
++		error = xpad_init_input(xpad);
++		if (error) {
++			/* complain only, not much else we can do here */
++			dev_err(&xpad->dev->dev, "unable to init device\n");
++		}
++	} else {
++		input_unregister_device(xpad->dev);
++	}
++}
++
+ /*
+  * xpad360w_process_packet
+  *
+@@ -452,16 +471,24 @@ static void xpad360_process_packet(struc
+  * 01.1 - Pad state (Bytes 4+) valid
+  *
+  */
+-
+ static void xpad360w_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *data)
+ {
+ 	/* Presence change */
+ 	if (data[0] & 0x08) {
+ 		if (data[1] & 0x80) {
+-			xpad->pad_present = 1;
+-			usb_submit_urb(xpad->bulk_out, GFP_ATOMIC);
+-		} else
+-			xpad->pad_present = 0;
++			if (!xpad_present) {
++				xpad->pad_present = 1;
++				usb_submit_urb(xpad->bulk_out, GFP_ATOMIC);
++				INIT_WORK(&xpad->work, presence_work_function);
++				schedule_work(&xpad->work);
++			}
++		} else {
++			if (xpad->present) {
++				xpad->pad_present = 0;
++				INIT_WORK(&xpad->work, presence_work_function);
++				schedule_work(&xpad->work);
++			}
++		}
+ 	}
+ 
+ 	/* Valid pad data */

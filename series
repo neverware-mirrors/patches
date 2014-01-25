@@ -1,3 +1,10 @@
+input-xpad-set-the-leds-properly-on-xbox-wireless-controllers.patch
+input-xpad-move-the-input-device-creation-to-a-new-function.patch
+input-xpad-set-the-correct-led-number.patch
+input-xpad-disconnect-all-wireless-controllers-at-init.patch
+input-xpad-handle-present-and-gone-correctly.patch
+#defer-input-nodes-and-led-support
+
 staging-rtl8812ae-add-realtek-8821-pci-wifi-driver.patch
 staging-rtl8821ae-rc.c-fix-up-function-prototypes.patch
 staging-rtl8821ae-removed-unused-functions-and-variables.patch
