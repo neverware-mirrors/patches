@@ -20,7 +20,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/input/joystick/xpad.c
 +++ b/drivers/input/joystick/xpad.c
-@@ -292,6 +292,7 @@ struct usb_xpad {
+@@ -293,6 +293,7 @@ struct usb_xpad {
  
  	int mapping;			/* map d-pad to buttons or to axes */
  	int xtype;			/* type of xbox device */
@@ -28,7 +28,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	const char *name;		/* name of the device */
  };
  
-@@ -788,11 +789,6 @@ static int xpad_led_probe(struct usb_xpa
+@@ -789,11 +790,6 @@ static int xpad_led_probe(struct usb_xpa
  		return error;
  	}
  
@@ -40,7 +40,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	return 0;
  }
  
-@@ -858,9 +854,17 @@ static void xpad_set_up_abs(struct input
+@@ -859,9 +855,17 @@ static void xpad_set_up_abs(struct input
  	}
  }
  
@@ -58,7 +58,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	int i, error;
  
  	input_dev = input_allocate_device();
-@@ -925,6 +929,17 @@ static int xpad_init_input(struct usb_xp
+@@ -926,6 +930,17 @@ static int xpad_init_input(struct usb_xp
  	if (error)
  		goto fail_input_register;
  

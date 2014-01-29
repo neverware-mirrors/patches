@@ -15,12 +15,12 @@ Also properly disconnect any devices that we are told are removed.
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/input/joystick/xpad.c |   37 ++++++++++++++++++++++++++++++++-----
- 1 file changed, 32 insertions(+), 5 deletions(-)
+ drivers/input/joystick/xpad.c |   36 +++++++++++++++++++++++++++++++-----
+ 1 file changed, 31 insertions(+), 5 deletions(-)
 
 --- a/drivers/input/joystick/xpad.c
 +++ b/drivers/input/joystick/xpad.c
-@@ -294,8 +294,11 @@ struct usb_xpad {
+@@ -295,8 +295,11 @@ struct usb_xpad {
  	int xtype;			/* type of xbox device */
  	int joydev_id;			/* the minor of the device */
  	const char *name;		/* name of the device */
@@ -32,7 +32,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  /*
   *	xpad_process_packet
   *
-@@ -438,6 +441,22 @@ static void xpad360_process_packet(struc
+@@ -439,6 +442,22 @@ static void xpad360_process_packet(struc
  	input_sync(dev);
  }
  
@@ -55,7 +55,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  /*
   * xpad360w_process_packet
   *
-@@ -452,16 +471,24 @@ static void xpad360_process_packet(struc
+@@ -453,16 +472,22 @@ static void xpad360_process_packet(struc
   * 01.1 - Pad state (Bytes 4+) valid
   *
   */
@@ -72,16 +72,22 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +			if (!xpad->pad_present) {
 +				xpad->pad_present = 1;
 +				usb_submit_urb(xpad->bulk_out, GFP_ATOMIC);
-+				INIT_WORK(&xpad->work, presence_work_function);
 +				schedule_work(&xpad->work);
 +			}
 +		} else {
 +			if (xpad->pad_present) {
 +				xpad->pad_present = 0;
-+				INIT_WORK(&xpad->work, presence_work_function);
 +				schedule_work(&xpad->work);
 +			}
 +		}
  	}
  
  	/* Valid pad data */
+@@ -989,6 +1014,7 @@ static int xpad_probe(struct usb_interfa
+ 	xpad->mapping = xpad_device[i].mapping;
+ 	xpad->xtype = xpad_device[i].xtype;
+ 	xpad->name = xpad_device[i].name;
++	INIT_WORK(&xpad->work, presence_work_function);
+ 
+ 	if (xpad->xtype == XTYPE_UNKNOWN) {
+ 		if (intf->cur_altsetting->desc.bInterfaceClass == USB_CLASS_VENDOR_SPEC) {

@@ -6,7 +6,7 @@
 
 --- a/drivers/input/joystick/xpad.c
 +++ b/drivers/input/joystick/xpad.c
-@@ -281,17 +281,21 @@ struct usb_xpad {
+@@ -282,17 +282,21 @@ struct usb_xpad {
  	struct urb *irq_out;		/* urb for interrupt out report */
  	unsigned char *odata;		/* output data */
  	dma_addr_t odata_dma;
@@ -29,7 +29,7 @@
  };
  
  /*
-@@ -435,6 +439,109 @@ static void xpad360_process_packet(struc
+@@ -436,6 +440,109 @@ static void xpad360_process_packet(struc
  
  	input_sync(dev);
  }
@@ -139,7 +139,7 @@
  
  /*
   * xpad360w_process_packet
-@@ -456,12 +563,32 @@ static void xpad360w_process_packet(stru
+@@ -457,12 +564,32 @@ static void xpad360w_process_packet(stru
  	/* Presence change */
  	if (data[0] & 0x08) {
  		if (data[1] & 0x80) {
@@ -176,7 +176,7 @@
  	/* Valid pad data */
  	if (!(data[1] & 0x1))
  		return;
-@@ -584,8 +711,6 @@ static int xpad_init_output(struct usb_i
+@@ -585,8 +712,6 @@ static int xpad_init_output(struct usb_i
  		goto fail1;
  	}
  
@@ -185,7 +185,7 @@
  	xpad->irq_out = usb_alloc_urb(0, GFP_KERNEL);
  	if (!xpad->irq_out) {
  		error = -ENOMEM;
-@@ -717,7 +842,7 @@ static void xpad_send_led_command(struct
+@@ -718,7 +843,7 @@ static void xpad_send_led_command(struct
  	if (command > 15)
  		return;
  
@@ -194,7 +194,7 @@
  
  	switch (xpad->xtype) {
  	case XTYPE_XBOX360:
-@@ -744,7 +869,7 @@ static void xpad_send_led_command(struct
+@@ -745,7 +870,7 @@ static void xpad_send_led_command(struct
  	}
  
  	usb_submit_urb(xpad->irq_out, GFP_KERNEL);
@@ -203,7 +203,7 @@
  }
  
  static void xpad_led_set(struct led_classdev *led_cdev,
-@@ -787,11 +912,6 @@ static int xpad_led_probe(struct usb_xpa
+@@ -788,11 +913,6 @@ static int xpad_led_probe(struct usb_xpa
  		return error;
  	}
  
@@ -215,7 +215,7 @@
  	return 0;
  }
  
-@@ -813,6 +933,7 @@ static void xpad_led_disconnect(struct u
+@@ -814,6 +934,7 @@ static void xpad_led_disconnect(struct u
  static int xpad_open(struct input_dev *dev)
  {
  	struct usb_xpad *xpad = input_get_drvdata(dev);
@@ -223,7 +223,7 @@
  
  	/* URB was submitted in probe */
  	if (xpad->xtype == XTYPE_XBOX360W)
-@@ -861,9 +982,13 @@ static int xpad_probe(struct usb_interfa
+@@ -862,9 +983,13 @@ static int xpad_probe(struct usb_interfa
  {
  	struct usb_device *udev = interface_to_usbdev(intf);
  	struct usb_xpad *xpad;
@@ -238,7 +238,7 @@
  
  	for (i = 0; xpad_device[i].idVendor; i++) {
  		if ((le16_to_cpu(udev->descriptor.idVendor) == xpad_device[i].idVendor) &&
-@@ -872,11 +997,8 @@ static int xpad_probe(struct usb_interfa
+@@ -873,11 +998,8 @@ static int xpad_probe(struct usb_interfa
  	}
  
  	xpad = kzalloc(sizeof(struct usb_xpad), GFP_KERNEL);
@@ -252,7 +252,7 @@
  
  	xpad->idata = usb_alloc_coherent(udev, XPAD_PKT_LEN,
  					 GFP_KERNEL, &xpad->idata_dma);
-@@ -913,65 +1035,12 @@ static int xpad_probe(struct usb_interfa
+@@ -914,65 +1036,12 @@ static int xpad_probe(struct usb_interfa
  			xpad->mapping |= MAP_STICKS_TO_NULL;
  	}
  
@@ -320,7 +320,7 @@
  
  	error = xpad_led_probe(xpad);
  	if (error)
-@@ -985,10 +1054,6 @@ static int xpad_probe(struct usb_interfa
+@@ -986,10 +1055,6 @@ static int xpad_probe(struct usb_interfa
  	xpad->irq_in->transfer_dma = xpad->idata_dma;
  	xpad->irq_in->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
  
@@ -331,7 +331,7 @@
  	usb_set_intfdata(intf, xpad);
  
  	if (xpad->xtype == XTYPE_XBOX360W) {
-@@ -996,6 +1061,7 @@ static int xpad_probe(struct usb_interfa
+@@ -997,6 +1062,7 @@ static int xpad_probe(struct usb_interfa
  		 * Setup the message to set the LEDs on the
  		 * controller when it shows up
  		 */
@@ -339,7 +339,7 @@
  		xpad->bulk_out = usb_alloc_urb(0, GFP_KERNEL);
  		if (!xpad->bulk_out) {
  			error = -ENOMEM;
-@@ -1037,23 +1103,55 @@ static int xpad_probe(struct usb_interfa
+@@ -1048,23 +1114,55 @@ static int xpad_probe(struct usb_interfa
  		 */
  		xpad->irq_in->dev = xpad->udev;
  		error = usb_submit_urb(xpad->irq_in, GFP_KERNEL);
@@ -400,7 +400,7 @@
  	kfree(xpad);
  	return error;
  
-@@ -1063,8 +1161,13 @@ static void xpad_disconnect(struct usb_i
+@@ -1074,8 +1172,13 @@ static void xpad_disconnect(struct usb_i
  {
  	struct usb_xpad *xpad = usb_get_intfdata (intf);
  

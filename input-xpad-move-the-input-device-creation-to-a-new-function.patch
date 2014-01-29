@@ -19,7 +19,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/input/joystick/xpad.c
 +++ b/drivers/input/joystick/xpad.c
-@@ -292,6 +292,7 @@ struct usb_xpad {
+@@ -293,6 +293,7 @@ struct usb_xpad {
  
  	int mapping;			/* map d-pad to buttons or to axes */
  	int xtype;			/* type of xbox device */
@@ -27,7 +27,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  };
  
  /*
-@@ -857,70 +858,21 @@ static void xpad_set_up_abs(struct input
+@@ -858,70 +859,21 @@ static void xpad_set_up_abs(struct input
  	}
  }
  
@@ -104,7 +104,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	input_set_drvdata(input_dev, xpad);
  
-@@ -965,17 +917,87 @@ static int xpad_probe(struct usb_interfa
+@@ -966,17 +918,87 @@ static int xpad_probe(struct usb_interfa
  			xpad_set_up_abs(input_dev, xpad_abs_triggers[i]);
  	}
  
@@ -197,7 +197,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	ep_irq_in = &intf->cur_altsetting->endpoint[0].desc;
  	usb_fill_int_urb(xpad->irq_in, udev,
-@@ -985,10 +1007,6 @@ static int xpad_probe(struct usb_interfa
+@@ -986,10 +1008,6 @@ static int xpad_probe(struct usb_interfa
  	xpad->irq_in->transfer_dma = xpad->idata_dma;
  	xpad->irq_in->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
  
@@ -208,7 +208,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	usb_set_intfdata(intf, xpad);
  
  	if (xpad->xtype == XTYPE_XBOX360W) {
-@@ -999,7 +1017,7 @@ static int xpad_probe(struct usb_interfa
+@@ -1000,7 +1018,7 @@ static int xpad_probe(struct usb_interfa
  		xpad->bulk_out = usb_alloc_urb(0, GFP_KERNEL);
  		if (!xpad->bulk_out) {
  			error = -ENOMEM;
@@ -217,7 +217,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		}
  
  		xpad->bdata = kzalloc(XPAD_PKT_LEN, GFP_KERNEL);
-@@ -1037,24 +1055,25 @@ static int xpad_probe(struct usb_interfa
+@@ -1048,24 +1066,25 @@ static int xpad_probe(struct usb_interfa
  		 */
  		xpad->irq_in->dev = xpad->udev;
  		error = usb_submit_urb(xpad->irq_in, GFP_KERNEL);

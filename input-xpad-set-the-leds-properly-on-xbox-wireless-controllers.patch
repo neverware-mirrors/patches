@@ -18,7 +18,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/input/joystick/xpad.c
 +++ b/drivers/input/joystick/xpad.c
-@@ -714,15 +714,37 @@ struct xpad_led {
+@@ -715,15 +715,37 @@ struct xpad_led {
  
  static void xpad_send_led_command(struct usb_xpad *xpad, int command)
  {
@@ -60,7 +60,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  }
  
  static void xpad_led_set(struct led_classdev *led_cdev,
-@@ -742,7 +764,7 @@ static int xpad_led_probe(struct usb_xpa
+@@ -743,7 +765,7 @@ static int xpad_led_probe(struct usb_xpa
  	struct led_classdev *led_cdev;
  	int error;
  
