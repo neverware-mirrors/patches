@@ -4,6 +4,8 @@ To: Greg KH <gregkh@linuxfoundation.org>
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Subject: [PATCH] Input: xpad: use proper endpoint type
 
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 The xpad wireless endpoint is not a bulk endpoint on my devices, but
 rather an interrupt one, so the USB core complains when it is submitted.
 I'm guessing that the author really did mean that this should be an
@@ -11,6 +13,7 @@ interrupt urb, but as there are a zillion different xpad devices out
 there, let's cover out bases and handle both bulk and interrupt
 endpoints just as easily.
 
+Signed-off-by: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  drivers/input/joystick/xpad.c |   16 +++++++++++++---

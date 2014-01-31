@@ -4,6 +4,8 @@ To: Greg KH <gregkh@linuxfoundation.org>
 From: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>
 Subject: [PATCH] Input: xpad: Set the correct LED number
 
+From: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>
+
 The LED number should not just be incremented every time, that doesn't
 work, set the number based on the number it actually is.
 
@@ -12,11 +14,11 @@ number, so we have to walk all devices in order to find a joystick
 device by looking at the name of the device.  Odds are, this isn't the
 best way to do it, but I don't know of any other way at the moment.
 
+Signed-off-by: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/input/joystick/xpad.c |   25 ++++++++++++++++++++-----
- 1 file changed, 20 insertions(+), 5 deletions(-)
+ drivers/input/joystick/xpad.c |   26 +++++++++++++++++++++-----
+ 1 file changed, 21 insertions(+), 5 deletions(-)
 
 --- a/drivers/input/joystick/xpad.c
 +++ b/drivers/input/joystick/xpad.c
@@ -40,7 +42,15 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	return 0;
  }
  
-@@ -859,9 +855,17 @@ static void xpad_set_up_abs(struct input
+@@ -809,6 +805,7 @@ static void xpad_led_disconnect(struct u
+ #else
+ static int xpad_led_probe(struct usb_xpad *xpad) { return 0; }
+ static void xpad_led_disconnect(struct usb_xpad *xpad) { }
++static void xpad_send_led_command(struct usb_xpad *xpad, int command) { }
+ #endif
+ 
+ 
+@@ -859,9 +856,17 @@ static void xpad_set_up_abs(struct input
  	}
  }
  
@@ -58,7 +68,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	int i, error;
  
  	input_dev = input_allocate_device();
-@@ -926,6 +930,17 @@ static int xpad_init_input(struct usb_xp
+@@ -930,6 +935,17 @@ static int xpad_init_input(struct usb_xp
  	if (error)
  		goto fail_input_register;
  
@@ -73,6 +83,6 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +		xpad_send_led_command(xpad, (xpad->joydev_id % 4) + 2);
 +	}
 +
- fail_init_ff:
- 	input_ff_destroy(input_dev);
+ 	return 0;
  
+ fail_input_register:

@@ -11,11 +11,11 @@ callback, we need to initialize the input device from a separate
 function.  So pull that logic out now to make later patches more
 "obvious" as to what they do.
 
-
+Signed-off-by: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/joystick/xpad.c |  163 +++++++++++++++++++++++-------------------
- 1 file changed, 91 insertions(+), 72 deletions(-)
+ drivers/input/joystick/xpad.c |  171 +++++++++++++++++++++++-------------------
+ 1 file changed, 97 insertions(+), 74 deletions(-)
 
 --- a/drivers/input/joystick/xpad.c
 +++ b/drivers/input/joystick/xpad.c
@@ -104,26 +104,37 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	input_set_drvdata(input_dev, xpad);
  
-@@ -966,17 +918,87 @@ static int xpad_probe(struct usb_interfa
+@@ -966,17 +918,92 @@ static int xpad_probe(struct usb_interfa
  			xpad_set_up_abs(input_dev, xpad_abs_triggers[i]);
  	}
  
 -	error = xpad_init_output(intf, xpad);
-+	error = xpad_init_ff(xpad);
- 	if (error)
+-	if (error)
 -		goto fail3;
-+		goto fail_init_ff;
- 
--	error = xpad_init_ff(xpad);
-+	error = input_register_device(xpad->dev);
+-
+ 	error = xpad_init_ff(xpad);
  	if (error)
 -		goto fail4;
++		goto fail_init_ff;
+ 
+ 	error = xpad_led_probe(xpad);
+ 	if (error)
+-		goto fail5;
++		goto fail_init_led;
++
++	error = input_register_device(xpad->dev);
++	if (error)
 +		goto fail_input_register;
 +
-+fail_init_ff:
-+	input_ff_destroy(input_dev);
++	return 0;
 +
 +fail_input_register:
++	xpad_led_disconnect(xpad);
++
++fail_init_led:
++	input_ff_destroy(input_dev);
++
++fail_init_ff:
 +	input_free_device(input_dev);
 +	return error;
 +}
@@ -190,14 +201,9 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +	if (error)
 +		goto fail3;
  
- 	error = xpad_led_probe(xpad);
- 	if (error)
--		goto fail5;
-+		goto fail4;
- 
  	ep_irq_in = &intf->cur_altsetting->endpoint[0].desc;
  	usb_fill_int_urb(xpad->irq_in, udev,
-@@ -986,10 +1008,6 @@ static int xpad_probe(struct usb_interfa
+@@ -986,10 +1013,6 @@ static int xpad_probe(struct usb_interfa
  	xpad->irq_in->transfer_dma = xpad->idata_dma;
  	xpad->irq_in->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
  
@@ -208,16 +214,16 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	usb_set_intfdata(intf, xpad);
  
  	if (xpad->xtype == XTYPE_XBOX360W) {
-@@ -1000,7 +1018,7 @@ static int xpad_probe(struct usb_interfa
+@@ -1000,7 +1023,7 @@ static int xpad_probe(struct usb_interfa
  		xpad->bulk_out = usb_alloc_urb(0, GFP_KERNEL);
  		if (!xpad->bulk_out) {
  			error = -ENOMEM;
 -			goto fail7;
-+			goto fail6;
++			goto fail4;
  		}
  
  		xpad->bdata = kzalloc(XPAD_PKT_LEN, GFP_KERNEL);
-@@ -1048,24 +1066,25 @@ static int xpad_probe(struct usb_interfa
+@@ -1048,24 +1071,24 @@ static int xpad_probe(struct usb_interfa
  		 */
  		xpad->irq_in->dev = xpad->udev;
  		error = usb_submit_urb(xpad->irq_in, GFP_KERNEL);
@@ -238,7 +244,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
   fail8:	usb_free_urb(xpad->bulk_out);
 - fail7:	input_unregister_device(input_dev);
 -	input_dev = NULL;
-  fail6:	xpad_led_disconnect(xpad);
+- fail6:	xpad_led_disconnect(xpad);
 - fail5:	if (input_dev)
 -		input_ff_destroy(input_dev);
   fail4:	xpad_deinit_output(xpad);

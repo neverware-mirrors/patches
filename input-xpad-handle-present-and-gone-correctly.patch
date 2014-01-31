@@ -12,15 +12,15 @@ workqueue as we are in interrupt context when we learn about this.
 
 Also properly disconnect any devices that we are told are removed.
 
+Signed-off-by: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/input/joystick/xpad.c |   36 +++++++++++++++++++++++++++++++-----
- 1 file changed, 31 insertions(+), 5 deletions(-)
+ drivers/input/joystick/xpad.c |   50 +++++++++++++++++++++++++++++++++---------
+ 1 file changed, 40 insertions(+), 10 deletions(-)
 
 --- a/drivers/input/joystick/xpad.c
 +++ b/drivers/input/joystick/xpad.c
-@@ -295,8 +295,11 @@ struct usb_xpad {
+@@ -293,8 +293,11 @@ struct usb_xpad {
  	int xtype;			/* type of xbox device */
  	int joydev_id;			/* the minor of the device */
  	const char *name;		/* name of the device */
@@ -32,7 +32,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  /*
   *	xpad_process_packet
   *
-@@ -439,6 +442,22 @@ static void xpad360_process_packet(struc
+@@ -437,6 +440,22 @@ static void xpad360_process_packet(struc
  	input_sync(dev);
  }
  
@@ -55,7 +55,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  /*
   * xpad360w_process_packet
   *
-@@ -453,16 +472,22 @@ static void xpad360_process_packet(struc
+@@ -451,16 +470,22 @@ static void xpad360_process_packet(struc
   * 01.1 - Pad state (Bytes 4+) valid
   *
   */
@@ -83,7 +83,25 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	}
  
  	/* Valid pad data */
-@@ -989,6 +1014,7 @@ static int xpad_probe(struct usb_interfa
+@@ -507,10 +532,13 @@ static void xpad_irq_in(struct urb *urb)
+ 	}
+ 
+ exit:
+-	retval = usb_submit_urb(urb, GFP_ATOMIC);
+-	if (retval)
+-		dev_err(dev, "%s - usb_submit_urb failed with result %d\n",
+-			__func__, retval);
++	if (xpad->pad_present) {
++		retval = usb_submit_urb(urb, GFP_ATOMIC);
++		if (retval)
++			dev_err(dev,
++				"%s - usb_submit_urb failed with result %d\n",
++				__func__, retval);
++	}
+ }
+ 
+ static void xpad_bulk_out(struct urb *urb)
+@@ -991,6 +1019,7 @@ static int xpad_probe(struct usb_interfa
  	xpad->mapping = xpad_device[i].mapping;
  	xpad->xtype = xpad_device[i].xtype;
  	xpad->name = xpad_device[i].name;
@@ -91,3 +109,13 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	if (xpad->xtype == XTYPE_UNKNOWN) {
  		if (intf->cur_altsetting->desc.bInterfaceClass == USB_CLASS_VENDOR_SPEC) {
+@@ -1136,7 +1165,8 @@ static void xpad_disconnect(struct usb_i
+ 	struct usb_xpad *xpad = usb_get_intfdata (intf);
+ 
+ 	xpad_led_disconnect(xpad);
+-	input_unregister_device(xpad->dev);
++	if (xpad->pad_present)
++		input_unregister_device(xpad->dev);
+ 	xpad_deinit_output(xpad);
+ 
+ 	if (xpad->xtype == XTYPE_XBOX360W) {

@@ -17,15 +17,54 @@ connected to the base station before that can happen.  The allocation of
 the device happens in the next patch, not here, so in a way, this patch
 breaks all wireless devices...
 
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Because we want to talk to the device, we have to set up the output urbs
+no matter if we have CONFIG_JOYSTICK_XPAD_FF or
+CONFIG_JOYSTICK_XPAD_LEDS enabled not, so take out the code that allows
+those variables and code to be disabled (it's so small it should never
+matter...)
 
+Signed-off-by: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/joystick/xpad.c |   38 ++++++++++++++++++++++++++++++++++----
- 1 file changed, 34 insertions(+), 4 deletions(-)
+ drivers/input/joystick/xpad.c |   46 +++++++++++++++++++++++++++++++-----------
+ 1 file changed, 34 insertions(+), 12 deletions(-)
 
 --- a/drivers/input/joystick/xpad.c
 +++ b/drivers/input/joystick/xpad.c
-@@ -1085,11 +1085,41 @@ static int xpad_probe(struct usb_interfa
+@@ -278,12 +278,10 @@ struct usb_xpad {
+ 	struct urb *bulk_out;
+ 	unsigned char *bdata;
+ 
+-#if defined(CONFIG_JOYSTICK_XPAD_FF) || defined(CONFIG_JOYSTICK_XPAD_LEDS)
+ 	struct urb *irq_out;		/* urb for interrupt out report */
+ 	unsigned char *odata;		/* output data */
+ 	dma_addr_t odata_dma;
+ 	struct mutex odata_mutex;
+-#endif
+ 
+ #if defined(CONFIG_JOYSTICK_XPAD_LEDS)
+ 	struct xpad_led *led;
+@@ -537,7 +535,6 @@ static void xpad_bulk_out(struct urb *ur
+ 	}
+ }
+ 
+-#if defined(CONFIG_JOYSTICK_XPAD_FF) || defined(CONFIG_JOYSTICK_XPAD_LEDS)
+ static void xpad_irq_out(struct urb *urb)
+ {
+ 	struct usb_xpad *xpad = urb->context;
+@@ -623,11 +620,6 @@ static void xpad_deinit_output(struct us
+ 				xpad->odata, xpad->odata_dma);
+ 	}
+ }
+-#else
+-static int xpad_init_output(struct usb_interface *intf, struct usb_xpad *xpad) { return 0; }
+-static void xpad_deinit_output(struct usb_xpad *xpad) {}
+-static void xpad_stop_output(struct usb_xpad *xpad) {}
+-#endif
+ 
+ #ifdef CONFIG_JOYSTICK_XPAD_FF
+ static int xpad_play_effect(struct input_dev *dev, void *data, struct ff_effect *effect)
+@@ -1091,11 +1083,41 @@ static int xpad_probe(struct usb_interfa
  			usb_kill_urb(xpad->irq_in);
  			goto fail9;
  		}

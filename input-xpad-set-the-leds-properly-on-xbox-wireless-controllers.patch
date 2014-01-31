@@ -10,8 +10,8 @@ Add the logic to set the LEDs on XBox Wireless controllers.  Command
 sequence found by sniffing the Windows data stream when plugging the
 device in.
 
+Signed-off-by: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
  drivers/input/joystick/xpad.c |   32 +++++++++++++++++++++++++++-----
  1 file changed, 27 insertions(+), 5 deletions(-)
