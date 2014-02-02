@@ -18,7 +18,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/staging/Kconfig
 +++ b/drivers/staging/Kconfig
-@@ -150,4 +150,6 @@ source "drivers/staging/dgnc/Kconfig"
+@@ -146,4 +146,6 @@ source "drivers/staging/dgnc/Kconfig"
  
  source "drivers/staging/dgap/Kconfig"
  
@@ -27,7 +27,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  endif # STAGING
 --- a/drivers/staging/Makefile
 +++ b/drivers/staging/Makefile
-@@ -67,3 +67,4 @@ obj-$(CONFIG_XILLYBUS)		+= xillybus/
+@@ -65,3 +65,4 @@ obj-$(CONFIG_XILLYBUS)		+= xillybus/
  obj-$(CONFIG_DGNC)			+= dgnc/
  obj-$(CONFIG_DGAP)			+= dgap/
  obj-$(CONFIG_MTD_SPINAND_MT29F)	+= mt29f_spinand/

@@ -4,7 +4,7 @@
 
 --- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sysfs.c
 +++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sysfs.c
-@@ -33,9 +33,9 @@ int qlcnicvf_config_led(struct qlcnic_ad
+@@ -32,9 +32,9 @@ int qlcnicvf_config_led(struct qlcnic_ad
  	return -EOPNOTSUPP;
  }
  
@@ -17,7 +17,7 @@
  {
  	struct qlcnic_adapter *adapter = dev_get_drvdata(dev);
  	unsigned long new;
-@@ -57,9 +57,8 @@ err_out:
+@@ -56,9 +56,8 @@ err_out:
  	return ret;
  }
  
@@ -29,7 +29,7 @@
  {
  	struct qlcnic_adapter *adapter = dev_get_drvdata(dev);
  	int bridged_mode = 0;
-@@ -69,10 +68,11 @@ static ssize_t qlcnic_show_bridged_mode(
+@@ -68,10 +67,11 @@ static ssize_t qlcnic_show_bridged_mode(
  
  	return sprintf(buf, "%d\n", bridged_mode);
  }
@@ -44,7 +44,7 @@
  {
  	struct qlcnic_adapter *adapter = dev_get_drvdata(dev);
  	unsigned long new;
-@@ -86,12 +86,13 @@ static ssize_t qlcnic_store_diag_mode(st
+@@ -85,12 +85,13 @@ static ssize_t qlcnic_store_diag_mode(st
  	return len;
  }
  
@@ -60,7 +60,7 @@
  
  static int qlcnic_validate_beacon(struct qlcnic_adapter *adapter, u16 beacon,
  				  u8 *state, u8 *rate)
-@@ -221,9 +222,8 @@ out:
+@@ -211,9 +212,8 @@ out:
  	return err;
  }
  
@@ -72,7 +72,7 @@
  {
  	struct qlcnic_adapter *adapter = dev_get_drvdata(dev);
  	int err = 0;
-@@ -244,8 +244,8 @@ static ssize_t qlcnic_store_beacon(struc
+@@ -234,8 +234,8 @@ static ssize_t qlcnic_store_beacon(struc
  	return err;
  }
  
@@ -83,7 +83,7 @@
  {
  	struct qlcnic_adapter *adapter = dev_get_drvdata(dev);
  
-@@ -273,6 +273,7 @@ static int qlcnic_sysfs_validate_crb(str
+@@ -263,6 +263,7 @@ static int qlcnic_sysfs_validate_crb(str
  
  	return 0;
  }
@@ -91,7 +91,7 @@
  
  static ssize_t qlcnic_sysfs_read_crb(struct file *filp, struct kobject *kobj,
  				     struct bin_attribute *attr, char *buf,
-@@ -1170,24 +1171,6 @@ static ssize_t qlcnic_83xx_sysfs_flash_w
+@@ -1187,24 +1188,6 @@ static ssize_t qlcnic_83xx_sysfs_flash_w
  	return size;
  }
  
@@ -116,7 +116,7 @@
  static struct bin_attribute bin_attr_crb = {
  	.attr = {.name = "crb", .mode = (S_IRUGO | S_IWUSR)},
  	.size = 0,
-@@ -1251,6 +1234,24 @@ static struct bin_attribute bin_attr_fla
+@@ -1268,6 +1251,24 @@ static struct bin_attribute bin_attr_fla
  	.write = qlcnic_83xx_sysfs_flash_write_handler,
  };
  
@@ -141,7 +141,7 @@
  void qlcnic_create_sysfs_entries(struct qlcnic_adapter *adapter)
  {
  	struct device *dev = &adapter->pdev->dev;
-@@ -1264,6 +1265,11 @@ void qlcnic_create_sysfs_entries(struct
+@@ -1281,6 +1282,11 @@ void qlcnic_create_sysfs_entries(struct
  void qlcnic_remove_sysfs_entries(struct qlcnic_adapter *adapter)
  {
  	struct device *dev = &adapter->pdev->dev;

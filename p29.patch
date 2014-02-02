@@ -4,7 +4,7 @@
 
 --- a/arch/powerpc/kernel/vio.c
 +++ b/arch/powerpc/kernel/vio.c
-@@ -936,7 +936,7 @@ static void vio_cmo_bus_init(void)
+@@ -948,7 +948,7 @@ static void vio_cmo_bus_init(void)
  /* sysfs device functions and data structures for CMO */
  
  #define viodev_cmo_rd_attr(name)                                        \
@@ -13,7 +13,7 @@
                                          struct device_attribute *attr,  \
                                           char *buf)                     \
  {                                                                       \
-@@ -950,7 +950,7 @@ static ssize_t viodev_cmo_allocs_failed_
+@@ -962,7 +962,7 @@ static ssize_t viodev_cmo_allocs_failed_
  	return sprintf(buf, "%d\n", atomic_read(&viodev->cmo.allocs_failed));
  }
  
@@ -22,7 +22,7 @@
  		struct device_attribute *attr, const char *buf, size_t count)
  {
  	struct vio_dev *viodev = to_vio_dev(dev);
-@@ -958,7 +958,7 @@ static ssize_t viodev_cmo_allocs_failed_
+@@ -970,7 +970,7 @@ static ssize_t viodev_cmo_allocs_failed_
  	return count;
  }
  
@@ -31,7 +31,7 @@
  		struct device_attribute *attr, const char *buf, size_t count)
  {
  	struct vio_dev *viodev = to_vio_dev(dev);
-@@ -981,18 +981,25 @@ static ssize_t name_show(struct device *
+@@ -993,18 +993,25 @@ static ssize_t name_show(struct device *
  static ssize_t devspec_show(struct device *, struct device_attribute *, char *);
  static ssize_t modalias_show(struct device *dev, struct device_attribute *attr,
  			     char *buf);
@@ -68,7 +68,7 @@
  
  /* sysfs bus functions and data structures for CMO */
  
-@@ -1054,7 +1061,7 @@ ATTRIBUTE_GROUPS(vio_bus);
+@@ -1066,7 +1073,7 @@ ATTRIBUTE_GROUPS(vio_bus);
  
  static void vio_cmo_sysfs_init(void)
  {
@@ -77,7 +77,7 @@
  	vio_bus_type.bus_groups = vio_bus_groups;
  }
  #else /* CONFIG_PPC_SMLPAR */
-@@ -1548,12 +1555,13 @@ static ssize_t modalias_show(struct devi
+@@ -1561,12 +1568,13 @@ static ssize_t modalias_show(struct devi
  	return sprintf(buf, "vio:T%sS%s\n", vio_dev->type, cp);
  }
  
@@ -96,7 +96,7 @@
  
  void vio_unregister_device(struct vio_dev *viodev)
  {
-@@ -1589,7 +1597,7 @@ static int vio_hotplug(struct device *de
+@@ -1602,7 +1610,7 @@ static int vio_hotplug(struct device *de
  
  struct bus_type vio_bus_type = {
  	.name = "vio",
