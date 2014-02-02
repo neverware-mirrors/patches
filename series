@@ -14,7 +14,7 @@ staging-exfat-include-aio.h.patch
 staging-exfat-hlist_for_each-api-change.patch
 staging-exfat-truncage_pagecache-api-change.patch
 staging-exfat-readdir-to-iterate-change.patch
-
+staging-exfat-kuid-fixes.patch
 
 xen-disable-clock-timer-when-shutting-down.patch
 

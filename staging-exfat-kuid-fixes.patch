@@ -1,0 +1,84 @@
+From foo@baz Sun Feb  2 14:12:18 CET 2014
+Date: Sun, 02 Feb 2014 14:12:18 +0100
+To: Greg KH <gregkh@linuxfoundation.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: staging: exfat: kuid fixes
+
+Fix up the kgid/kuid issues with using the "raw" values.  If namespaces
+is enabled, the code will break the build without these fixes.
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ drivers/staging/exfat/exfat_super.c |   20 +++++++++++---------
+ drivers/staging/exfat/exfat_super.h |    4 ++--
+ 2 files changed, 13 insertions(+), 11 deletions(-)
+
+--- a/drivers/staging/exfat/exfat_super.c
++++ b/drivers/staging/exfat/exfat_super.c
+@@ -945,7 +945,7 @@ static int exfat_allow_set_time(struct e
+ {
+ 	mode_t allow_utime = sbi->options.allow_utime;
+ 
+-	if (current_fsuid() != inode->i_uid) {
++	if (!uid_eq(current_fsuid(), inode->i_uid)) {
+ 		if (in_group_p(inode->i_gid))
+ 			allow_utime >>= 3;
+ 		if (allow_utime & MAY_WRITE)
+@@ -1018,9 +1018,9 @@ static int exfat_setattr(struct dentry *
+ 	}
+ 
+ 	if (((attr->ia_valid & ATTR_UID) &&
+-		 (attr->ia_uid != sbi->options.fs_uid)) ||
++		 !uid_eq(attr->ia_uid, sbi->options.fs_uid)) ||
+ 		((attr->ia_valid & ATTR_GID) &&
+-		 (attr->ia_gid != sbi->options.fs_gid)) ||
++		 !gid_eq(attr->ia_gid, sbi->options.fs_gid)) ||
+ 		((attr->ia_valid & ATTR_MODE) &&
+ 		 (attr->ia_mode & ~(S_IFREG | S_IFLNK | S_IFDIR | S_IRWXUGO)))) {
+ 		return -EPERM;
+@@ -1711,10 +1711,12 @@ static int exfat_show_options(struct seq
+ #endif
+ 	struct exfat_mount_options *opts = &sbi->options;
+ 
+-	if (opts->fs_uid != 0)
+-		seq_printf(m, ",uid=%u", opts->fs_uid);
+-	if (opts->fs_gid != 0)
+-		seq_printf(m, ",gid=%u", opts->fs_gid);
++	if (!uid_eq(opts->fs_uid, GLOBAL_ROOT_UID))
++		seq_printf(m, ",uid=%u",
++			   from_kuid_munged(&init_user_ns, opts->fs_uid));
++	if (!gid_eq(opts->fs_gid, GLOBAL_ROOT_GID))
++		seq_printf(m, ",gid=%u",
++			   from_kgid_munged(&init_user_ns, opts->fs_gid));
+ 	seq_printf(m, ",fmask=%04o", opts->fs_fmask);
+ 	seq_printf(m, ",dmask=%04o", opts->fs_dmask);
+ 	if (opts->allow_utime)
+@@ -1831,12 +1833,12 @@ static int parse_options(char *options,
+ 		case Opt_uid:
+ 			if (match_int(&args[0], &option))
+ 				return 0;
+-			opts->fs_uid = option;
++			opts->fs_uid = make_kuid(current_user_ns(), option);
+ 			break;
+ 		case Opt_gid:
+ 			if (match_int(&args[0], &option))
+ 				return 0;
+-			opts->fs_gid = option;
++			opts->fs_gid = make_kgid(current_user_ns(), option);
+ 			break;
+ 		case Opt_umask:
+ 		case Opt_dmask:
+--- a/drivers/staging/exfat/exfat_super.h
++++ b/drivers/staging/exfat/exfat_super.h
+@@ -47,8 +47,8 @@
+ #define EXFAT_IOCTL_GET_VOLUME_ID _IOR('r', 0x12, __u32)
+ 
+ struct exfat_mount_options {
+-	uid_t fs_uid;
+-	gid_t fs_gid;
++	kuid_t fs_uid;
++	kgid_t fs_gid;
+ 	unsigned short fs_fmask;
+ 	unsigned short fs_dmask;
+ 	unsigned short allow_utime;
