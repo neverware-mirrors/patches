@@ -1,3 +1,4 @@
+csdio2.patch
 input-xpad-use-proper-endpoint-type.patch
 input-xpad-set-the-leds-properly-on-xbox-wireless-controllers.patch
 #defer-input-nodes-and-led-support

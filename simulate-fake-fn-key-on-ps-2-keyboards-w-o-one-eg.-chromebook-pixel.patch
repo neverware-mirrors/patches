@@ -59,9 +59,9 @@ Signed-off-by: Dirk Hohndel <dirk@hohndel.org>
  static unsigned int (*atkbd_platform_scancode_fixup)(struct atkbd *, unsigned int);
 +static unsigned int (*atkbd_fake_fn_fixup)(struct atkbd *, unsigned int);
  
- static ssize_t atkbd_attr_show_helper(struct device *dev, char *buf,
- 				ssize_t (*handler)(struct atkbd *, char *));
-@@ -398,6 +413,13 @@ static irqreturn_t atkbd_interrupt(struc
+ /*
+  * Certain keyboards to not like ATKBD_CMD_RESET_DIS and stop responding
+@@ -404,6 +419,13 @@ static irqreturn_t atkbd_interrupt(struc
  	if (!atkbd->enabled)
  		goto out;
  
@@ -75,7 +75,7 @@ Signed-off-by: Dirk Hohndel <dirk@hohndel.org>
  	input_event(dev, EV_MSC, MSC_RAW, code);
  
  	if (atkbd_platform_scancode_fixup)
-@@ -988,6 +1010,48 @@ static unsigned int atkbd_oqo_01plus_sca
+@@ -995,6 +1017,48 @@ static unsigned int atkbd_oqo_01plus_sca
  }
  
  /*
@@ -124,7 +124,7 @@ Signed-off-by: Dirk Hohndel <dirk@hohndel.org>
   * atkbd_set_keycode_table() initializes keyboard's keycode table
   * according to the selected scancode set
   */
-@@ -1638,6 +1702,13 @@ static int __init atkbd_setup_scancode_f
+@@ -1651,6 +1715,13 @@ static int __init atkbd_deactivate_fixup
  	return 1;
  }
  
@@ -138,9 +138,9 @@ Signed-off-by: Dirk Hohndel <dirk@hohndel.org>
  static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
  	{
  		.matches = {
-@@ -1775,6 +1846,15 @@ static const struct dmi_system_id atkbd_
- 		.callback = atkbd_setup_scancode_fixup,
- 		.driver_data = atkbd_oqo_01plus_scancode_fixup,
+@@ -1802,6 +1873,15 @@ static const struct dmi_system_id atkbd_
+ 		},
+ 		.callback = atkbd_deactivate_fixup,
  	},
 +	{
 +		/* Google Chromebook Pixel */

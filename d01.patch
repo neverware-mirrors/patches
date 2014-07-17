@@ -11,7 +11,7 @@
 
 --- a/drivers/hid/hid-core.c
 +++ b/drivers/hid/hid-core.c
-@@ -1902,7 +1902,7 @@ struct hid_dynid {
+@@ -1946,7 +1946,7 @@ struct hid_dynid {
   * Adds a new dynamic hid device ID to this driver,
   * and causes the driver to probe for all devices again.
   */
@@ -20,7 +20,7 @@
  		size_t count)
  {
  	struct hid_driver *hdrv = container_of(drv, struct hid_driver, driver);
-@@ -1934,7 +1934,13 @@ static ssize_t store_new_id(struct devic
+@@ -1978,7 +1978,13 @@ static ssize_t store_new_id(struct devic
  
  	return ret ? : count;
  }
@@ -35,7 +35,7 @@
  
  static void hid_free_dynids(struct hid_driver *hdrv)
  {
-@@ -2094,6 +2100,7 @@ static int hid_uevent(struct device *dev
+@@ -2138,6 +2144,7 @@ static int hid_uevent(struct device *dev
  static struct bus_type hid_bus_type = {
  	.name		= "hid",
  	.dev_groups	= hid_dev_groups,
@@ -43,7 +43,7 @@
  	.match		= hid_bus_match,
  	.probe		= hid_device_probe,
  	.remove		= hid_device_remove,
-@@ -2532,8 +2539,6 @@ EXPORT_SYMBOL_GPL(hid_destroy_device);
+@@ -2585,8 +2592,6 @@ EXPORT_SYMBOL_GPL(hid_destroy_device);
  int __hid_register_driver(struct hid_driver *hdrv, struct module *owner,
  		const char *mod_name)
  {
@@ -52,7 +52,7 @@
  	hdrv->driver.name = hdrv->name;
  	hdrv->driver.bus = &hid_bus_type;
  	hdrv->driver.owner = owner;
-@@ -2542,21 +2547,12 @@ int __hid_register_driver(struct hid_dri
+@@ -2595,21 +2600,12 @@ int __hid_register_driver(struct hid_dri
  	INIT_LIST_HEAD(&hdrv->dyn_list);
  	spin_lock_init(&hdrv->dyn_lock);
  
@@ -354,7 +354,7 @@
  {
 --- a/drivers/scsi/megaraid/megaraid_sas_base.c
 +++ b/drivers/scsi/megaraid/megaraid_sas_base.c
-@@ -5373,50 +5373,43 @@ static struct pci_driver megasas_pci_dri
+@@ -5905,50 +5905,43 @@ static struct pci_driver megasas_pci_dri
  /*
   * Sysfs driver attributes
   */
@@ -416,7 +416,7 @@
  {
  	int retval = count;
  	if(sscanf(buf,"%u",&megasas_dbg_lvl)<1){
-@@ -5426,8 +5419,7 @@ megasas_sysfs_set_dbg_lvl(struct device_
+@@ -5958,8 +5951,7 @@ megasas_sysfs_set_dbg_lvl(struct device_
  	return retval;
  }
  
@@ -470,7 +470,7 @@
  	},
  };
  
-@@ -4301,14 +4300,8 @@ static int __init init_st(void)
+@@ -4308,14 +4307,8 @@ static int __init init_st(void)
  	if (err)
  		goto err_chrdev;
  
@@ -485,7 +485,7 @@
  err_chrdev:
  	unregister_chrdev_region(MKDEV(SCSI_TAPE_MAJOR, 0),
  				 ST_MAX_TAPE_ENTRIES);
-@@ -4319,7 +4312,6 @@ err_class:
+@@ -4326,7 +4319,6 @@ err_class:
  
  static void __exit exit_st(void)
  {
@@ -493,7 +493,7 @@
  	scsi_unregister_driver(&st_template.gendrv);
  	unregister_chrdev_region(MKDEV(SCSI_TAPE_MAJOR, 0),
  				 ST_MAX_TAPE_ENTRIES);
-@@ -4332,68 +4324,38 @@ module_exit(exit_st);
+@@ -4339,68 +4331,38 @@ module_exit(exit_st);
  
  
  /* The sysfs driver interface. Read-only at the moment */

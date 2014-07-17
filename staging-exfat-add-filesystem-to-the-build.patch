@@ -18,19 +18,19 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/staging/Kconfig
 +++ b/drivers/staging/Kconfig
-@@ -146,4 +146,6 @@ source "drivers/staging/dgnc/Kconfig"
+@@ -146,4 +146,6 @@ source "drivers/staging/nokia_h4p/Kconfi
  
- source "drivers/staging/dgap/Kconfig"
+ source "drivers/staging/unisys/Kconfig"
  
 +source "drivers/staging/exfat/Kconfig"
 +
  endif # STAGING
 --- a/drivers/staging/Makefile
 +++ b/drivers/staging/Makefile
-@@ -65,3 +65,4 @@ obj-$(CONFIG_XILLYBUS)		+= xillybus/
- obj-$(CONFIG_DGNC)			+= dgnc/
- obj-$(CONFIG_DGAP)			+= dgap/
- obj-$(CONFIG_MTD_SPINAND_MT29F)	+= mt29f_spinand/
+@@ -65,3 +65,4 @@ obj-$(CONFIG_MTD_SPINAND_MT29F)	+= mt29f
+ obj-$(CONFIG_GS_FPGABOOT)	+= gs_fpgaboot/
+ obj-$(CONFIG_BT_NOKIA_H4P)	+= nokia_h4p/
+ obj-$(CONFIG_UNISYSSPAR)	+= unisys/
 +obj-$(CONFIG_EXFAT_FS)		+= exfat/
 --- /dev/null
 +++ b/drivers/staging/exfat/Kconfig

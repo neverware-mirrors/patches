@@ -36,7 +36,7 @@
  };
 +ATTRIBUTE_GROUPS(amba_dev);
  
- #ifdef CONFIG_PM_RUNTIME
+ #ifdef CONFIG_PM
  /*
 @@ -136,7 +134,7 @@ static const struct dev_pm_ops amba_pm =
   */
