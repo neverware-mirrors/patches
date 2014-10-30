@@ -4,7 +4,7 @@
 
 --- a/drivers/amba/bus.c
 +++ b/drivers/amba/bus.c
-@@ -64,24 +64,22 @@ static ssize_t name##_show(struct device
+@@ -65,24 +65,22 @@ static ssize_t name##_show(struct device
  {									\
  	struct amba_device *dev = to_amba_device(_dev);			\
  	return sprintf(buf, fmt, arg);					\
@@ -38,7 +38,7 @@
  
  #ifdef CONFIG_PM
  /*
-@@ -136,7 +134,7 @@ static const struct dev_pm_ops amba_pm =
+@@ -137,7 +135,7 @@ static const struct dev_pm_ops amba_pm =
   */
  struct bus_type amba_bustype = {
  	.name		= "amba",

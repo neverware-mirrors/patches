@@ -138,7 +138,7 @@ Signed-off-by: Dirk Hohndel <dirk@hohndel.org>
  static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
  	{
  		.matches = {
-@@ -1802,6 +1873,15 @@ static const struct dmi_system_id atkbd_
+@@ -1794,6 +1865,15 @@ static const struct dmi_system_id atkbd_
  		},
  		.callback = atkbd_deactivate_fixup,
  	},

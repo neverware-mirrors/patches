@@ -240,9 +240,9 @@ Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
 +connected to different SDIO hosts.
 --- a/drivers/char/Kconfig
 +++ b/drivers/char/Kconfig
-@@ -600,5 +600,28 @@ config TILE_SROM
- 	  device appear much like a simple EEPROM, and knows
- 	  how to partition a single ROM for multiple purposes.
+@@ -602,5 +602,28 @@ config TILE_SROM
+ 
+ source "drivers/char/xillybus/Kconfig"
  
 +config MMC_GENERIC_CSDIO
 +	tristate "Generic sdio driver"
@@ -271,10 +271,10 @@ Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
  
 --- a/drivers/char/Makefile
 +++ b/drivers/char/Makefile
-@@ -61,3 +61,4 @@ obj-$(CONFIG_JS_RTC)		+= js-rtc.o
- js-rtc-y = rtc.o
+@@ -62,3 +62,4 @@ js-rtc-y = rtc.o
  
  obj-$(CONFIG_TILE_SROM)		+= tile-srom.o
+ obj-$(CONFIG_XILLYBUS)		+= xillybus/
 +obj-$(CONFIG_MMC_GENERIC_CSDIO)	+= csdio.o
 --- /dev/null
 +++ b/drivers/char/csdio.c
@@ -1391,7 +1391,7 @@ Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
 +#endif
 --- a/include/uapi/linux/Kbuild
 +++ b/include/uapi/linux/Kbuild
-@@ -86,6 +86,7 @@ header-y += coff.h
+@@ -88,6 +88,7 @@ header-y += coff.h
  header-y += connector.h
  header-y += const.h
  header-y += cramfs_fs.h

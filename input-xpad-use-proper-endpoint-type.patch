@@ -21,7 +21,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/input/joystick/xpad.c
 +++ b/drivers/input/joystick/xpad.c
-@@ -1003,9 +1003,19 @@ static int xpad_probe(struct usb_interfa
+@@ -1179,9 +1179,19 @@ static int xpad_probe(struct usb_interfa
  		}
  
  		ep_irq_in = &intf->cur_altsetting->endpoint[1].desc;
