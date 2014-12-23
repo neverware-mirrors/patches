@@ -11,7 +11,7 @@
 
 --- a/drivers/hid/hid-core.c
 +++ b/drivers/hid/hid-core.c
-@@ -1985,7 +1985,7 @@ struct hid_dynid {
+@@ -1986,7 +1986,7 @@ struct hid_dynid {
   * Adds a new dynamic hid device ID to this driver,
   * and causes the driver to probe for all devices again.
   */
@@ -20,7 +20,7 @@
  		size_t count)
  {
  	struct hid_driver *hdrv = container_of(drv, struct hid_driver, driver);
-@@ -2017,7 +2017,13 @@ static ssize_t store_new_id(struct devic
+@@ -2018,7 +2018,13 @@ static ssize_t store_new_id(struct devic
  
  	return ret ? : count;
  }
@@ -35,7 +35,7 @@
  
  static void hid_free_dynids(struct hid_driver *hdrv)
  {
-@@ -2177,6 +2183,7 @@ static int hid_uevent(struct device *dev
+@@ -2178,6 +2184,7 @@ static int hid_uevent(struct device *dev
  static struct bus_type hid_bus_type = {
  	.name		= "hid",
  	.dev_groups	= hid_dev_groups,
@@ -43,7 +43,7 @@
  	.match		= hid_bus_match,
  	.probe		= hid_device_probe,
  	.remove		= hid_device_remove,
-@@ -2624,8 +2631,6 @@ EXPORT_SYMBOL_GPL(hid_destroy_device);
+@@ -2625,8 +2632,6 @@ EXPORT_SYMBOL_GPL(hid_destroy_device);
  int __hid_register_driver(struct hid_driver *hdrv, struct module *owner,
  		const char *mod_name)
  {
@@ -52,7 +52,7 @@
  	hdrv->driver.name = hdrv->name;
  	hdrv->driver.bus = &hid_bus_type;
  	hdrv->driver.owner = owner;
-@@ -2634,21 +2639,12 @@ int __hid_register_driver(struct hid_dri
+@@ -2635,21 +2640,12 @@ int __hid_register_driver(struct hid_dri
  	INIT_LIST_HEAD(&hdrv->dyn_list);
  	spin_lock_init(&hdrv->dyn_lock);
  

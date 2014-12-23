@@ -1,16 +1,3 @@
-pci-fix-name-of-enable-sysfs-file.patch
-0001-kdbus-add-documentation.patch
-0002-kdbus-add-header-file.patch
-0003-kdbus-add-driver-skeleton-ioctl-entry-points-and-uti.patch
-0004-kdbus-add-connection-pool-implementation.patch
-0005-kdbus-add-connection-queue-handling-and-message-vali.patch
-0006-kdbus-add-code-to-gather-metadata.patch
-0007-kdbus-add-code-for-notifications-and-matches.patch
-0008-kdbus-add-code-for-buses-domains-and-endpoints.patch
-0009-kdbus-add-name-registry-implementation.patch
-0010-kdbus-add-policy-database-implementation.patch
-0011-kdbus-add-Makefile-Kconfig-and-MAINTAINERS-entry.patch
-0012-kdbus-add-selftests.patch
 csdio2.patch
 input-xpad-use-proper-endpoint-type.patch
 input-xpad-set-the-leds-properly-on-xbox-wireless-controllers.patch
