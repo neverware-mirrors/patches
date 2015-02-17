@@ -1391,7 +1391,7 @@ Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
 +#endif
 --- a/include/uapi/linux/Kbuild
 +++ b/include/uapi/linux/Kbuild
-@@ -88,6 +88,7 @@ header-y += coff.h
+@@ -89,6 +89,7 @@ header-y += coff.h
  header-y += connector.h
  header-y += const.h
  header-y += cramfs_fs.h
