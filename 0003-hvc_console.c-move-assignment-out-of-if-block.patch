@@ -1,7 +1,7 @@
 From 653778364ba17237ea794ab00e92ed04b98aec42 Mon Sep 17 00:00:00 2001
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Date: Wed, 29 Apr 2015 16:22:02 +0200
-Subject: [PATCH 03/36] hvc_console.c: move assignment out of if () block
+Subject: [PATCH 03/36] tty: hvc_console.c: move assignment out of if () block
 
 We should not be doing assignments within an if () block
 so fix up the code to not do this.

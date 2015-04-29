@@ -1,7 +1,7 @@
 From 655a7aabfe2c282e713ded9bee60e38bf2cdc7e6 Mon Sep 17 00:00:00 2001
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Date: Wed, 29 Apr 2015 16:22:29 +0200
-Subject: [PATCH 30/36] ohci-q.c: move assignment out of if () block
+Subject: [PATCH 30/36] USB: ohci-q.c: move assignment out of if () block
 
 We should not be doing assignments within an if () block
 so fix up the code to not do this.

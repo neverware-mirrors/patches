@@ -1,7 +1,7 @@
 From c4f66c75001c1221c50f19532cbacba6c6ba640e Mon Sep 17 00:00:00 2001
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Date: Wed, 29 Apr 2015 16:22:15 +0200
-Subject: [PATCH 19/36] xusbatm.c: move assignment out of if () block
+Subject: [PATCH 19/36] USB: xusbatm.c: move assignment out of if () block
 
 We should not be doing assignments within an if () block
 so fix up the code to not do this.

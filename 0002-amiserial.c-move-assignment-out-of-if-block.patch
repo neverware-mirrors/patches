@@ -1,7 +1,7 @@
 From 7d99b4864316e37368a83069907302cabc1a9f62 Mon Sep 17 00:00:00 2001
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Date: Wed, 29 Apr 2015 16:22:00 +0200
-Subject: [PATCH 02/36] amiserial.c: move assignment out of if () block
+Subject: [PATCH 02/36] tty: amiserial.c: move assignment out of if () block
 
 We should not be doing assignments within an if () block
 so fix up the code to not do this.

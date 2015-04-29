@@ -1,7 +1,7 @@
 From 63b51628e8140adabb1a3d4ece779f2a432ab948 Mon Sep 17 00:00:00 2001
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Date: Wed, 29 Apr 2015 16:22:12 +0200
-Subject: [PATCH 16/36] consolemap.c: move assignment out of if () block
+Subject: [PATCH 16/36] tty: consolemap.c: move assignment out of if () block
 
 We should not be doing assignments within an if () block
 so fix up the code to not do this.

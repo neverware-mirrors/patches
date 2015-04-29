@@ -1,7 +1,7 @@
 From 6e547c2240493813cc3bff47ab4b7e82ebf2548f Mon Sep 17 00:00:00 2001
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Date: Wed, 29 Apr 2015 16:22:29 +0200
-Subject: [PATCH 31/36] sisusb.c: move assignment out of if () block
+Subject: [PATCH 31/36] USB: sisusb.c: move assignment out of if () block
 
 We should not be doing assignments within an if () block
 so fix up the code to not do this.

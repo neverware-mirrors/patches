@@ -1,7 +1,7 @@
 From 4e4b3ca0b5b8be99c6588e0291dc4bb14275bd88 Mon Sep 17 00:00:00 2001
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Date: Wed, 29 Apr 2015 16:22:27 +0200
-Subject: [PATCH 26/36] fusbh200-hcd.c: move assignment out of if () block
+Subject: [PATCH 26/36] USB: fusbh200-hcd.c: move assignment out of if () block
 
 We should not be doing assignments within an if () block
 so fix up the code to not do this.

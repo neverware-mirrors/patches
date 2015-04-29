@@ -1,7 +1,7 @@
 From 12ed2c821d231d5e83e9fdccbacfed4b2604994e Mon Sep 17 00:00:00 2001
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Date: Wed, 29 Apr 2015 16:22:28 +0200
-Subject: [PATCH 28/36] ohci-dbg.c: move assignment out of if () block
+Subject: [PATCH 28/36] USB: ohci-dbg.c: move assignment out of if () block
 
 We should not be doing assignments within an if () block
 so fix up the code to not do this.

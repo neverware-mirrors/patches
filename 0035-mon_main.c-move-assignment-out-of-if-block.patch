@@ -1,7 +1,7 @@
 From ed1aa46db7d2fa1b00838fac9ba71e85d22b0931 Mon Sep 17 00:00:00 2001
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Date: Wed, 29 Apr 2015 16:22:36 +0200
-Subject: [PATCH 35/36] mon_main.c: move assignment out of if () block
+Subject: [PATCH 35/36] USB: mon_main.c: move assignment out of if () block
 
 We should not be doing assignments within an if () block
 so fix up the code to not do this.

@@ -1,7 +1,7 @@
 From 1989ebb4bdb26b1c90a74fd64c7407222e8e2fee Mon Sep 17 00:00:00 2001
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Date: Wed, 29 Apr 2015 16:22:08 +0200
-Subject: [PATCH 12/36] synclink_gt.c: move assignment out of if () block
+Subject: [PATCH 12/36] tty: synclink_gt.c: move assignment out of if () block
 
 We should not be doing assignments within an if () block
 so fix up the code to not do this.

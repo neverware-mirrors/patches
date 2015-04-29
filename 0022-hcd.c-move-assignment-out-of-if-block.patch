@@ -1,7 +1,7 @@
 From 05b4a29d4ff1bef8aaaa42acbccb2ed22e400432 Mon Sep 17 00:00:00 2001
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Date: Wed, 29 Apr 2015 16:22:20 +0200
-Subject: [PATCH 22/36] hcd.c: move assignment out of if () block
+Subject: [PATCH 22/36] USB: hcd.c: move assignment out of if () block
 
 We should not be doing assignments within an if () block
 so fix up the code to not do this.

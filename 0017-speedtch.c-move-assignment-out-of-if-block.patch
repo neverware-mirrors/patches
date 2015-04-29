@@ -1,7 +1,7 @@
 From 621ba9de84b27122635c9198b8db5c7b87dd811f Mon Sep 17 00:00:00 2001
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Date: Wed, 29 Apr 2015 16:22:12 +0200
-Subject: [PATCH 17/36] speedtch.c: move assignment out of if () block
+Subject: [PATCH 17/36] USB: speedtch.c: move assignment out of if () block
 
 We should not be doing assignments within an if () block
 so fix up the code to not do this.
