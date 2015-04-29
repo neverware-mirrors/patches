@@ -1,0 +1,33 @@
+From 655a7aabfe2c282e713ded9bee60e38bf2cdc7e6 Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Wed, 29 Apr 2015 16:22:29 +0200
+Subject: [PATCH 30/36] ohci-q.c: move assignment out of if () block
+
+We should not be doing assignments within an if () block
+so fix up the code to not do this.
+
+change was created using Coccinelle.
+
+CC: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/host/ohci-q.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/usb/host/ohci-q.c b/drivers/usb/host/ohci-q.c
+index 1463c398d322..f7d561ed3c23 100644
+--- a/drivers/usb/host/ohci-q.c
++++ b/drivers/usb/host/ohci-q.c
+@@ -407,7 +407,8 @@ static struct ed *ed_get (
+ 
+ 	spin_lock_irqsave (&ohci->lock, flags);
+ 
+-	if (!(ed = ep->hcpriv)) {
++	ed = ep->hcpriv;
++	if (!ed) {
+ 		struct td	*td;
+ 		int		is_out;
+ 		u32		info;
+-- 
+2.3.7
+

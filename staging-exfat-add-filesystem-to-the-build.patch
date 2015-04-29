@@ -18,19 +18,19 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/staging/Kconfig
 +++ b/drivers/staging/Kconfig
-@@ -108,4 +108,6 @@ source "drivers/staging/skein/Kconfig"
+@@ -108,4 +108,6 @@ source "drivers/staging/fbtft/Kconfig"
  
- source "drivers/staging/unisys/Kconfig"
+ source "drivers/staging/i2o/Kconfig"
  
 +source "drivers/staging/exfat/Kconfig"
 +
  endif # STAGING
 --- a/drivers/staging/Makefile
 +++ b/drivers/staging/Makefile
-@@ -46,3 +46,4 @@ obj-$(CONFIG_MTD_SPINAND_MT29F)	+= mt29f
- obj-$(CONFIG_GS_FPGABOOT)	+= gs_fpgaboot/
- obj-$(CONFIG_CRYPTO_SKEIN)	+= skein/
- obj-$(CONFIG_UNISYSSPAR)	+= unisys/
+@@ -46,3 +46,4 @@ obj-$(CONFIG_UNISYSSPAR)	+= unisys/
+ obj-$(CONFIG_COMMON_CLK_XLNX_CLKWZRD)	+= clocking-wizard/
+ obj-$(CONFIG_FB_TFT)		+= fbtft/
+ obj-$(CONFIG_I2O)		+= i2o/
 +obj-$(CONFIG_EXFAT_FS)		+= exfat/
 --- /dev/null
 +++ b/drivers/staging/exfat/Kconfig

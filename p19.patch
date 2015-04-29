@@ -4,7 +4,7 @@
 
 --- a/arch/mips/sgi-ip22/ip22-gio.c
 +++ b/arch/mips/sgi-ip22/ip22-gio.c
-@@ -191,6 +191,7 @@ static ssize_t modalias_show(struct devi
+@@ -169,6 +169,7 @@ static ssize_t modalias_show(struct devi
  
  	return (len >= PAGE_SIZE) ? (PAGE_SIZE - 1) : len;
  }
@@ -12,7 +12,7 @@
  
  static ssize_t name_show(struct device *dev,
  			 struct device_attribute *attr, char *buf)
-@@ -200,6 +201,7 @@ static ssize_t name_show(struct device *
+@@ -178,6 +179,7 @@ static ssize_t name_show(struct device *
  	giodev = to_gio_device(dev);
  	return sprintf(buf, "%s", giodev->name);
  }
@@ -20,7 +20,7 @@
  
  static ssize_t id_show(struct device *dev,
  		       struct device_attribute *attr, char *buf)
-@@ -209,13 +211,15 @@ static ssize_t id_show(struct device *de
+@@ -187,13 +189,15 @@ static ssize_t id_show(struct device *de
  	giodev = to_gio_device(dev);
  	return sprintf(buf, "%x", giodev->id.id);
  }
@@ -41,7 +41,7 @@
  
  static int gio_device_uevent(struct device *dev, struct kobj_uevent_env *env)
  {
-@@ -396,7 +400,7 @@ static void ip22_check_gio(int slotno, u
+@@ -374,7 +378,7 @@ static void ip22_check_gio(int slotno, u
  
  static struct bus_type gio_bus_type = {
  	.name	   = "gio",

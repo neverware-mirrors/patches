@@ -1,0 +1,122 @@
+From cce8f17bc680374f46397985858b612327a92f12 Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Wed, 29 Apr 2015 16:22:17 +0200
+Subject: [PATCH 21/36] devio.c: move assignment out of if () block
+
+We should not be doing assignments within an if () block
+so fix up the code to not do this.
+
+change was created using Coccinelle.
+
+CC: Alan Stern <stern@rowland.harvard.edu>
+CC: Chase Metzger <chasemetzger15@gmail.com>
+CC: Hans de Goede <hdegoede@redhat.com>
+CC: Oliver Neukum <oneukum@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/core/devio.c | 60 ++++++++++++++++++++++++++----------------------
+ 1 file changed, 33 insertions(+), 27 deletions(-)
+
+diff --git a/drivers/usb/core/devio.c b/drivers/usb/core/devio.c
+index 4b0448c26810..584f3eaa1862 100644
+--- a/drivers/usb/core/devio.c
++++ b/drivers/usb/core/devio.c
+@@ -1082,7 +1082,8 @@ static int proc_bulk(struct usb_dev_state *ps, void __user *arg)
+ 	ret = usbfs_increase_memory_usage(len1 + sizeof(struct urb));
+ 	if (ret)
+ 		return ret;
+-	if (!(tbuf = kmalloc(len1, GFP_KERNEL))) {
++	tbuf = kmalloc(len1, GFP_KERNEL);
++	if (!tbuf) {
+ 		ret = -ENOMEM;
+ 		goto done;
+ 	}
+@@ -1224,7 +1225,8 @@ static int proc_setintf(struct usb_dev_state *ps, void __user *arg)
+ 
+ 	if (copy_from_user(&setintf, arg, sizeof(setintf)))
+ 		return -EFAULT;
+-	if ((ret = checkintf(ps, setintf.interface)))
++	ret = checkintf(ps, setintf.interface);
++	if (ret)
+ 		return ret;
+ 
+ 	destroy_async_on_interface(ps, setintf.interface);
+@@ -1393,7 +1395,8 @@ static int proc_do_submiturb(struct usb_dev_state *ps, struct usbdevfs_urb *uurb
+ 		number_of_packets = uurb->number_of_packets;
+ 		isofrmlen = sizeof(struct usbdevfs_iso_packet_desc) *
+ 				   number_of_packets;
+-		if (!(isopkt = kmalloc(isofrmlen, GFP_KERNEL)))
++		isopkt = kmalloc(isofrmlen, GFP_KERNEL);
++		if (!isopkt)
+ 			return -ENOMEM;
+ 		if (copy_from_user(isopkt, iso_frame_desc, isofrmlen)) {
+ 			ret = -EFAULT;
+@@ -1940,38 +1943,41 @@ static int proc_ioctl(struct usb_dev_state *ps, struct usbdevfs_ioctl *ctl)
+ 
+ 	if (ps->dev->state != USB_STATE_CONFIGURED)
+ 		retval = -EHOSTUNREACH;
+-	else if (!(intf = usb_ifnum_to_if(ps->dev, ctl->ifno)))
+-		retval = -EINVAL;
+-	else switch (ctl->ioctl_code) {
++	else {
++		intf = usb_ifnum_to_if(ps->dev, ctl->ifno);
++		if (!intf)
++			retval = -EINVAL;
++		else switch (ctl->ioctl_code) {
+ 
+ 	/* disconnect kernel driver from interface */
+-	case USBDEVFS_DISCONNECT:
+-		if (intf->dev.driver) {
+-			driver = to_usb_driver(intf->dev.driver);
+-			dev_dbg(&intf->dev, "disconnect by usbfs\n");
+-			usb_driver_release_interface(driver, intf);
+-		} else
+-			retval = -ENODATA;
+-		break;
++		case USBDEVFS_DISCONNECT:
++			if (intf->dev.driver) {
++				driver = to_usb_driver(intf->dev.driver);
++				dev_dbg(&intf->dev, "disconnect by usbfs\n");
++				usb_driver_release_interface(driver, intf);
++			} else
++				retval = -ENODATA;
++			break;
+ 
+ 	/* let kernel drivers try to (re)bind to the interface */
+-	case USBDEVFS_CONNECT:
+-		if (!intf->dev.driver)
+-			retval = device_attach(&intf->dev);
+-		else
+-			retval = -EBUSY;
+-		break;
++		case USBDEVFS_CONNECT:
++			if (!intf->dev.driver)
++				retval = device_attach(&intf->dev);
++			else
++				retval = -EBUSY;
++			break;
+ 
+ 	/* talk directly to the interface's driver */
+ 	default:
+-		if (intf->dev.driver)
+-			driver = to_usb_driver(intf->dev.driver);
+-		if (driver == NULL || driver->unlocked_ioctl == NULL) {
+-			retval = -ENOTTY;
+-		} else {
+-			retval = driver->unlocked_ioctl(intf, ctl->ioctl_code, buf);
+-			if (retval == -ENOIOCTLCMD)
++			if (intf->dev.driver)
++				driver = to_usb_driver(intf->dev.driver);
++			if (driver == NULL || driver->unlocked_ioctl == NULL) {
+ 				retval = -ENOTTY;
++			} else {
++				retval = driver->unlocked_ioctl(intf, ctl->ioctl_code, buf);
++				if (retval == -ENOIOCTLCMD)
++					retval = -ENOTTY;
++				}
+ 		}
+ 	}
+ 
+-- 
+2.3.7
+

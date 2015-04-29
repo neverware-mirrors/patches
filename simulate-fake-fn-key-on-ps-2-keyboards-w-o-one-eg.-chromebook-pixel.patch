@@ -75,7 +75,7 @@ Signed-off-by: Dirk Hohndel <dirk@hohndel.org>
  	input_event(dev, EV_MSC, MSC_RAW, code);
  
  	if (atkbd_platform_scancode_fixup)
-@@ -995,6 +1017,48 @@ static unsigned int atkbd_oqo_01plus_sca
+@@ -997,6 +1019,48 @@ static unsigned int atkbd_oqo_01plus_sca
  }
  
  /*
@@ -124,7 +124,7 @@ Signed-off-by: Dirk Hohndel <dirk@hohndel.org>
   * atkbd_set_keycode_table() initializes keyboard's keycode table
   * according to the selected scancode set
   */
-@@ -1651,6 +1715,13 @@ static int __init atkbd_deactivate_fixup
+@@ -1653,6 +1717,13 @@ static int __init atkbd_deactivate_fixup
  	return 1;
  }
  
@@ -138,7 +138,7 @@ Signed-off-by: Dirk Hohndel <dirk@hohndel.org>
  static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
  	{
  		.matches = {
-@@ -1794,6 +1865,15 @@ static const struct dmi_system_id atkbd_
+@@ -1796,6 +1867,15 @@ static const struct dmi_system_id atkbd_
  		},
  		.callback = atkbd_deactivate_fixup,
  	},

@@ -1,0 +1,33 @@
+From 9d89910bb254d2686d58aeaa91c818abdae25e52 Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Wed, 29 Apr 2015 16:22:28 +0200
+Subject: [PATCH 29/36] ohci-hcd.c: move assignment out of if () block
+
+We should not be doing assignments within an if () block
+so fix up the code to not do this.
+
+change was created using Coccinelle.
+
+CC: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/host/ohci-hcd.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/usb/host/ohci-hcd.c b/drivers/usb/host/ohci-hcd.c
+index 1dab9dfbca6a..760cb57e954e 100644
+--- a/drivers/usb/host/ohci-hcd.c
++++ b/drivers/usb/host/ohci-hcd.c
+@@ -155,7 +155,8 @@ static int ohci_urb_enqueue (
+ 	int		retval = 0;
+ 
+ 	/* every endpoint has a ed, locate and maybe (re)initialize it */
+-	if (! (ed = ed_get (ohci, urb->ep, urb->dev, pipe, urb->interval)))
++	ed = ed_get(ohci, urb->ep, urb->dev, pipe, urb->interval);
++	if (! ed)
+ 		return -ENOMEM;
+ 
+ 	/* for the private part of the URB we need the number of TDs (size) */
+-- 
+2.3.7
+

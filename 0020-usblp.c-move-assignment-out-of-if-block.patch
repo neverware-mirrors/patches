@@ -1,0 +1,67 @@
+From de1affd1e2fd57f99f168e2d100bb16456b93a51 Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Wed, 29 Apr 2015 16:22:15 +0200
+Subject: [PATCH 20/36] usblp.c: move assignment out of if () block
+
+We should not be doing assignments within an if () block
+so fix up the code to not do this.
+
+change was created using Coccinelle.
+
+CC: Pete Zaitcev <zaitcev@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/class/usblp.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/usb/class/usblp.c b/drivers/usb/class/usblp.c
+index 0924ee40a966..f38e875a3fb1 100644
+--- a/drivers/usb/class/usblp.c
++++ b/drivers/usb/class/usblp.c
+@@ -660,7 +660,8 @@ static long usblp_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 		switch (cmd) {
+ 
+ 		case LPGETSTATUS:
+-			if ((retval = usblp_read_status(usblp, usblp->statusbuf))) {
++			retval = usblp_read_status(usblp, usblp->statusbuf);
++			if (retval) {
+ 				printk_ratelimited(KERN_ERR "usblp%d:"
+ 					    "failed reading printer status (%d)\n",
+ 					    usblp->minor, retval);
+@@ -693,9 +694,11 @@ static struct urb *usblp_new_writeurb(struct usblp *usblp, int transfer_length)
+ 	struct urb *urb;
+ 	char *writebuf;
+ 
+-	if ((writebuf = kmalloc(transfer_length, GFP_KERNEL)) == NULL)
++	writebuf = kmalloc(transfer_length, GFP_KERNEL);
++	if (writebuf == NULL)
+ 		return NULL;
+-	if ((urb = usb_alloc_urb(0, GFP_KERNEL)) == NULL) {
++	urb = usb_alloc_urb(0, GFP_KERNEL);
++	if (urb == NULL) {
+ 		kfree(writebuf);
+ 		return NULL;
+ 	}
+@@ -732,7 +735,8 @@ static ssize_t usblp_write(struct file *file, const char __user *buffer, size_t
+ 			transfer_length = USBLP_BUF_SIZE;
+ 
+ 		rv = -ENOMEM;
+-		if ((writeurb = usblp_new_writeurb(usblp, transfer_length)) == NULL)
++		writeurb = usblp_new_writeurb(usblp, transfer_length);
++		if (writeurb == NULL)
+ 			goto raise_urb;
+ 		usb_anchor_urb(writeurb, &usblp->urbs);
+ 
+@@ -980,7 +984,8 @@ static int usblp_submit_read(struct usblp *usblp)
+ 	int rc;
+ 
+ 	rc = -ENOMEM;
+-	if ((urb = usb_alloc_urb(0, GFP_KERNEL)) == NULL)
++	urb = usb_alloc_urb(0, GFP_KERNEL);
++	if (urb == NULL)
+ 		goto raise_urb;
+ 
+ 	usb_fill_bulk_urb(urb, usblp->dev,
+-- 
+2.3.7
+

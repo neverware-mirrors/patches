@@ -1,0 +1,49 @@
+From e5e6f43422bf355ced0e328b7073f68bdb6b37cf Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Wed, 29 Apr 2015 16:22:07 +0200
+Subject: [PATCH 09/36] ioc4_serial.c: move assignment out of if () block
+
+We should not be doing assignments within an if () block
+so fix up the code to not do this.
+
+change was created using Coccinelle.
+
+CC: Pat Gefre <pfg@sgi.com>
+CC: Jiri Slaby <jslaby@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/tty/serial/ioc4_serial.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/tty/serial/ioc4_serial.c b/drivers/tty/serial/ioc4_serial.c
+index aa28209f44c1..e5c42fef69d2 100644
+--- a/drivers/tty/serial/ioc4_serial.c
++++ b/drivers/tty/serial/ioc4_serial.c
+@@ -1011,7 +1011,8 @@ static irqreturn_t ioc4_intr(int irq, void *arg)
+ 		 */
+ 		for (xx = 0; xx < num_intrs; xx++) {
+ 			intr_info = &soft->is_intr_type[intr_type].is_intr_info[xx];
+-			if ((this_mir = this_ir & intr_info->sd_bits)) {
++			this_mir = this_ir & intr_info->sd_bits;
++			if (this_mir) {
+ 				/* Disable owned interrupts, call handler */
+ 				handled++;
+ 				write_ireg(soft, intr_info->sd_bits, IOC4_W_IEC,
+@@ -2865,10 +2866,12 @@ ioc4_serial_attach_one(struct ioc4_driver_data *idd)
+ 
+ 	/* register port with the serial core - 1 rs232, 1 rs422 */
+ 
+-	if ((ret = ioc4_serial_core_attach(idd->idd_pdev, PROTO_RS232)))
++	ret = ioc4_serial_core_attach(idd->idd_pdev, PROTO_RS232);
++	if (ret)
+ 		goto out4;
+ 
+-	if ((ret = ioc4_serial_core_attach(idd->idd_pdev, PROTO_RS422)))
++	ret = ioc4_serial_core_attach(idd->idd_pdev, PROTO_RS422);
++	if (ret)
+ 		goto out5;
+ 
+ 	Num_of_ioc4_cards++;
+-- 
+2.3.7
+

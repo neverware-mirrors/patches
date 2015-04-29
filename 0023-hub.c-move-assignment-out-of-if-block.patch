@@ -1,0 +1,36 @@
+From ef578ef0909f074287986f865173be92d7028213 Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Wed, 29 Apr 2015 16:22:22 +0200
+Subject: [PATCH 23/36] hub.c: move assignment out of if () block
+
+We should not be doing assignments within an if () block
+so fix up the code to not do this.
+
+change was created using Coccinelle.
+
+CC: Alan Stern <stern@rowland.harvard.edu>
+CC: Dan Williams <dan.j.williams@intel.com>
+CC: Petr Mladek <pmladek@suse.cz>
+CC: Peter Chen <peter.chen@freescale.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/core/hub.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
+index 3b7151687776..329073c8ede2 100644
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -795,7 +795,8 @@ int usb_hub_clear_tt_buffer(struct urb *urb)
+ 	 * since each TT has "at least two" buffers that can need it (and
+ 	 * there can be many TTs per hub).  even if they're uncommon.
+ 	 */
+-	if ((clear = kmalloc (sizeof *clear, GFP_ATOMIC)) == NULL) {
++	clear = kmalloc(sizeof *clear, GFP_ATOMIC);
++	if (clear == NULL) {
+ 		dev_err (&udev->dev, "can't save CLEAR_TT_BUFFER state\n");
+ 		/* FIXME recover somehow ... RESET_TT? */
+ 		return -ENOMEM;
+-- 
+2.3.7
+

@@ -1,0 +1,65 @@
+From 9a3031c4490510d4a860f857526293f6638528a1 Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Wed, 29 Apr 2015 16:22:05 +0200
+Subject: [PATCH 06/36] crisv10.c: move assignment out of if () block
+
+We should not be doing assignments within an if () block
+so fix up the code to not do this.
+
+change was created using Coccinelle.
+
+CC: Mikael Starvik <starvik@axis.com>
+CC: Jesper Nilsson <jesper.nilsson@axis.com>
+CC: Jiri Slaby <jslaby@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/tty/serial/crisv10.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/tty/serial/crisv10.c b/drivers/tty/serial/crisv10.c
+index 0c1825b0b41d..135021314a71 100644
+--- a/drivers/tty/serial/crisv10.c
++++ b/drivers/tty/serial/crisv10.c
+@@ -1676,7 +1676,8 @@ alloc_recv_buffer(unsigned int size)
+ {
+ 	struct etrax_recv_buffer *buffer;
+ 
+-	if (!(buffer = kmalloc(sizeof *buffer + size, GFP_ATOMIC)))
++	buffer = kmalloc(sizeof *buffer + size, GFP_ATOMIC);
++	if (!buffer)
+ 		return NULL;
+ 
+ 	buffer->next = NULL;
+@@ -1712,7 +1713,8 @@ add_char_and_flag(struct e100_serial *info, unsigned char data, unsigned char fl
+ {
+ 	struct etrax_recv_buffer *buffer;
+ 	if (info->uses_dma_in) {
+-		if (!(buffer = alloc_recv_buffer(4)))
++		buffer = alloc_recv_buffer(4);
++		if (!buffer)
+ 			return 0;
+ 
+ 		buffer->length = 1;
+@@ -1750,7 +1752,8 @@ static unsigned int handle_descr_data(struct e100_serial *info,
+ 
+ 	append_recv_buffer(info, buffer);
+ 
+-	if (!(buffer = alloc_recv_buffer(SERIAL_DESCR_BUF_SIZE)))
++	buffer = alloc_recv_buffer(SERIAL_DESCR_BUF_SIZE);
++	if (!buffer)
+ 		panic("%s: Failed to allocate memory for receive buffer!\n", __func__);
+ 
+ 	descr->buf = virt_to_phys(buffer->buffer);
+@@ -1867,7 +1870,8 @@ static int start_recv_dma(struct e100_serial *info)
+ 
+ 	/* Set up the receiving descriptors */
+ 	for (i = 0; i < SERIAL_RECV_DESCRIPTORS; i++) {
+-		if (!(buffer = alloc_recv_buffer(SERIAL_DESCR_BUF_SIZE)))
++		buffer = alloc_recv_buffer(SERIAL_DESCR_BUF_SIZE);
++		if (!buffer)
+ 			panic("%s: Failed to allocate memory for receive buffer!\n", __func__);
+ 
+ 		descr[i].ctrl = d_int;
+-- 
+2.3.7
+

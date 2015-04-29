@@ -1,0 +1,34 @@
+From cdf92482f0381097283312e3e2d0781d6333ab8d Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Wed, 29 Apr 2015 16:22:06 +0200
+Subject: [PATCH 08/36] ioc3_serial.c: move assignment out of if () block
+
+We should not be doing assignments within an if () block
+so fix up the code to not do this.
+
+change was created using Coccinelle.
+
+CC: Pat Gefre <pfg@sgi.com>
+CC: Jiri Slaby <jslaby@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/tty/serial/ioc3_serial.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/tty/serial/ioc3_serial.c b/drivers/tty/serial/ioc3_serial.c
+index abd7ea26ed9a..27b5fefac171 100644
+--- a/drivers/tty/serial/ioc3_serial.c
++++ b/drivers/tty/serial/ioc3_serial.c
+@@ -2137,7 +2137,8 @@ ioc3uart_probe(struct ioc3_submodule *is, struct ioc3_driver_data *idd)
+ 
+ 	/* register port with the serial core */
+ 
+-	if ((ret = ioc3_serial_core_attach(is, idd)))
++	ret = ioc3_serial_core_attach(is, idd);
++	if (ret)
+ 		goto out4;
+ 
+ 	Num_of_ioc3_cards++;
+-- 
+2.3.7
+

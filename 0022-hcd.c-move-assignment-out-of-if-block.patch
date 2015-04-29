@@ -1,0 +1,40 @@
+From 05b4a29d4ff1bef8aaaa42acbccb2ed22e400432 Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Wed, 29 Apr 2015 16:22:20 +0200
+Subject: [PATCH 22/36] hcd.c: move assignment out of if () block
+
+We should not be doing assignments within an if () block
+so fix up the code to not do this.
+
+change was created using Coccinelle.
+
+CC: Alan Stern <stern@rowland.harvard.edu>
+CC: Felipe Balbi <balbi@ti.com>
+CC: Dan Williams <dan.j.williams@intel.com>
+CC: Antoine Tenart <antoine.tenart@free-electrons.com>
+CC: Petr Mladek <pmladek@suse.cz>
+CC: Michal Sojka <sojka@merica.cz>
+CC: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+CC: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/core/hcd.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/usb/core/hcd.c b/drivers/usb/core/hcd.c
+index 45a915ccd71c..be5b2074f906 100644
+--- a/drivers/usb/core/hcd.c
++++ b/drivers/usb/core/hcd.c
+@@ -2691,7 +2691,8 @@ int usb_add_hcd(struct usb_hcd *hcd,
+ 	if ((retval = usb_register_bus(&hcd->self)) < 0)
+ 		goto err_register_bus;
+ 
+-	if ((rhdev = usb_alloc_dev(NULL, &hcd->self, 0)) == NULL) {
++	rhdev = usb_alloc_dev(NULL, &hcd->self, 0);
++	if (rhdev == NULL) {
+ 		dev_err(hcd->self.controller, "unable to allocate root hub\n");
+ 		retval = -ENOMEM;
+ 		goto err_allocate_root_hub;
+-- 
+2.3.7
+

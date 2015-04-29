@@ -1,0 +1,38 @@
+From 4e4b3ca0b5b8be99c6588e0291dc4bb14275bd88 Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Wed, 29 Apr 2015 16:22:27 +0200
+Subject: [PATCH 26/36] fusbh200-hcd.c: move assignment out of if () block
+
+We should not be doing assignments within an if () block
+so fix up the code to not do this.
+
+change was created using Coccinelle.
+
+CC: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+CC: Alan Stern <stern@rowland.harvard.edu>
+CC: Petr Mladek <pmladek@suse.cz>
+CC: Randy Dunlap <rdunlap@infradead.org>
+CC: Felipe Balbi <balbi@ti.com>
+CC: Masanari Iida <standby24x7@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/host/fusbh200-hcd.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/usb/host/fusbh200-hcd.c b/drivers/usb/host/fusbh200-hcd.c
+index 00e492eaba6a..1fd8718a9f11 100644
+--- a/drivers/usb/host/fusbh200-hcd.c
++++ b/drivers/usb/host/fusbh200-hcd.c
+@@ -499,7 +499,8 @@ static ssize_t fill_periodic_buffer(struct debug_buffer *buf)
+ 	unsigned		i;
+ 	__hc32			tag;
+ 
+-	if (!(seen = kmalloc (DBG_SCHED_LIMIT * sizeof *seen, GFP_ATOMIC)))
++	seen = kmalloc(DBG_SCHED_LIMIT * sizeof *seen, GFP_ATOMIC);
++	if (!seen)
+ 		return 0;
+ 	seen_count = 0;
+ 
+-- 
+2.3.7
+
