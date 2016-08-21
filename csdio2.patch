@@ -240,7 +240,7 @@ Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
 +connected to different SDIO hosts.
 --- a/drivers/char/Kconfig
 +++ b/drivers/char/Kconfig
-@@ -611,5 +611,28 @@ config TILE_SROM
+@@ -590,5 +590,28 @@ config TILE_SROM
  
  source "drivers/char/xillybus/Kconfig"
  
@@ -271,11 +271,14 @@ Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
  
 --- a/drivers/char/Makefile
 +++ b/drivers/char/Makefile
-@@ -62,3 +62,4 @@ js-rtc-y = rtc.o
- 
- obj-$(CONFIG_TILE_SROM)		+= tile-srom.o
- obj-$(CONFIG_XILLYBUS)		+= xillybus/
+@@ -44,6 +44,7 @@ obj-$(CONFIG_PC8736x_GPIO)	+= pc8736x_gp
+ obj-$(CONFIG_NSC_GPIO)		+= nsc_gpio.o
+ obj-$(CONFIG_GPIO_TB0219)	+= tb0219.o
+ obj-$(CONFIG_TELCLOCK)		+= tlclk.o
 +obj-$(CONFIG_MMC_GENERIC_CSDIO)	+= csdio.o
+ 
+ obj-$(CONFIG_MWAVE)		+= mwave/
+ obj-y				+= agp/
 --- /dev/null
 +++ b/drivers/char/csdio.c
 @@ -0,0 +1,1070 @@

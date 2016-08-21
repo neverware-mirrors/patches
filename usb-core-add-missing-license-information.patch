@@ -1,0 +1,159 @@
+From foo@baz Sun Aug 21 16:22:06 CEST 2016
+Date: Sun, 21 Aug 2016 16:22:06 +0200
+To: Greg KH <gregkh@linuxfoundation.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH] USB: core: add missing license information
+
+Some of the USB core files were missing explicit license information.
+As all files in the kernel tree are implicitly licensed under the
+GPLv2-only, be explicit in case someone get confused looking at
+individual files.
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ drivers/usb/core/buffer.c   |    2 ++
+ drivers/usb/core/config.c   |    2 ++
+ drivers/usb/core/driver.c   |    2 ++
+ drivers/usb/core/endpoint.c |    3 ++-
+ drivers/usb/core/file.c     |    1 +
+ drivers/usb/core/generic.c  |    1 +
+ drivers/usb/core/hub.c      |    1 +
+ drivers/usb/core/message.c  |    2 ++
+ drivers/usb/core/notify.c   |    1 +
+ drivers/usb/core/sysfs.c    |    1 +
+ drivers/usb/core/urb.c      |    2 ++
+ drivers/usb/core/usb.c      |    2 ++
+ drivers/usb/core/usb.h      |    2 ++
+ 13 files changed, 21 insertions(+), 1 deletion(-)
+
+--- a/drivers/usb/core/buffer.c
++++ b/drivers/usb/core/buffer.c
+@@ -3,6 +3,8 @@
+  *
+  * This implementation plugs in through generic "usb_bus" level methods,
+  * and should work with all USB controllers, regardless of bus type.
++ *
++ * Released under the GPLv2 only.
+  */
+ 
+ #include <linux/module.h>
+--- a/drivers/usb/core/config.c
++++ b/drivers/usb/core/config.c
+@@ -1,3 +1,5 @@
++/* Released under the GPLv2 only. */
++
+ #include <linux/usb.h>
+ #include <linux/usb/ch9.h>
+ #include <linux/usb/hcd.h>
+--- a/drivers/usb/core/driver.c
++++ b/drivers/usb/core/driver.c
+@@ -15,6 +15,8 @@
+  *		(usb_device_id matching changes by Adam J. Richter)
+  *	(C) Copyright Greg Kroah-Hartman 2002-2003
+  *
++ * Released under the GPLv2 only.
++ *
+  * NOTE! This is not actually a driver at all, rather this is
+  * just a collection of helper routines that implement the
+  * matching, probing, releasing, suspending and resuming for
+--- a/drivers/usb/core/endpoint.c
++++ b/drivers/usb/core/endpoint.c
+@@ -5,8 +5,9 @@
+  * (C) Copyright 2002,2004 IBM Corp.
+  * (C) Copyright 2006 Novell Inc.
+  *
+- * Endpoint sysfs stuff
++ * Released under the GPLv2 only.
+  *
++ * Endpoint sysfs stuff
+  */
+ 
+ #include <linux/kernel.h>
+--- a/drivers/usb/core/file.c
++++ b/drivers/usb/core/file.c
+@@ -13,6 +13,7 @@
+  *     (usb_device_id matching changes by Adam J. Richter)
+  * (C) Copyright Greg Kroah-Hartman 2002-2003
+  *
++ * Released under the GPLv2 only.
+  */
+ 
+ #include <linux/module.h>
+--- a/drivers/usb/core/generic.c
++++ b/drivers/usb/core/generic.c
+@@ -15,6 +15,7 @@
+  *		(usb_device_id matching changes by Adam J. Richter)
+  *	(C) Copyright Greg Kroah-Hartman 2002-2003
+  *
++ * Released under the GPLv2 only.
+  */
+ 
+ #include <linux/usb.h>
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -6,6 +6,7 @@
+  * (C) Copyright 1999 Gregory P. Smith
+  * (C) Copyright 2001 Brad Hards (bhards@bigpond.net.au)
+  *
++ * Released under the GPLv2 only.
+  */
+ 
+ #include <linux/kernel.h>
+--- a/drivers/usb/core/message.c
++++ b/drivers/usb/core/message.c
+@@ -1,5 +1,7 @@
+ /*
+  * message.c - synchronous message handling
++ *
++ * Released under the GPLv2 only.
+  */
+ 
+ #include <linux/pci.h>	/* for scatterlist macros */
+--- a/drivers/usb/core/notify.c
++++ b/drivers/usb/core/notify.c
+@@ -6,6 +6,7 @@
+  * notifier functions originally based on those in kernel/sys.c
+  * but fixed up to not be so broken.
+  *
++ * Released under the GPLv2 only.
+  */
+ 
+ 
+--- a/drivers/usb/core/sysfs.c
++++ b/drivers/usb/core/sysfs.c
+@@ -7,6 +7,7 @@
+  *
+  * All of the sysfs file attributes for usb devices and interfaces.
+  *
++ * Released under the GPLv2 only.
+  */
+ 
+ 
+--- a/drivers/usb/core/urb.c
++++ b/drivers/usb/core/urb.c
+@@ -1,3 +1,5 @@
++/* Released under the GPLv2 only. */
++
+ #include <linux/module.h>
+ #include <linux/string.h>
+ #include <linux/bitops.h>
+--- a/drivers/usb/core/usb.c
++++ b/drivers/usb/core/usb.c
+@@ -12,6 +12,8 @@
+  *     (usb_device_id matching changes by Adam J. Richter)
+  * (C) Copyright Greg Kroah-Hartman 2002-2003
+  *
++ * Released under the GPLv2 only.
++ *
+  * NOTE! This is not actually a driver at all, rather this is
+  * just a collection of helper routines that implement the
+  * generic USB things that the real drivers can use..
+--- a/drivers/usb/core/usb.h
++++ b/drivers/usb/core/usb.h
+@@ -1,3 +1,5 @@
++/* Released under the GPLv2 only. */
++
+ #include <linux/pm.h>
+ #include <linux/acpi.h>
+ 

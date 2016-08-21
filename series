@@ -1,39 +1,7 @@
-0001-iop.c-move-assignment-out-of-if-block.patch
-0002-amiserial.c-move-assignment-out-of-if-block.patch
-0003-hvc_console.c-move-assignment-out-of-if-block.patch
-0004-hvcs.c-move-assignment-out-of-if-block.patch
-0005-68328serial.c-move-assignment-out-of-if-block.patch
-0006-crisv10.c-move-assignment-out-of-if-block.patch
-0007-icom.c-move-assignment-out-of-if-block.patch
-0008-ioc3_serial.c-move-assignment-out-of-if-block.patch
-0009-ioc4_serial.c-move-assignment-out-of-if-block.patch
-0010-mpsc.c-move-assignment-out-of-if-block.patch
-0011-synclink.c-move-assignment-out-of-if-block.patch
-0012-synclink_gt.c-move-assignment-out-of-if-block.patch
-0013-synclinkmp.c-move-assignment-out-of-if-block.patch
-0014-tty_buffer.c-move-assignment-out-of-if-block.patch
-0015-tty_ldsem.c-move-assignment-out-of-if-block.patch
-0016-consolemap.c-move-assignment-out-of-if-block.patch
-0017-speedtch.c-move-assignment-out-of-if-block.patch
-0018-usbatm.c-move-assignment-out-of-if-block.patch
-0019-xusbatm.c-move-assignment-out-of-if-block.patch
-0020-usblp.c-move-assignment-out-of-if-block.patch
-0021-devio.c-move-assignment-out-of-if-block.patch
-0022-hcd.c-move-assignment-out-of-if-block.patch
-0023-hub.c-move-assignment-out-of-if-block.patch
-0024-inode.c-move-assignment-out-of-if-block.patch
-0025-ehci-dbg.c-move-assignment-out-of-if-block.patch
-0026-fusbh200-hcd.c-move-assignment-out-of-if-block.patch
-0027-isp116x-hcd.c-move-assignment-out-of-if-block.patch
-0028-ohci-dbg.c-move-assignment-out-of-if-block.patch
-0029-ohci-hcd.c-move-assignment-out-of-if-block.patch
-0030-ohci-q.c-move-assignment-out-of-if-block.patch
-0031-sisusb.c-move-assignment-out-of-if-block.patch
-0032-sisusb_con.c-move-assignment-out-of-if-block.patch
-0033-uss720.c-move-assignment-out-of-if-block.patch
-0034-mon_bin.c-move-assignment-out-of-if-block.patch
-0035-mon_main.c-move-assignment-out-of-if-block.patch
-0036-mon_stat.c-move-assignment-out-of-if-block.patch
+usb-core-add-missing-license-information.patch
+
+# broken patch!
+
 csdio2.patch
 #input-xpad-set-the-leds-properly-on-xbox-wireless-controllers.patch
 #defer-input-nodes-and-led-support
@@ -52,7 +20,6 @@ staging-exfat-truncage_pagecache-api-change.patch
 staging-exfat-readdir-to-iterate-change.patch
 staging-exfat-kuid-fixes.patch
 
-xen-disable-clock-timer-when-shutting-down.patch
 
 # patches already in my git trees, but still here so I don't loose them.
 
