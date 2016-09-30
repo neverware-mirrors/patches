@@ -1,3 +1,14 @@
+From foo@baz Thu Sep 15 13:54:45 CEST 2016
+Date: Thu, 15 Sep 2016 13:54:45 +0200
+To: Greg KH <gregkh@linuxfoundation.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: greybus: timesync driver
+
+This code implements the Greybus timesync logic.  It has the ability to
+sync a time signal across all Unipro devices allowing them to stay in
+sync properly.
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  drivers/greybus/timesync.c          | 1357 ++++++++++++++++++++++++++++++++++++
  drivers/greybus/timesync.h          |   45 +

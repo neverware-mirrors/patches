@@ -1,3 +1,13 @@
+From foo@baz Thu Sep 15 13:54:45 CEST 2016
+Date: Thu, 15 Sep 2016 13:54:45 +0200
+To: Greg KH <gregkh@linuxfoundation.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: greybus: arche platform driver
+
+This is a platform driver for the arche platform controller that hooks
+into the USB hub that talks to the USB<->Unipro bridge chip.
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  drivers/greybus/arche-apb-ctrl.c |  522 ++++++++++++++++++++++++
  drivers/greybus/arche-platform.c |  828 +++++++++++++++++++++++++++++++++++++++

@@ -1,3 +1,12 @@
+From foo@baz Thu Sep 15 13:54:45 CEST 2016
+Date: Thu, 15 Sep 2016 13:54:45 +0200
+To: Greg KH <gregkh@linuxfoundation.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: greybus: documentation
+
+This describes all of the sysfs files that greybus exposes to userspace
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  Documentation/ABI/testing/sysfs-bus-greybus |  275 ++++++++++++++++++++++++++++
  1 file changed, 275 insertions(+)

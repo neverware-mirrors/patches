@@ -1,3 +1,12 @@
+From foo@baz Thu Sep 15 13:54:45 CEST 2016
+Date: Thu, 15 Sep 2016 13:54:45 +0200
+To: Greg KH <gregkh@linuxfoundation.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: greybus: bridged phy usb driver
+
+This driver implements the Greybus bridged phy USB class protocol.
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  drivers/greybus/usb.c |  247 ++++++++++++++++++++++++++++++++++++++++++++++++++
  1 file changed, 247 insertions(+)

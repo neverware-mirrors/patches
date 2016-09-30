@@ -1,3 +1,13 @@
+From foo@baz Thu Sep 15 13:54:45 CEST 2016
+Date: Thu, 15 Sep 2016 13:54:45 +0200
+To: Greg KH <gregkh@linuxfoundation.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: greybus: add to the build
+
+This adds the drivers/greybus/ directory to the build and provides a
+valid Kconfig file.
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  drivers/Kconfig          |    2 
  drivers/Makefile         |    1 

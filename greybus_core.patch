@@ -1,4 +1,13 @@
+From foo@baz Thu Sep 15 13:54:45 CEST 2016
+Date: Thu, 15 Sep 2016 13:54:45 +0200
+To: Greg KH <gregkh@linuxfoundation.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: greybus: core code
 
+This is the core Greybus code.  It implements the greybus protocol and
+is the base of where all other greybus drivers tie into.
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  drivers/greybus/arpc.h                   |  109 +++
  drivers/greybus/authentication.c         |  429 ++++++++++++++
@@ -10,7 +19,6 @@
  drivers/greybus/control.h                |   65 ++
  drivers/greybus/core.c                   |  361 +++++++++++
  drivers/greybus/debugfs.c                |   31 +
- drivers/greybus/devices                  |   11 
  drivers/greybus/greybus.h                |  154 +++++
  drivers/greybus/greybus_authentication.h |  120 +++
  drivers/greybus/greybus_id.h             |   26 
@@ -19,7 +27,7 @@
  drivers/greybus/manifest.h               |   16 
  drivers/greybus/module.c                 |  238 +++++++
  drivers/greybus/module.h                 |   34 +
- 19 files changed, 4351 insertions(+)
+ 18 files changed, 4340 insertions(+)
 
 --- /dev/null
 +++ b/drivers/greybus/arpc.h
@@ -3091,20 +3099,6 @@
 +	return gb_debug_root;
 +}
 +EXPORT_SYMBOL_GPL(gb_debugfs_get);
---- /dev/null
-+++ b/drivers/greybus/devices
-@@ -0,0 +1,11 @@
-+T:  Bus=01 Lev=03 Prnt=07 Port=02 Cnt=03 Dev#= 12 Spd=12   MxCh= 0
-+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-+P:  Vendor=ffff ProdID=0001 Rev= 1.00
-+S:  Manufacturer=Greybus
-+S:  Product=SVC Bridge
-+S:  SerialNumber=12239
-+C:* #Ifs= 1 Cfg#= 1 Atr=c0 MxPwr=100mA
-+I:* If#= 0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=es1_ap_driver
-+E:  Ad=81(I) Atr=03(Int.) MxPS=  64 Ivl=64ms
-+E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-+E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
 --- /dev/null
 +++ b/drivers/greybus/greybus.h
 @@ -0,0 +1,154 @@

@@ -1,3 +1,14 @@
+From foo@baz Thu Sep 15 13:54:45 CEST 2016
+Date: Thu, 15 Sep 2016 13:54:45 +0200
+To: Greg KH <gregkh@linuxfoundation.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: greybus: bridged phy bus code
+
+This driver is for the Greybus Bridged Phy class.  It implements a bus
+where all bridged phy devices hang off of, and provides the framework
+for the Greybus Bridged phy drivers to plug into.
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  drivers/greybus/gbphy.c |  360 ++++++++++++++++++++++++++++++++++++++++++++++++
  drivers/greybus/gbphy.h |  110 ++++++++++++++

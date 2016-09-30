@@ -1,3 +1,16 @@
+From foo@baz Thu Sep 15 13:54:45 CEST 2016
+Date: Thu, 15 Sep 2016 13:54:45 +0200
+To: Greg KH <gregkh@linuxfoundation.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: greybus: greybus_protocols.h
+
+This is a header file describing the Greybus protocols.  Everything is
+here that is described by the Greybus specification.
+
+It is dual-licensed so that it can be included into other projects if
+needed.
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  drivers/greybus/greybus_protocols.h | 2268 ++++++++++++++++++++++++++++++++++++
  1 file changed, 2268 insertions(+)

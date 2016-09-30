@@ -1,3 +1,14 @@
+From foo@baz Thu Sep 15 13:54:45 CEST 2016
+Date: Thu, 15 Sep 2016 13:54:45 +0200
+To: Greg KH <gregkh@linuxfoundation.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: greybus: svc driver/watchdog
+
+This is the Greybus SVC (a switch) driver.  It includes a simple
+watchdog that if it detects that there is no more network activity on
+the Unipro system, userspace will be told to restart the system.
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  drivers/greybus/svc.c          | 1486 +++++++++++++++++++++++++++++++++++++++++
  drivers/greybus/svc.h          |  109 +++
