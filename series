@@ -2,7 +2,7 @@ usb-core-add-missing-license-information.patch
 
 ## broken patch!
 #
-#csdio2.patch
+csdio2.patch
 ##input-xpad-set-the-leds-properly-on-xbox-wireless-controllers.patch
 ##defer-input-nodes-and-led-support
 ##input-xpad-move-the-input-device-creation-to-a-new-function.patch
@@ -12,13 +12,13 @@ usb-core-add-missing-license-information.patch
 ##input-xpad-properly-name-the-led-class-devices.patch
 #
 #
-#staging-exfat-add-filesystem-to-drivers-staging-exfat.patch
-#staging-exfat-add-filesystem-to-the-build.patch
-#staging-exfat-include-aio.h.patch
-#staging-exfat-hlist_for_each-api-change.patch
-#staging-exfat-truncage_pagecache-api-change.patch
-#staging-exfat-readdir-to-iterate-change.patch
-#staging-exfat-kuid-fixes.patch
+staging-exfat-add-filesystem-to-drivers-staging-exfat.patch
+staging-exfat-add-filesystem-to-the-build.patch
+staging-exfat-include-aio.h.patch
+staging-exfat-hlist_for_each-api-change.patch
+staging-exfat-truncage_pagecache-api-change.patch
+staging-exfat-readdir-to-iterate-change.patch
+staging-exfat-kuid-fixes.patch
 #
 #
 ## patches already in my git trees, but still here so I don't loose them.
@@ -33,24 +33,24 @@ usb-core-add-missing-license-information.patch
 ## dev_groups to struct class work
 #
 #
-#simulate-fake-fn-key-on-ps-2-keyboards-w-o-one-eg.-chromebook-pixel.patch
+simulate-fake-fn-key-on-ps-2-keyboards-w-o-one-eg.-chromebook-pixel.patch
 #
 ##gregkh/gkh-version.patch
 #
-#driver-core-remove-struct-bus_type.dev_attrs.patch
+driver-core-remove-struct-bus_type.dev_attrs.patch
 #
-#p18.patch
-#p19.patch
-#p20.patch
-#p21.patch
-#p22.patch
-#p23.patch
-#p24.patch
-#p25.patch
-#p26.patch
-#p27.patch
-#p28.patch
-#p29.patch
+p18.patch
+p19.patch
+p20.patch
+p21.patch
+p22.patch
+p23.patch
+p24.patch
+p25.patch
+p26.patch
+p27.patch
+p28.patch
+p29.patch
 #
 #qlcnic_sysfs.patch
 #

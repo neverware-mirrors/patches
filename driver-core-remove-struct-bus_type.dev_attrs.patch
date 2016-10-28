@@ -10,9 +10,9 @@ it, can be removed.
 
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/base/bus.c     |   39 ++-------------------------------------
+ drivers/base/bus.c     |   37 +------------------------------------
  include/linux/device.h |    2 --
- 2 files changed, 2 insertions(+), 39 deletions(-)
+ 2 files changed, 1 insertion(+), 38 deletions(-)
 
 --- a/drivers/base/bus.c
 +++ b/drivers/base/bus.c
@@ -52,7 +52,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  /**
   * bus_add_device - add device to bus
   * @dev: device being added
-@@ -510,16 +481,13 @@ int bus_add_device(struct device *dev)
+@@ -510,12 +481,9 @@ int bus_add_device(struct device *dev)
  
  	if (bus) {
  		pr_debug("bus: '%s': add device %s\n", bus->name, dev_name(dev));
@@ -61,15 +61,10 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 -			goto out_put;
  		error = device_add_groups(dev, bus->dev_groups);
  		if (error)
--			goto out_groups;
+-			goto out_id;
 +			goto out_put;
  		error = sysfs_create_link(&bus->p->devices_kset->kobj,
  						&dev->kobj, dev_name(dev));
- 		if (error)
--			goto out_id;
-+			goto out_groups;
- 		error = sysfs_create_link(&dev->kobj,
- 				&dev->bus->p->subsys.kobj, "subsystem");
  		if (error)
 @@ -532,8 +500,6 @@ out_subsys:
  	sysfs_remove_link(&bus->p->devices_kset->kobj, dev_name(dev));
@@ -80,7 +75,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  out_put:
  	bus_put(dev->bus);
  	return error;
-@@ -593,7 +559,6 @@ void bus_remove_device(struct device *de
+@@ -590,7 +556,6 @@ void bus_remove_device(struct device *de
  	sysfs_remove_link(&dev->kobj, "subsystem");
  	sysfs_remove_link(&dev->bus->p->devices_kset->kobj,
  			  dev_name(dev));
@@ -90,7 +85,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		klist_del(&dev->p->knode_bus);
 --- a/include/linux/device.h
 +++ b/include/linux/device.h
-@@ -64,7 +64,6 @@ extern void bus_remove_file(struct bus_t
+@@ -66,7 +66,6 @@ extern void bus_remove_file(struct bus_t
   * @name:	The name of the bus.
   * @dev_name:	Used for subsystems to enumerate devices like ("foo%u", dev->id).
   * @dev_root:	Default device to use as the parent.
@@ -98,7 +93,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
   * @bus_groups:	Default attributes of the bus.
   * @dev_groups:	Default attributes of the devices on the bus.
   * @drv_groups: Default attributes of the device drivers on the bus.
-@@ -105,7 +104,6 @@ struct bus_type {
+@@ -110,7 +109,6 @@ struct bus_type {
  	const char		*name;
  	const char		*dev_name;
  	struct device		*dev_root;
