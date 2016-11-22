@@ -33,6 +33,7 @@ staging-exfat-kuid-fixes.patch
 ## dev_groups to struct class work
 #
 #
+e.patch
 simulate-fake-fn-key-on-ps-2-keyboards-w-o-one-eg.-chromebook-pixel.patch
 #
 ##gregkh/gkh-version.patch
@@ -45,7 +46,6 @@ p20.patch
 p21.patch
 p22.patch
 p23.patch
-p24.patch
 p25.patch
 p26.patch
 p27.patch
@@ -67,3 +67,16 @@ p29.patch
 #
 #
 #
+p30.patch
+p31.patch
+c00.patch
+c01.patch
+c02.patch
+c03.patch
+c04.patch
+c05.patch
+c06.patch
+class_wo.patch
+c07.patch
+c08.patch
+c09.patch

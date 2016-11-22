@@ -1,6 +1,6 @@
 ---
- arch/powerpc/kernel/vio.c |   50 ++++++++++++++++++++++++++--------------------
- 1 file changed, 29 insertions(+), 21 deletions(-)
+ arch/powerpc/kernel/vio.c |   43 ++++++++++++++++++++++---------------------
+ 1 file changed, 22 insertions(+), 21 deletions(-)
 
 --- a/arch/powerpc/kernel/vio.c
 +++ b/arch/powerpc/kernel/vio.c
@@ -77,31 +77,16 @@
  	vio_bus_type.bus_groups = vio_bus_groups;
  }
  #else /* CONFIG_PPC_SMLPAR */
-@@ -1562,12 +1569,13 @@ static ssize_t modalias_show(struct devi
- 	return sprintf(buf, "vio:T%sS%s\n", vio_dev->type, cp);
+@@ -1570,12 +1577,6 @@ static ssize_t modalias_show(struct devi
  }
+ static DEVICE_ATTR_RO(modalias);
  
 -static struct device_attribute vio_dev_attrs[] = {
 -	__ATTR_RO(name),
 -	__ATTR_RO(devspec),
 -	__ATTR_RO(modalias),
 -	__ATTR_NULL
-+static struct attribute *vio_dev_attrs[] = {
-+	&dev_attr_name.attr,
-+	&dev_attr_devspec.attr,
-+	&dev_attr_modalias.attr,
-+	NULL,
- };
-+ATTRIBUTE_GROUPS(vio_dev);
- 
- void vio_unregister_device(struct vio_dev *viodev)
- {
-@@ -1603,7 +1611,7 @@ static int vio_hotplug(struct device *de
- 
- struct bus_type vio_bus_type = {
- 	.name = "vio",
--	.dev_attrs = vio_dev_attrs,
-+	.dev_groups = vio_dev_groups,
- 	.uevent = vio_hotplug,
- 	.match = vio_bus_match,
- 	.probe = vio_bus_probe,
+-};
+ static struct attribute *vio_dev_attrs[] = {
+ 	&dev_attr_name.attr,
+ 	&dev_attr_devspec.attr,

@@ -1,0 +1,39 @@
+---
+ drivers/block/zram/zram_drv.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
+
+--- a/drivers/block/zram/zram_drv.c
++++ b/drivers/block/zram/zram_drv.c
+@@ -1382,6 +1382,7 @@ static ssize_t hot_add_show(struct class
+ 		return ret;
+ 	return scnprintf(buf, PAGE_SIZE, "%d\n", ret);
+ }
++static CLASS_ATTR_RO(hot_add);
+ 
+ static ssize_t hot_remove_store(struct class *class,
+ 			struct class_attribute *attr,
+@@ -1411,17 +1412,19 @@ static ssize_t hot_remove_store(struct c
+ 	mutex_unlock(&zram_index_mutex);
+ 	return ret ? ret : count;
+ }
++static CLASS_ATTR_WO(hot_remove);
+ 
+-static struct class_attribute zram_control_class_attrs[] = {
+-	__ATTR_RO(hot_add),
+-	__ATTR_WO(hot_remove),
+-	__ATTR_NULL,
++static struct attribute *zram_control_class_attrs[] = {
++	&class_attr_hot_add.attr,
++	&class_attr_hot_remove.attr,
++	NULL,
+ };
++ATTRIBUTE_GROUPS(zram_controll_class);
+ 
+ static struct class zram_control_class = {
+ 	.name		= "zram-control",
+ 	.owner		= THIS_MODULE,
+-	.class_attrs	= zram_control_class_attrs,
++	.class_groups	= zram_control_class_groups,
+ };
+ 
+ static int zram_remove_cb(int id, void *ptr, void *data)

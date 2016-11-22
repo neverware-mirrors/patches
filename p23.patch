@@ -1,11 +1,11 @@
 ---
- drivers/rpmsg/virtio_rpmsg_bus.c |   21 ++++++++++++---------
+ drivers/rpmsg/rpmsg_core.c |   21 ++++++++++++---------
  1 file changed, 12 insertions(+), 9 deletions(-)
 
---- a/drivers/rpmsg/virtio_rpmsg_bus.c
-+++ b/drivers/rpmsg/virtio_rpmsg_bus.c
-@@ -125,7 +125,8 @@ field##_show(struct device *dev,					\
- 	struct rpmsg_channel *rpdev = to_rpmsg_channel(dev);		\
+--- a/drivers/rpmsg/rpmsg_core.c
++++ b/drivers/rpmsg/rpmsg_core.c
+@@ -275,7 +275,8 @@ field##_show(struct device *dev,					\
+ 	struct rpmsg_device *rpdev = to_rpmsg_device(dev);		\
  									\
  	return sprintf(buf, format_string, rpdev->path);		\
 -}
@@ -14,7 +14,7 @@
  
  /* for more info, see Documentation/ABI/testing/sysfs-bus-rpmsg */
  rpmsg_show_attr(name, id.name, "%s\n");
-@@ -148,15 +149,17 @@ static ssize_t modalias_show(struct devi
+@@ -290,15 +291,17 @@ static ssize_t modalias_show(struct devi
  
  	return sprintf(buf, RPMSG_DEVICE_MODALIAS_FMT "\n", rpdev->id.name);
  }
@@ -38,8 +38,8 @@
 +ATTRIBUTE_GROUPS(rpmsg_dev);
  
  /* rpmsg devices and drivers are matched using the service name */
- static inline int rpmsg_id_match(const struct rpmsg_channel *rpdev,
-@@ -427,7 +430,7 @@ static int rpmsg_dev_remove(struct devic
+ static inline int rpmsg_id_match(const struct rpmsg_device *rpdev,
+@@ -393,7 +396,7 @@ static int rpmsg_dev_remove(struct devic
  static struct bus_type rpmsg_bus = {
  	.name		= "rpmsg",
  	.match		= rpmsg_dev_match,

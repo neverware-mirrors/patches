@@ -1232,7 +1232,7 @@ Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
 +	pr_info("%s: Exit driver module\n", CSDIO_DEV_NAME);
 +}
 +
-+static char *csdio_devnode(struct device *dev, mode_t *mode)
++static char *csdio_devnode(struct device *dev, umode_t *mode)
 +{
 +	*mode = CSDIO_DEV_PERMISSIONS;
 +	return NULL;
