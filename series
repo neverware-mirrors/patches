@@ -69,19 +69,11 @@ c10.patch
 c99.patch
 
 #
-#qlcnic_sysfs.patch
-#
-#d01.patch
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
+d01.patch
+d02.patch
+d03.patch
+d04.patch
+d05.patch
 
+qlcnic_sysfs.patch
+#
