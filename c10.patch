@@ -17,7 +17,7 @@
  
  	return ret;
  }
-+static CLASS_ATTRIBUTE_RO(model);
++static CLASS_ATTR_RO(model);
  
 -static ssize_t merisc_revision_show(struct class *class, char *buf)
 +static ssize_t revision_show(struct class *class, char *buf)
@@ -28,7 +28,7 @@
  
  	return ret;
  }
-+static CLASS_ATTRIBUTE_RO(revision);
++static CLASS_ATTR_RO(revision);
  
 -static struct class_attribute merisc_class_attrs[] = {
 -	__ATTR(model, S_IRUGO, merisc_model_show, NULL),

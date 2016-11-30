@@ -266,7 +266,7 @@ Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
 +	help
 +	  Enter device id for targeted sdio device, this may be overwritten by
 +	  module parameters.
-+.
++
  endmenu
  
 --- a/drivers/char/Makefile

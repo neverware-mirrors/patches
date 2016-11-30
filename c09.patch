@@ -21,7 +21,7 @@
  	mutex_unlock(&ctl_mutex);
  	return n;
  }
-+static CLASS_ATTRIBUTE_RO(device_map);
++static CLASS_ATTR_RO(device_map);
  
 -static ssize_t class_pktcdvd_store_add(struct class *c,
 -					struct class_attribute *attr,

@@ -1,0 +1,29 @@
+From foo@baz Wed Nov 30 14:34:22 CET 2016
+Date: Wed, 30 Nov 2016 14:34:22 +0100
+To: Greg KH <gregkh@linuxfoundation.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH] driver core: remove DRIVER_ATTR
+
+DRIVER_ATTR is no longer in use, and driver authors should be using
+DRIVER_ATTR_RW() or DRIVER_ATTR_RO() or DRIVER_ATTR_WO() instead in
+order to always get the permissions correct.  So remove it so that no
+one can use it anymore.
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ include/linux/device.h |    2 --
+ 1 file changed, 2 deletions(-)
+
+
+--- a/include/linux/device.h
++++ b/include/linux/device.h
+@@ -303,8 +303,6 @@ struct driver_attribute {
+ 			 size_t count);
+ };
+ 
+-#define DRIVER_ATTR(_name, _mode, _show, _store) \
+-	struct driver_attribute driver_attr_##_name = __ATTR(_name, _mode, _show, _store)
+ #define DRIVER_ATTR_RW(_name) \
+ 	struct driver_attribute driver_attr_##_name = __ATTR_RW(_name)
+ #define DRIVER_ATTR_RO(_name) \

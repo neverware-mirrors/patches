@@ -74,6 +74,19 @@ d02.patch
 d03.patch
 d04.patch
 d05.patch
+d06.patch
+d07.patch
+d08.patch
+d09.patch
+d10.patch
+d11.patch
+d12.patch
+d13.patch
+d14.patch
+d15.patch
+d16.patch
 
+d99.patch
+pci_groups.patch
 qlcnic_sysfs.patch
 #

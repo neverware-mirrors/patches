@@ -1,0 +1,24 @@
+---
+ drivers/pcmcia/ds.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/drivers/pcmcia/ds.c
++++ b/drivers/pcmcia/ds.c
+@@ -95,7 +95,7 @@ struct pcmcia_dynid {
+  * and causes the driver to probe for all devices again.
+  */
+ static ssize_t
+-pcmcia_store_new_id(struct device_driver *driver, const char *buf, size_t count)
++new_id_store(struct device_driver *driver, const char *buf, size_t count)
+ {
+ 	struct pcmcia_dynid *dynid;
+ 	struct pcmcia_driver *pdrv = to_pcmcia_drv(driver);
+@@ -133,7 +133,7 @@ pcmcia_store_new_id(struct device_driver
+ 		return retval;
+ 	return count;
+ }
+-static DRIVER_ATTR(new_id, S_IWUSR, NULL, pcmcia_store_new_id);
++static DRIVER_ATTR_WO(new_id, S_IWUSR, NULL, pcmcia_store_new_id);
+ 
+ static void
+ pcmcia_free_dynids(struct pcmcia_driver *drv)
