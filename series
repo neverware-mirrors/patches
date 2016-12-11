@@ -1,3 +1,7 @@
+0001-kmod-make-usermodehelper-path-a-const-string.patch
+0002-drbd-rename-usermode_helper-to-drbd_usermode_helper.patch
+0003-Make-static-usermode-helper-binaries-constant.patch
+0004-Introduce-CONFIG_READONLY_USERMODEHELPER.patch
 usb-core-add-missing-license-information.patch
 
 ## broken patch!

@@ -36,7 +36,7 @@
  
  	return -EINVAL;
  }
-+static CLASS_ATTRIBUTE_WO(add);
++static CLASS_ATTR_WO(add);
  
 -static ssize_t class_pktcdvd_store_remove(struct class *c,
 -					  struct class_attribute *attr,
@@ -51,7 +51,7 @@
  	}
  	return -EINVAL;
  }
-+static CLASS_ATTRIBUTE_WO(remove);
++static CLASS_ATTR_WO(remove);
  
 -static struct class_attribute class_pktcdvd_attrs[] = {
 - __ATTR(add,            0200, NULL, class_pktcdvd_store_add),
