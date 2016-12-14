@@ -2,7 +2,6 @@
 0002-drbd-rename-usermode_helper-to-drbd_usermode_helper.patch
 0003-Make-static-usermode-helper-binaries-constant.patch
 0004-Introduce-CONFIG_READONLY_USERMODEHELPER.patch
-usb-core-add-missing-license-information.patch
 
 ## broken patch!
 #
@@ -58,10 +57,6 @@ p29.patch
 p30.patch
 p31.patch
 
-driver-core-add-class_attr_wo.patch
-driver-core-class-add-class_groups-support.patch
-driver-core-devcoredump-convert-to-use-class_groups.patch
-driver-core-firmware_class-convert-to-use-class_groups.patch
 c03.patch
 c04.patch
 c05.patch

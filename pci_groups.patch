@@ -6,7 +6,7 @@
 
 --- a/drivers/infiniband/hw/nes/nes.c
 +++ b/drivers/infiniband/hw/nes/nes.c
-@@ -810,13 +810,6 @@ static void nes_remove(struct pci_dev *p
+@@ -809,13 +809,6 @@ static void nes_remove(struct pci_dev *p
  }
  
  
@@ -20,7 +20,7 @@
  static ssize_t adapter_show(struct device_driver *ddp, char *buf)
  {
  	unsigned int  devfn = 0xffffffff;
-@@ -1158,35 +1151,29 @@ static DRIVER_ATTR_RW(idx_addr);
+@@ -1157,35 +1150,29 @@ static DRIVER_ATTR_RW(idx_addr);
  static DRIVER_ATTR_RW(idx_data);
  static DRIVER_ATTR_RW(wqm_quanta);
  
@@ -79,7 +79,7 @@
  
  /**
   * nes_init_module - module initialization entry point
-@@ -1194,20 +1181,13 @@ static void nes_remove_driver_sysfs(stru
+@@ -1193,20 +1180,13 @@ static void nes_remove_driver_sysfs(stru
  static int __init nes_init_module(void)
  {
  	int retval;
@@ -101,7 +101,7 @@
  }
  
  
-@@ -1217,7 +1197,6 @@ static int __init nes_init_module(void)
+@@ -1216,7 +1196,6 @@ static int __init nes_init_module(void)
  static void __exit nes_exit_module(void)
  {
  	nes_cm_stop();

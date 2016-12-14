@@ -18,25 +18,22 @@ coredumps, it's still a work in progress.
 
 Not-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/mcheck/mce.c                       |   12 +++++++---
- drivers/block/drbd/drbd_int.h                          |    6 ++++-
- drivers/block/drbd/drbd_main.c                         |    5 ++++
- drivers/staging/lustre/include/linux/libcfs/libcfs.h   |    2 +
- drivers/staging/lustre/lnet/libcfs/linux/linux-debug.c |   11 ++++++++-
- drivers/staging/lustre/lnet/libcfs/module.c            |    2 +
- drivers/video/fbdev/uvesafb.c                          |   19 ++++++++++++-----
- fs/nfs/cache_lib.c                                     |   12 ++++++++--
- include/linux/reboot.h                                 |    2 +
- kernel/ksysfs.c                                        |    6 ++++-
- kernel/reboot.c                                        |    3 ++
- kernel/sysctl.c                                        |    4 +++
- lib/kobject_uevent.c                                   |    3 ++
- security/Kconfig                                       |   17 +++++++++++++++
- 14 files changed, 89 insertions(+), 15 deletions(-)
+ arch/x86/kernel/cpu/mcheck/mce.c |   12 ++++++++----
+ drivers/block/drbd/drbd_int.h    |    6 +++++-
+ drivers/block/drbd/drbd_main.c   |    5 +++++
+ drivers/video/fbdev/uvesafb.c    |   19 ++++++++++++++-----
+ fs/nfs/cache_lib.c               |   12 ++++++++++--
+ include/linux/reboot.h           |    2 ++
+ kernel/ksysfs.c                  |    6 +++++-
+ kernel/reboot.c                  |    3 +++
+ kernel/sysctl.c                  |    4 ++++
+ lib/kobject_uevent.c             |    3 +++
+ security/Kconfig                 |   17 +++++++++++++++++
+ 11 files changed, 76 insertions(+), 13 deletions(-)
 
 --- a/arch/x86/kernel/cpu/mcheck/mce.c
 +++ b/arch/x86/kernel/cpu/mcheck/mce.c
-@@ -2283,15 +2283,16 @@ static ssize_t set_bank(struct device *s
+@@ -2337,15 +2337,16 @@ static ssize_t set_bank(struct device *s
  }
  
  static ssize_t
@@ -56,7 +53,7 @@ Not-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  {
  	char *p;
  
-@@ -2304,6 +2305,10 @@ static ssize_t set_trigger(struct device
+@@ -2358,6 +2359,10 @@ static ssize_t set_trigger(struct device
  
  	return strlen(mce_helper) + !!p;
  }
@@ -67,7 +64,7 @@ Not-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  static ssize_t set_ignore_ce(struct device *s,
  			     struct device_attribute *attr,
-@@ -2361,7 +2366,6 @@ static ssize_t store_int_with_restart(st
+@@ -2415,7 +2420,6 @@ static ssize_t store_int_with_restart(st
  	return ret;
  }
  
@@ -107,72 +104,6 @@ Not-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  /* in 2.6.x, our device mapping and config info contains our virtual gendisks
   * as member "struct gendisk *vdisk;"
---- a/drivers/staging/lustre/include/linux/libcfs/libcfs.h
-+++ b/drivers/staging/lustre/include/linux/libcfs/libcfs.h
-@@ -125,8 +125,10 @@ extern struct miscdevice libcfs_dev;
- /**
-  * The path of debug log dump upcall script.
-  */
-+#ifndef CONFIG_READONLY_USERMODEHELPER
- extern char lnet_upcall[1024];
- extern char lnet_debug_log_upcall[1024];
-+#endif
- 
- extern struct cfs_wi_sched *cfs_sched_rehash;
- 
---- a/drivers/staging/lustre/lnet/libcfs/linux/linux-debug.c
-+++ b/drivers/staging/lustre/lnet/libcfs/linux/linux-debug.c
-@@ -57,7 +57,14 @@
- 
- #include <linux/kallsyms.h>
- 
-+#ifdef CONFIG_READONLY_USERMODEHELPER
-+static const
- char lnet_upcall[1024] = "/usr/lib/lustre/lnet_upcall";
-+#endif
-+
-+#ifdef CONFIG_READONLY_USERMODEHELPER
-+static const
-+#endif
- char lnet_debug_log_upcall[1024] = "/usr/lib/lustre/lnet_debug_log_upcall";
- 
- /**
-@@ -74,7 +81,7 @@ void libcfs_run_debug_log_upcall(char *f
- 		"PATH=/sbin:/bin:/usr/sbin:/usr/bin",
- 		NULL};
- 
--	argv[0] = lnet_debug_log_upcall;
-+	argv[0] = (char *)lnet_debug_log_upcall;
- 
- 	LASSERTF(file, "called on a null filename\n");
- 	argv[1] = file; /* only need to pass the path of the file */
-@@ -100,7 +107,7 @@ void libcfs_run_upcall(char **argv)
- 		"PATH=/sbin:/bin:/usr/sbin:/usr/bin",
- 		NULL};
- 
--	argv[0] = lnet_upcall;
-+	argv[0] = (char *)lnet_upcall;
- 	argc = 1;
- 	while (argv[argc])
- 		argc++;
---- a/drivers/staging/lustre/lnet/libcfs/module.c
-+++ b/drivers/staging/lustre/lnet/libcfs/module.c
-@@ -366,6 +366,7 @@ static struct ctl_table lnet_table[] = {
- 		.proc_handler = &proc_cpt_table,
- 	},
- 
-+#ifndef CONFIG_READONLY_USERMODEHELPER
- 	{
- 		.procname = "upcall",
- 		.data     = lnet_upcall,
-@@ -380,6 +381,7 @@ static struct ctl_table lnet_table[] = {
- 		.mode     = 0644,
- 		.proc_handler = &proc_dostring,
- 	},
-+#endif
- 	{
- 		.procname = "catastrophe",
- 		.data     = &libcfs_catastrophe,
 --- a/drivers/video/fbdev/uvesafb.c
 +++ b/drivers/video/fbdev/uvesafb.c
 @@ -30,7 +30,11 @@ static struct cb_id uvesafb_cn_id = {
@@ -324,7 +255,7 @@ Not-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
 --- a/kernel/sysctl.c
 +++ b/kernel/sysctl.c
-@@ -669,6 +669,7 @@ static struct ctl_table kern_table[] = {
+@@ -662,6 +662,7 @@ static struct ctl_table kern_table[] = {
  	},
  #endif
  #ifdef CONFIG_UEVENT_HELPER
@@ -332,7 +263,7 @@ Not-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	{
  		.procname	= "hotplug",
  		.data		= &uevent_helper,
-@@ -677,6 +678,7 @@ static struct ctl_table kern_table[] = {
+@@ -670,6 +671,7 @@ static struct ctl_table kern_table[] = {
  		.proc_handler	= proc_dostring,
  	},
  #endif
@@ -340,7 +271,7 @@ Not-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  #ifdef CONFIG_CHR_DEV_SG
  	{
  		.procname	= "sg-big-buff",
-@@ -1093,6 +1095,7 @@ static struct ctl_table kern_table[] = {
+@@ -1079,6 +1081,7 @@ static struct ctl_table kern_table[] = {
  		.proc_handler	= proc_dointvec,
  	},
  #endif
@@ -348,7 +279,7 @@ Not-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	{
  		.procname	= "poweroff_cmd",
  		.data		= &poweroff_cmd,
-@@ -1100,6 +1103,7 @@ static struct ctl_table kern_table[] = {
+@@ -1086,6 +1089,7 @@ static struct ctl_table kern_table[] = {
  		.mode		= 0644,
  		.proc_handler	= proc_dostring,
  	},

@@ -87,7 +87,7 @@
  	&driver_attr_group.attr,
 --- a/drivers/s390/net/netiucv.c
 +++ b/drivers/s390/net/netiucv.c
-@@ -2041,8 +2041,8 @@ out_netdev:
+@@ -2020,8 +2020,8 @@ out_netdev:
  	return NULL;
  }
  
@@ -98,7 +98,7 @@
  {
  	char username[9];
  	char userdata[17];
-@@ -2103,11 +2103,10 @@ out_free_ndev:
+@@ -2082,11 +2082,10 @@ out_free_ndev:
  	netiucv_free_netdevice(dev);
  	return rc;
  }
@@ -113,7 +113,7 @@
  {
  	struct iucv_connection *cp;
          struct net_device *ndev;
-@@ -2153,8 +2152,7 @@ static ssize_t remove_write (struct devi
+@@ -2132,8 +2131,7 @@ static ssize_t remove_write (struct devi
  	IUCV_DBF_TEXT(data, 2, "remove_write: unknown device\n");
          return -EINVAL;
  }
@@ -125,7 +125,7 @@
  	&driver_attr_connection.attr,
 --- a/drivers/s390/net/qeth_core_main.c
 +++ b/drivers/s390/net/qeth_core_main.c
-@@ -5740,8 +5740,8 @@ static struct ccwgroup_driver qeth_core_
+@@ -5736,8 +5736,8 @@ static struct ccwgroup_driver qeth_core_
  	.restore = qeth_core_restore,
  };
  
@@ -136,7 +136,7 @@
  {
  	int err;
  
-@@ -5750,7 +5750,7 @@ static ssize_t qeth_core_driver_group_st
+@@ -5746,7 +5746,7 @@ static ssize_t qeth_core_driver_group_st
  
  	return err ? err : count;
  }

@@ -4,7 +4,7 @@
 
 --- a/drivers/infiniband/hw/nes/nes.c
 +++ b/drivers/infiniband/hw/nes/nes.c
-@@ -817,7 +817,7 @@ static struct pci_driver nes_pci_driver
+@@ -816,7 +816,7 @@ static struct pci_driver nes_pci_driver
  	.remove = nes_remove,
  };
  
@@ -13,7 +13,7 @@
  {
  	unsigned int  devfn = 0xffffffff;
  	unsigned char bus_number = 0xff;
-@@ -836,7 +836,7 @@ static ssize_t nes_show_adapter(struct d
+@@ -835,7 +835,7 @@ static ssize_t nes_show_adapter(struct d
  	return snprintf(buf, PAGE_SIZE, "%x:%x\n", bus_number, devfn);
  }
  
@@ -22,7 +22,7 @@
  	const char *buf, size_t count)
  {
  	char *p = (char *)buf;
-@@ -845,7 +845,7 @@ static ssize_t nes_store_adapter(struct
+@@ -844,7 +844,7 @@ static ssize_t nes_store_adapter(struct
  	return strnlen(buf, count);
  }
  
@@ -31,7 +31,7 @@
  {
  	u32 eeprom_cmd = 0xdead;
  	u32 i = 0;
-@@ -861,7 +861,7 @@ static ssize_t nes_show_ee_cmd(struct de
+@@ -860,7 +860,7 @@ static ssize_t nes_show_ee_cmd(struct de
  	return snprintf(buf, PAGE_SIZE, "0x%x\n", eeprom_cmd);
  }
  
@@ -40,7 +40,7 @@
  	const char *buf, size_t count)
  {
  	char *p = (char *)buf;
-@@ -882,7 +882,7 @@ static ssize_t nes_store_ee_cmd(struct d
+@@ -881,7 +881,7 @@ static ssize_t nes_store_ee_cmd(struct d
  	return strnlen(buf, count);
  }
  
@@ -49,7 +49,7 @@
  {
  	u32 eeprom_data = 0xdead;
  	u32 i = 0;
-@@ -899,7 +899,7 @@ static ssize_t nes_show_ee_data(struct d
+@@ -898,7 +898,7 @@ static ssize_t nes_show_ee_data(struct d
  	return  snprintf(buf, PAGE_SIZE, "0x%x\n", eeprom_data);
  }
  
@@ -58,7 +58,7 @@
  	const char *buf, size_t count)
  {
  	char *p = (char *)buf;
-@@ -920,7 +920,7 @@ static ssize_t nes_store_ee_data(struct
+@@ -919,7 +919,7 @@ static ssize_t nes_store_ee_data(struct
  	return strnlen(buf, count);
  }
  
@@ -67,7 +67,7 @@
  {
  	u32 flash_cmd = 0xdead;
  	u32 i = 0;
-@@ -937,7 +937,7 @@ static ssize_t nes_show_flash_cmd(struct
+@@ -936,7 +936,7 @@ static ssize_t nes_show_flash_cmd(struct
  	return  snprintf(buf, PAGE_SIZE, "0x%x\n", flash_cmd);
  }
  
@@ -76,7 +76,7 @@
  	const char *buf, size_t count)
  {
  	char *p = (char *)buf;
-@@ -958,7 +958,7 @@ static ssize_t nes_store_flash_cmd(struc
+@@ -957,7 +957,7 @@ static ssize_t nes_store_flash_cmd(struc
  	return strnlen(buf, count);
  }
  
@@ -85,7 +85,7 @@
  {
  	u32 flash_data = 0xdead;
  	u32 i = 0;
-@@ -975,7 +975,7 @@ static ssize_t nes_show_flash_data(struc
+@@ -974,7 +974,7 @@ static ssize_t nes_show_flash_data(struc
  	return  snprintf(buf, PAGE_SIZE, "0x%x\n", flash_data);
  }
  
@@ -94,7 +94,7 @@
  	const char *buf, size_t count)
  {
  	char *p = (char *)buf;
-@@ -996,12 +996,12 @@ static ssize_t nes_store_flash_data(stru
+@@ -995,12 +995,12 @@ static ssize_t nes_store_flash_data(stru
  	return strnlen(buf, count);
  }
  
@@ -109,7 +109,7 @@
  	const char *buf, size_t count)
  {
  	char *p = (char *)buf;
-@@ -1012,7 +1012,7 @@ static ssize_t nes_store_nonidx_addr(str
+@@ -1011,7 +1011,7 @@ static ssize_t nes_store_nonidx_addr(str
  	return strnlen(buf, count);
  }
  
@@ -118,7 +118,7 @@
  {
  	u32 nonidx_data = 0xdead;
  	u32 i = 0;
-@@ -1029,7 +1029,7 @@ static ssize_t nes_show_nonidx_data(stru
+@@ -1028,7 +1028,7 @@ static ssize_t nes_show_nonidx_data(stru
  	return  snprintf(buf, PAGE_SIZE, "0x%x\n", nonidx_data);
  }
  
@@ -127,7 +127,7 @@
  	const char *buf, size_t count)
  {
  	char *p = (char *)buf;
-@@ -1050,12 +1050,12 @@ static ssize_t nes_store_nonidx_data(str
+@@ -1049,12 +1049,12 @@ static ssize_t nes_store_nonidx_data(str
  	return strnlen(buf, count);
  }
  
@@ -142,7 +142,7 @@
  	const char *buf, size_t count)
  {
  	char *p = (char *)buf;
-@@ -1066,7 +1066,7 @@ static ssize_t nes_store_idx_addr(struct
+@@ -1065,7 +1065,7 @@ static ssize_t nes_store_idx_addr(struct
  	return strnlen(buf, count);
  }
  
@@ -151,7 +151,7 @@
  {
  	u32 idx_data = 0xdead;
  	u32 i = 0;
-@@ -1083,7 +1083,7 @@ static ssize_t nes_show_idx_data(struct
+@@ -1082,7 +1082,7 @@ static ssize_t nes_show_idx_data(struct
  	return  snprintf(buf, PAGE_SIZE, "0x%x\n", idx_data);
  }
  
@@ -160,7 +160,7 @@
  	const char *buf, size_t count)
  {
  	char *p = (char *)buf;
-@@ -1104,11 +1104,7 @@ static ssize_t nes_store_idx_data(struct
+@@ -1103,11 +1103,7 @@ static ssize_t nes_store_idx_data(struct
  	return strnlen(buf, count);
  }
  
@@ -173,7 +173,7 @@
  {
  	u32 wqm_quanta_value = 0xdead;
  	u32 i = 0;
-@@ -1125,12 +1121,8 @@ static ssize_t nes_show_wqm_quanta(struc
+@@ -1124,12 +1120,8 @@ static ssize_t nes_show_wqm_quanta(struc
  	return  snprintf(buf, PAGE_SIZE, "0x%X\n", wqm_quanta_value);
  }
  
@@ -188,7 +188,7 @@
  {
  	unsigned long wqm_quanta_value;
  	u32 wqm_config1;
-@@ -1155,26 +1147,16 @@ static ssize_t nes_store_wqm_quanta(stru
+@@ -1154,26 +1146,16 @@ static ssize_t nes_store_wqm_quanta(stru
  	return strnlen(buf, count);
  }
  

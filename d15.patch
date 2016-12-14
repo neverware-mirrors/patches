@@ -5,7 +5,7 @@
 
 --- a/drivers/s390/net/ctcm_main.c
 +++ b/drivers/s390/net/ctcm_main.c
-@@ -1771,15 +1771,15 @@ static struct ccwgroup_driver ctcm_group
+@@ -1770,15 +1770,15 @@ static struct ccwgroup_driver ctcm_group
  	.restore     = ctcm_pm_resume,
  };
  

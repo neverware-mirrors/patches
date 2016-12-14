@@ -4,7 +4,7 @@
 
 --- a/drivers/net/ethernet/ibm/ehea/ehea_main.c
 +++ b/drivers/net/ethernet/ibm/ehea/ehea_main.c
-@@ -3560,14 +3560,12 @@ static int check_module_parm(void)
+@@ -3554,14 +3554,12 @@ static int check_module_parm(void)
  	return ret;
  }
  
