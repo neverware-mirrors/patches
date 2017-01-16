@@ -1,9 +1,9 @@
 ---
- arch/powerpc/kernel/vio.c |   43 ++++++++++++++++++++++---------------------
+ arch/powerpc/platforms/pseries/vio.c |   43 +++++++++++++++++------------------
  1 file changed, 22 insertions(+), 21 deletions(-)
 
---- a/arch/powerpc/kernel/vio.c
-+++ b/arch/powerpc/kernel/vio.c
+--- a/arch/powerpc/platforms/pseries/vio.c
++++ b/arch/powerpc/platforms/pseries/vio.c
 @@ -948,7 +948,7 @@ static void vio_cmo_bus_init(void)
  /* sysfs device functions and data structures for CMO */
  

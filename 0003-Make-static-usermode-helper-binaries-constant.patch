@@ -1,34 +1,44 @@
-From b8cc8ef7094cbaf916b87573efa3c31727bd6b2d Mon Sep 17 00:00:00 2001
+From a340240001065a3b7072ac689d8449a7b4f70654 Mon Sep 17 00:00:00 2001
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Date: Sun, 11 Dec 2016 18:00:43 +0100
-Subject: [PATCH 3/4] Make static usermode helper binaries constant
+Subject: Make static usermode helper binaries constant
 
 There are a number of usermode helper binaries that are "hard coded" in
 the kernel today, so mark them as "const" to make it harder for someone
 to change where the variables point to.
 
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Thomas Sailer <t.sailer@alumni.ethz.ch>
+Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Cc: Johan Hovold <johan@kernel.org>
+Cc: Alex Elder <elder@kernel.org>
+Cc: "J. Bruce Fields" <bfields@fieldses.org>
+Cc: Jeff Layton <jlayton@poochiereds.net>
+Cc: David Howells <dhowells@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/macintosh/windfarm_core.c          |    2 +-
- drivers/net/hamradio/baycom_epp.c          |    2 +-
+ drivers/macintosh/windfarm_core.c          |    4 ++--
+ drivers/net/hamradio/baycom_epp.c          |   10 +++++++---
  drivers/pnp/pnpbios/core.c                 |    5 +++--
  drivers/staging/greybus/svc_watchdog.c     |    4 ++--
- drivers/staging/rtl8192e/rtl8192e/rtl_dm.c |    6 +++---
+ drivers/staging/rtl8192e/rtl8192e/rtl_dm.c |    8 ++++----
  fs/nfsd/nfs4layouts.c                      |    6 ++++--
  security/keys/request_key.c                |    7 ++++---
- 7 files changed, 18 insertions(+), 14 deletions(-)
+ 7 files changed, 26 insertions(+), 18 deletions(-)
 
 --- a/drivers/macintosh/windfarm_core.c
 +++ b/drivers/macintosh/windfarm_core.c
-@@ -74,7 +74,7 @@ static inline void wf_notify(int event,
+@@ -74,8 +74,8 @@ static inline void wf_notify(int event,
  
  static int wf_critical_overtemp(void)
  {
 -	static char * critical_overtemp_path = "/sbin/critical_overtemp";
-+	static const char * critical_overtemp_path = "/sbin/critical_overtemp";
- 	char *argv[] = { critical_overtemp_path, NULL };
+-	char *argv[] = { critical_overtemp_path, NULL };
++	static char const critical_overtemp_path[] = "/sbin/critical_overtemp";
++	char *argv[] = { (char *)critical_overtemp_path, NULL };
  	static char *envp[] = { "HOME=/",
  				"TERM=linux",
+ 				"PATH=/sbin:/usr/sbin:/bin:/usr/bin",
 --- a/drivers/net/hamradio/baycom_epp.c
 +++ b/drivers/net/hamradio/baycom_epp.c
 @@ -299,7 +299,7 @@ static inline void baycom_int_freq(struc
@@ -36,17 +46,32 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
   */
  
 -static char eppconfig_path[256] = "/usr/sbin/eppfpga";
-+static const char eppconfig_path[256] = "/usr/sbin/eppfpga";
++static char const eppconfig_path[] = "/usr/sbin/eppfpga";
  
  static char *envp[] = { "HOME=/", "TERM=linux", "PATH=/usr/bin:/bin", NULL };
  
+@@ -308,8 +308,12 @@ static int eppconfig(struct baycom_state
+ {
+ 	char modearg[256];
+ 	char portarg[16];
+-        char *argv[] = { eppconfig_path, "-s", "-p", portarg, "-m", modearg,
+-			 NULL };
++        char *argv[] = {
++		(char *)eppconfig_path,
++		"-s",
++		"-p", portarg,
++		"-m", modearg,
++		NULL };
+ 
+ 	/* set up arguments */
+ 	sprintf(modearg, "%sclk,%smodem,fclk=%d,bps=%d,divider=%d%s,extstat",
 --- a/drivers/pnp/pnpbios/core.c
 +++ b/drivers/pnp/pnpbios/core.c
 @@ -98,6 +98,7 @@ static struct completion unload_sem;
   */
  static int pnp_dock_event(int dock, struct pnp_docking_station_info *info)
  {
-+	static const char *sbin_pnpbios = "/sbin/pnpbios";
++	static char const sbin_pnpbios[] = "/sbin/pnpbios";
  	char *argv[3], **envp, *buf, *scratch;
  	int i = 0, value;
  
@@ -55,7 +80,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	 * like sysfs and uevents
  	 */
 -	argv[0] = "/sbin/pnpbios";
-+	argv[0] = sbin_pnpbios;
++	argv[0] = (char *)sbin_pnpbios;
  	argv[1] = "dock";
  	argv[2] = NULL;
  
@@ -75,7 +100,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  static void greybus_reset(struct work_struct *work)
  {
 -	static char start_path[256] = "/system/bin/start";
-+	static const char start_path[256] = "/system/bin/start";
++	static char const start_path[] = "/system/bin/start";
  	static char *envp[] = {
  		"HOME=/",
  		"PATH=/sbin:/vendor/bin:/system/sbin:/system/bin:/system/xbin",
@@ -89,21 +114,23 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	};
 --- a/drivers/staging/rtl8192e/rtl8192e/rtl_dm.c
 +++ b/drivers/staging/rtl8192e/rtl8192e/rtl_dm.c
-@@ -268,7 +268,7 @@ void rtl92e_dm_watchdog(struct net_devic
+@@ -268,8 +268,8 @@ void rtl92e_dm_watchdog(struct net_devic
  static void _rtl92e_dm_check_ac_dc_power(struct net_device *dev)
  {
  	struct r8192_priv *priv = rtllib_priv(dev);
 -	static char *ac_dc_script = "/etc/acpi/wireless-rtl-ac-dc-power.sh";
-+	static const char *ac_dc_script = "/etc/acpi/wireless-rtl-ac-dc-power.sh";
- 	char *argv[] = {ac_dc_script, DRV_NAME, NULL};
+-	char *argv[] = {ac_dc_script, DRV_NAME, NULL};
++	static char const ac_dc_script[] = "/etc/acpi/wireless-rtl-ac-dc-power.sh";
++	char *argv[] = {(char *)ac_dc_script, DRV_NAME, NULL};
  	static char *envp[] = {"HOME=/",
  			"TERM=linux",
+ 			"PATH=/usr/bin:/bin",
 @@ -1823,7 +1823,7 @@ static void _rtl92e_dm_check_rf_ctrl_gpi
  	enum rt_rf_power_state eRfPowerStateToSet;
  	bool bActuallySet = false;
  	char *argv[3];
 -	static char *RadioPowerPath = "/etc/acpi/events/RadioPower.sh";
-+	static const char *RadioPowerPath = "/etc/acpi/events/RadioPower.sh";
++	static char const RadioPowerPath[] = "/etc/acpi/events/RadioPower.sh";
  	static char *envp[] = {"HOME=/", "TERM=linux", "PATH=/usr/bin:/bin",
  			       NULL};
  
@@ -122,7 +149,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  {
  	struct nfs4_client *clp = ls->ls_stid.sc_client;
  	char addr_str[INET6_ADDRSTRLEN];
-+	static const char *nfsd_recall_failed = "/sbin/nfsd-recall-failed";
++	static char const nfsd_recall_failed[] = "/sbin/nfsd-recall-failed";
  	static char *envp[] = {
  		"HOME=/",
  		"TERM=linux",
@@ -157,7 +184,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  				 const char *op,
  				 void *aux)
  {
-+	static const char *request_key = "/sbin/request-key";
++	static char const request_key[] = "/sbin/request-key";
  	const struct cred *cred = current_cred();
  	key_serial_t prkey, sskey;
  	struct key *key = cons->key, *authkey = cons->authkey, *keyring,

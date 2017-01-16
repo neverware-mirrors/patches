@@ -1,0 +1,368 @@
+From 88f682301f10a9278e23aed64e911dde5ba30ed9 Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Thu, 15 Dec 2016 13:09:59 -0800
+Subject: [PATCH 5/5] add CONFIG_READONLY_USERMODEHELPER support for lots of
+ places.
+
+Dynamic usermode helper should be stopped, so support it...
+---
+ arch/x86/kernel/cpu/mcheck/mce.c | 12 ++++++++----
+ drivers/block/drbd/drbd_int.h    |  2 +-
+ drivers/block/drbd/drbd_main.c   |  4 +++-
+ drivers/block/drbd/drbd_nl.c     |  4 ++--
+ drivers/video/fbdev/uvesafb.c    | 17 +++++++++++------
+ fs/nfs/cache_lib.c               | 12 +++++++++---
+ include/linux/kobject.h          |  3 ++-
+ include/linux/reboot.h           |  3 ++-
+ kernel/ksysfs.c                  |  6 +++++-
+ kernel/reboot.c                  |  2 +-
+ kernel/sysctl.c                  |  4 ++++
+ lib/kobject_uevent.c             |  4 ++--
+ 12 files changed, 50 insertions(+), 23 deletions(-)
+
+diff --git a/arch/x86/kernel/cpu/mcheck/mce.c b/arch/x86/kernel/cpu/mcheck/mce.c
+index 00ef43233e03..92a2ef8ffe3e 100644
+--- a/arch/x86/kernel/cpu/mcheck/mce.c
++++ b/arch/x86/kernel/cpu/mcheck/mce.c
+@@ -2337,15 +2337,16 @@ static ssize_t set_bank(struct device *s, struct device_attribute *attr,
+ }
+ 
+ static ssize_t
+-show_trigger(struct device *s, struct device_attribute *attr, char *buf)
++trigger_show(struct device *s, struct device_attribute *attr, char *buf)
+ {
+ 	strcpy(buf, mce_helper);
+ 	strcat(buf, "\n");
+ 	return strlen(mce_helper) + 1;
+ }
+ 
+-static ssize_t set_trigger(struct device *s, struct device_attribute *attr,
+-				const char *buf, size_t siz)
++#ifndef CONFIG_READONLY_USERMODEHELPER
++static ssize_t trigger_store(struct device *s, struct device_attribute *attr,
++			     const char *buf, size_t siz)
+ {
+ 	char *p;
+ 
+@@ -2358,6 +2359,10 @@ static ssize_t set_trigger(struct device *s, struct device_attribute *attr,
+ 
+ 	return strlen(mce_helper) + !!p;
+ }
++static DEVICE_ATTR_RW(trigger);
++#else
++static DEVICE_ATTR_RO(trigger);
++#endif
+ 
+ static ssize_t set_ignore_ce(struct device *s,
+ 			     struct device_attribute *attr,
+@@ -2415,7 +2420,6 @@ static ssize_t store_int_with_restart(struct device *s,
+ 	return ret;
+ }
+ 
+-static DEVICE_ATTR(trigger, 0644, show_trigger, set_trigger);
+ static DEVICE_INT_ATTR(tolerant, 0644, mca_cfg.tolerant);
+ static DEVICE_INT_ATTR(monarch_timeout, 0644, mca_cfg.monarch_timeout);
+ static DEVICE_BOOL_ATTR(dont_log_ce, 0644, mca_cfg.dont_log_ce);
+diff --git a/drivers/block/drbd/drbd_int.h b/drivers/block/drbd/drbd_int.h
+index a139a34f1f1e..17fd08c330c8 100644
+--- a/drivers/block/drbd/drbd_int.h
++++ b/drivers/block/drbd/drbd_int.h
+@@ -75,7 +75,7 @@ extern int fault_rate;
+ extern int fault_devs;
+ #endif
+ 
+-extern char drbd_usermode_helper[];
++extern char __ro_umh drbd_usermode_helper[];
+ 
+ 
+ /* This is used to stop/restart our threads.
+diff --git a/drivers/block/drbd/drbd_main.c b/drivers/block/drbd/drbd_main.c
+index 8f51eccc8de7..d5dce7b5f58d 100644
+--- a/drivers/block/drbd/drbd_main.c
++++ b/drivers/block/drbd/drbd_main.c
+@@ -108,9 +108,11 @@ int proc_details;       /* Detail level in proc drbd*/
+ 
+ /* Module parameter for setting the user mode helper program
+  * to run. Default is /sbin/drbdadm */
+-char drbd_usermode_helper[80] = "/sbin/drbdadm";
++char __ro_umh drbd_usermode_helper[80] = "/sbin/drbdadm";
+ 
++#ifndef CONFIG_READONLY_USERMODEHELPER
+ module_param_string(usermode_helper, drbd_usermode_helper, sizeof(drbd_usermode_helper), 0644);
++#endif
+ 
+ /* in 2.6.x, our device mapping and config info contains our virtual gendisks
+  * as member "struct gendisk *vdisk;"
+diff --git a/drivers/block/drbd/drbd_nl.c b/drivers/block/drbd/drbd_nl.c
+index 9edc6fb95f19..cdbe41649e69 100644
+--- a/drivers/block/drbd/drbd_nl.c
++++ b/drivers/block/drbd/drbd_nl.c
+@@ -344,7 +344,7 @@ int drbd_khelper(struct drbd_device *device, char *cmd)
+ 			 (char[60]) { }, /* address */
+ 			NULL };
+ 	char mb[14];
+-	char *argv[] = {drbd_usermode_helper, cmd, mb, NULL };
++	char *argv[] = {(char *)drbd_usermode_helper, cmd, mb, NULL };
+ 	struct drbd_connection *connection = first_peer_device(device)->connection;
+ 	struct sib_info sib;
+ 	int ret;
+@@ -396,7 +396,7 @@ enum drbd_peer_state conn_khelper(struct drbd_connection *connection, char *cmd)
+ 			 (char[60]) { }, /* address */
+ 			NULL };
+ 	char *resource_name = connection->resource->name;
+-	char *argv[] = {drbd_usermode_helper, cmd, resource_name, NULL };
++	char *argv[] = {(char *)drbd_usermode_helper, cmd, resource_name, NULL };
+ 	int ret;
+ 
+ 	setup_khelper_env(connection, envp);
+diff --git a/drivers/video/fbdev/uvesafb.c b/drivers/video/fbdev/uvesafb.c
+index 98af9e02959b..ba6ac819877e 100644
+--- a/drivers/video/fbdev/uvesafb.c
++++ b/drivers/video/fbdev/uvesafb.c
+@@ -30,7 +30,7 @@ static struct cb_id uvesafb_cn_id = {
+ 	.idx = CN_IDX_V86D,
+ 	.val = CN_VAL_V86D_UVESAFB
+ };
+-static char v86d_path[PATH_MAX] = "/sbin/v86d";
++static char __ro_umh v86d_path[PATH_MAX] = "/sbin/v86d";
+ static char v86d_started;	/* has v86d been started by uvesafb? */
+ 
+ static const struct fb_fix_screeninfo uvesafb_fix = {
+@@ -114,7 +114,7 @@ static int uvesafb_helper_start(void)
+ 	};
+ 
+ 	char *argv[] = {
+-		v86d_path,
++		(char *)v86d_path,
+ 		NULL,
+ 	};
+ 
+@@ -1883,19 +1883,22 @@ static int uvesafb_setup(char *options)
+ }
+ #endif /* !MODULE */
+ 
+-static ssize_t show_v86d(struct device_driver *dev, char *buf)
++static ssize_t v86d_show(struct device_driver *dev, char *buf)
+ {
+ 	return snprintf(buf, PAGE_SIZE, "%s\n", v86d_path);
+ }
+ 
+-static ssize_t store_v86d(struct device_driver *dev, const char *buf,
++#ifndef CONFIG_READONLY_USERMODEHELPER
++static ssize_t v86d_store(struct device_driver *dev, const char *buf,
+ 		size_t count)
+ {
+ 	strncpy(v86d_path, buf, PATH_MAX);
+ 	return count;
+ }
+-
+-static DRIVER_ATTR(v86d, S_IRUGO | S_IWUSR, show_v86d, store_v86d);
++static DRIVER_ATTR_RW(v86d);
++#else
++static DRIVER_ATTR_RO(v86d);
++#endif
+ 
+ static int uvesafb_init(void)
+ {
+@@ -2017,8 +2020,10 @@ MODULE_PARM_DESC(mode_option,
+ module_param(vbemode, ushort, 0);
+ MODULE_PARM_DESC(vbemode,
+ 	"VBE mode number to set, overrides the 'mode' option");
++#ifndef CONFIG_READONLY_USERMODEHELPER
+ module_param_string(v86d, v86d_path, PATH_MAX, 0660);
+ MODULE_PARM_DESC(v86d, "Path to the v86d userspace helper.");
++#endif
+ 
+ MODULE_LICENSE("GPL");
+ MODULE_AUTHOR("Michal Januszewski <spock@gentoo.org>");
+diff --git a/fs/nfs/cache_lib.c b/fs/nfs/cache_lib.c
+index 6de15709d024..f1c99cb75706 100644
+--- a/fs/nfs/cache_lib.c
++++ b/fs/nfs/cache_lib.c
+@@ -20,13 +20,16 @@
+ #define NFS_CACHE_UPCALL_PATHLEN 256
+ #define NFS_CACHE_UPCALL_TIMEOUT 15
+ 
+-static char nfs_cache_getent_prog[NFS_CACHE_UPCALL_PATHLEN] =
++static char __ro_umh nfs_cache_getent_prog[NFS_CACHE_UPCALL_PATHLEN] =
+ 				"/sbin/nfs_cache_getent";
+ static unsigned long nfs_cache_getent_timeout = NFS_CACHE_UPCALL_TIMEOUT;
+ 
++#ifndef CONFIG_READONLY_USERMODEHELPER
+ module_param_string(cache_getent, nfs_cache_getent_prog,
+ 		sizeof(nfs_cache_getent_prog), 0600);
+ MODULE_PARM_DESC(cache_getent, "Path to the client cache upcall program");
++#endif
++
+ module_param_named(cache_getent_timeout, nfs_cache_getent_timeout, ulong, 0600);
+ MODULE_PARM_DESC(cache_getent_timeout, "Timeout (in seconds) after which "
+ 		"the cache upcall is assumed to have failed");
+@@ -39,7 +42,7 @@ int nfs_cache_upcall(struct cache_detail *cd, char *entry_name)
+ 		NULL
+ 	};
+ 	char *argv[] = {
+-		nfs_cache_getent_prog,
++		(char *)nfs_cache_getent_prog,
+ 		cd->name,
+ 		entry_name,
+ 		NULL
+@@ -48,15 +51,18 @@ int nfs_cache_upcall(struct cache_detail *cd, char *entry_name)
+ 
+ 	if (nfs_cache_getent_prog[0] == '\0')
+ 		goto out;
+-	ret = call_usermodehelper(argv[0], argv, envp, UMH_WAIT_EXEC);
++	ret = call_usermodehelper(nfs_cache_getent_prog, argv, envp,
++				  UMH_WAIT_EXEC);
+ 	/*
+ 	 * Disable the upcall mechanism if we're getting an ENOENT or
+ 	 * EACCES error. The admin can re-enable it on the fly by using
+ 	 * sysfs to set the 'cache_getent' parameter once the problem
+ 	 * has been fixed.
+ 	 */
++#ifndef CONFIG_READONLY_USERMODEHELPER
+ 	if (ret == -ENOENT || ret == -EACCES)
+ 		nfs_cache_getent_prog[0] = '\0';
++#endif
+ out:
+ 	return ret > 0 ? 0 : ret;
+ }
+diff --git a/include/linux/kobject.h b/include/linux/kobject.h
+index e6284591599e..a3b4f734c6d8 100644
+--- a/include/linux/kobject.h
++++ b/include/linux/kobject.h
+@@ -27,6 +27,7 @@
+ #include <linux/wait.h>
+ #include <linux/atomic.h>
+ #include <linux/workqueue.h>
++#include <linux/kmod.h>
+ 
+ #define UEVENT_HELPER_PATH_LEN		256
+ #define UEVENT_NUM_ENVP			32	/* number of env pointers */
+@@ -34,7 +35,7 @@
+ 
+ #ifdef CONFIG_UEVENT_HELPER
+ /* path to the userspace helper executed on an event */
+-extern char uevent_helper[];
++extern char __ro_umh uevent_helper[];
+ #endif
+ 
+ /* counter to tag the uevent, read only except for the kobject core */
+diff --git a/include/linux/reboot.h b/include/linux/reboot.h
+index a7ff409f386d..c693e7d9b249 100644
+--- a/include/linux/reboot.h
++++ b/include/linux/reboot.h
+@@ -3,6 +3,7 @@
+ 
+ 
+ #include <linux/notifier.h>
++#include <linux/kmod.h>
+ #include <uapi/linux/reboot.h>
+ 
+ #define SYS_DOWN	0x0001	/* Notify of system down */
+@@ -68,7 +69,7 @@ extern int C_A_D; /* for sysctl */
+ void ctrl_alt_del(void);
+ 
+ #define POWEROFF_CMD_PATH_LEN	256
+-extern char poweroff_cmd[POWEROFF_CMD_PATH_LEN];
++extern char __ro_umh poweroff_cmd[];
+ 
+ extern void orderly_poweroff(bool force);
+ extern void orderly_reboot(void);
+diff --git a/kernel/ksysfs.c b/kernel/ksysfs.c
+index ee1bc1bb8feb..9158fb36cfae 100644
+--- a/kernel/ksysfs.c
++++ b/kernel/ksysfs.c
+@@ -44,6 +44,7 @@ static ssize_t uevent_helper_show(struct kobject *kobj,
+ {
+ 	return sprintf(buf, "%s\n", uevent_helper);
+ }
++#ifndef CONFIG_READONLY_USERMODEHELPER
+ static ssize_t uevent_helper_store(struct kobject *kobj,
+ 				   struct kobj_attribute *attr,
+ 				   const char *buf, size_t count)
+@@ -57,7 +58,10 @@ static ssize_t uevent_helper_store(struct kobject *kobj,
+ 	return count;
+ }
+ KERNEL_ATTR_RW(uevent_helper);
+-#endif
++#else
++KERNEL_ATTR_RO(uevent_helper);
++#endif	/* CONFIG_READONLY_USERMODEHELPER */
++#endif	/* CONFIG_UEVENT_HELPER */
+ 
+ #ifdef CONFIG_PROFILING
+ static ssize_t profiling_show(struct kobject *kobj,
+diff --git a/kernel/reboot.c b/kernel/reboot.c
+index bd30a973fe94..4127ac5366ee 100644
+--- a/kernel/reboot.c
++++ b/kernel/reboot.c
+@@ -386,7 +386,7 @@ void ctrl_alt_del(void)
+ 		kill_cad_pid(SIGINT, 1);
+ }
+ 
+-char poweroff_cmd[POWEROFF_CMD_PATH_LEN] = "/sbin/poweroff";
++char __ro_umh poweroff_cmd[POWEROFF_CMD_PATH_LEN] = "/sbin/poweroff";
+ static const char reboot_cmd[] = "/sbin/reboot";
+ 
+ static int run_cmd(const char *cmd)
+diff --git a/kernel/sysctl.c b/kernel/sysctl.c
+index 8dbaec0e4f7f..2ebf08fb4047 100644
+--- a/kernel/sysctl.c
++++ b/kernel/sysctl.c
+@@ -662,6 +662,7 @@ static struct ctl_table kern_table[] = {
+ 	},
+ #endif
+ #ifdef CONFIG_UEVENT_HELPER
++#ifndef CONFIG_READONLY_USERMODEHELPER
+ 	{
+ 		.procname	= "hotplug",
+ 		.data		= &uevent_helper,
+@@ -670,6 +671,7 @@ static struct ctl_table kern_table[] = {
+ 		.proc_handler	= proc_dostring,
+ 	},
+ #endif
++#endif
+ #ifdef CONFIG_CHR_DEV_SG
+ 	{
+ 		.procname	= "sg-big-buff",
+@@ -1079,6 +1081,7 @@ static struct ctl_table kern_table[] = {
+ 		.proc_handler	= proc_dointvec,
+ 	},
+ #endif
++#ifndef CONFIG_READONLY_USERMODEHELPER
+ 	{
+ 		.procname	= "poweroff_cmd",
+ 		.data		= &poweroff_cmd,
+@@ -1086,6 +1089,7 @@ static struct ctl_table kern_table[] = {
+ 		.mode		= 0644,
+ 		.proc_handler	= proc_dostring,
+ 	},
++#endif
+ #ifdef CONFIG_KEYS
+ 	{
+ 		.procname	= "keys",
+diff --git a/lib/kobject_uevent.c b/lib/kobject_uevent.c
+index 9a2b811966eb..3093b8d634db 100644
+--- a/lib/kobject_uevent.c
++++ b/lib/kobject_uevent.c
+@@ -29,7 +29,7 @@
+ 
+ u64 uevent_seqnum;
+ #ifdef CONFIG_UEVENT_HELPER
+-char uevent_helper[UEVENT_HELPER_PATH_LEN] = CONFIG_UEVENT_HELPER_PATH;
++char __ro_umh uevent_helper[UEVENT_HELPER_PATH_LEN] = CONFIG_UEVENT_HELPER_PATH;
+ #endif
+ #ifdef CONFIG_NET
+ struct uevent_sock {
+@@ -137,7 +137,7 @@ static int init_uevent_argv(struct kobj_uevent_env *env, const char *subsystem)
+ 		return -ENOMEM;
+ 	}
+ 
+-	env->argv[0] = uevent_helper;
++	env->argv[0] = (char *)uevent_helper;
+ 	env->argv[1] = &env->buf[env->buflen];
+ 	env->argv[2] = NULL;
+ 
+-- 
+2.11.0
+

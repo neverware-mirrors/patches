@@ -1,7 +1,7 @@
-From 391148315fe8357ae67131c4fef5bb539852cfea Mon Sep 17 00:00:00 2001
+From cf5271829b780b598c3338934450de14f791b6cc Mon Sep 17 00:00:00 2001
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Date: Sun, 11 Dec 2016 10:39:09 +0100
-Subject: [PATCH 2/4] drbd: rename "usermode_helper" to "drbd_usermode_helper"
+Subject: [PATCH 2/5] drbd: rename "usermode_helper" to "drbd_usermode_helper"
 
 Nothing like having a very generic global variable in a tiny driver
 subsystem to make a mess of the global namespace...
@@ -15,11 +15,13 @@ error.
 
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/drbd/drbd_int.h  |    2 +-
- drivers/block/drbd/drbd_main.c |    4 ++--
- drivers/block/drbd/drbd_nl.c   |   20 ++++++++++----------
+ drivers/block/drbd/drbd_int.h  |  2 +-
+ drivers/block/drbd/drbd_main.c |  4 ++--
+ drivers/block/drbd/drbd_nl.c   | 20 ++++++++++----------
  3 files changed, 13 insertions(+), 13 deletions(-)
 
+diff --git a/drivers/block/drbd/drbd_int.h b/drivers/block/drbd/drbd_int.h
+index 4cb8f21ff4ef..a139a34f1f1e 100644
 --- a/drivers/block/drbd/drbd_int.h
 +++ b/drivers/block/drbd/drbd_int.h
 @@ -75,7 +75,7 @@ extern int fault_rate;
@@ -31,9 +33,11 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  
  /* This is used to stop/restart our threads.
+diff --git a/drivers/block/drbd/drbd_main.c b/drivers/block/drbd/drbd_main.c
+index 83482721bc01..8f51eccc8de7 100644
 --- a/drivers/block/drbd/drbd_main.c
 +++ b/drivers/block/drbd/drbd_main.c
-@@ -108,9 +108,9 @@ int proc_details;       /* Detail level
+@@ -108,9 +108,9 @@ int proc_details;       /* Detail level in proc drbd*/
  
  /* Module parameter for setting the user mode helper program
   * to run. Default is /sbin/drbdadm */
@@ -45,9 +49,11 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  /* in 2.6.x, our device mapping and config info contains our virtual gendisks
   * as member "struct gendisk *vdisk;"
+diff --git a/drivers/block/drbd/drbd_nl.c b/drivers/block/drbd/drbd_nl.c
+index f35db29cac76..9edc6fb95f19 100644
 --- a/drivers/block/drbd/drbd_nl.c
 +++ b/drivers/block/drbd/drbd_nl.c
-@@ -344,7 +344,7 @@ int drbd_khelper(struct drbd_device *dev
+@@ -344,7 +344,7 @@ int drbd_khelper(struct drbd_device *device, char *cmd)
  			 (char[60]) { }, /* address */
  			NULL };
  	char mb[14];
@@ -56,7 +62,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	struct drbd_connection *connection = first_peer_device(device)->connection;
  	struct sib_info sib;
  	int ret;
-@@ -359,19 +359,19 @@ int drbd_khelper(struct drbd_device *dev
+@@ -359,19 +359,19 @@ int drbd_khelper(struct drbd_device *device, char *cmd)
  	 * write out any unsynced meta data changes now */
  	drbd_md_sync(device);
  
@@ -80,7 +86,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  				(ret >> 8) & 0xff, ret);
  	sib.sib_reason = SIB_HELPER_POST;
  	sib.helper_exit_code = ret;
-@@ -396,24 +396,24 @@ enum drbd_peer_state conn_khelper(struct
+@@ -396,24 +396,24 @@ enum drbd_peer_state conn_khelper(struct drbd_connection *connection, char *cmd)
  			 (char[60]) { }, /* address */
  			NULL };
  	char *resource_name = connection->resource->name;
@@ -110,3 +116,6 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  			  (ret >> 8) & 0xff, ret);
  	/* TODO: conn_bcast_event() ?? */
  	notify_helper(NOTIFY_RESPONSE, NULL, connection, cmd, ret);
+-- 
+2.11.0
+

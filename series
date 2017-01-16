@@ -1,7 +1,9 @@
 0001-kmod-make-usermodehelper-path-a-const-string.patch
-0002-drbd-rename-usermode_helper-to-drbd_usermode_helper.patch
 0003-Make-static-usermode-helper-binaries-constant.patch
+introduce-static_usermodehelper-to-mediate-call_usermodehelper.patch
+0002-drbd-rename-usermode_helper-to-drbd_usermode_helper.patch
 0004-Introduce-CONFIG_READONLY_USERMODEHELPER.patch
+0005-add-CONFIG_READONLY_USERMODEHELPER-support-for-lots-.patch
 
 ## broken patch!
 #

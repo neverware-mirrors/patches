@@ -12,10 +12,43 @@ one can use it anymore.
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/device.h |    2 --
- 1 file changed, 2 deletions(-)
+ Documentation/driver-model/driver.txt |    7 ++++---
+ Documentation/filesystems/sysfs.txt   |    3 ++-
+ include/linux/device.h                |    2 --
+ 3 files changed, 6 insertions(+), 6 deletions(-)
 
 
+--- a/Documentation/driver-model/driver.txt
++++ b/Documentation/driver-model/driver.txt
+@@ -196,12 +196,13 @@ struct driver_attribute {
+ };
+ 
+ Device drivers can export attributes via their sysfs directories. 
+-Drivers can declare attributes using a DRIVER_ATTR macro that works
+-identically to the DEVICE_ATTR macro. 
++Drivers can declare attributes using a DRIVER_ATTR_RW and DRIVER_ATTR_RO
++macro that works identically to the DEVICE_ATTR_RW and DEVICE_ATTR_RO
++macros.
+ 
+ Example:
+ 
+-DRIVER_ATTR(debug,0644,show_debug,store_debug);
++DRIVER_ATTR_RW(debug);
+ 
+ This is equivalent to declaring:
+ 
+--- a/Documentation/filesystems/sysfs.txt
++++ b/Documentation/filesystems/sysfs.txt
+@@ -366,7 +366,8 @@ struct driver_attribute {
+ 
+ Declaring:
+ 
+-DRIVER_ATTR(_name, _mode, _show, _store)
++DRIVER_ATTR_RO(_name)
++DRIVER_ATTR_RW(_name)
+ 
+ Creation/Removal:
+ 
 --- a/include/linux/device.h
 +++ b/include/linux/device.h
 @@ -303,8 +303,6 @@ struct driver_attribute {

@@ -22,7 +22,7 @@
  {
 --- a/drivers/scsi/megaraid/megaraid_sas_base.c
 +++ b/drivers/scsi/megaraid/megaraid_sas_base.c
-@@ -6961,49 +6961,39 @@ static struct pci_driver megasas_pci_dri
+@@ -6991,49 +6991,39 @@ static struct pci_driver megasas_pci_dri
  /*
   * Sysfs driver attributes
   */
@@ -83,7 +83,7 @@
  {
  	int retval = count;
  
-@@ -7013,9 +7003,7 @@ megasas_sysfs_set_dbg_lvl(struct device_
+@@ -7043,9 +7033,7 @@ megasas_sysfs_set_dbg_lvl(struct device_
  	}
  	return retval;
  }

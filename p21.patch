@@ -1,10 +1,10 @@
 ---
- arch/powerpc/kernel/vio.c |   12 +++++++++++-
- arch/sparc/kernel/vio.c   |   18 +++++++++++-------
+ arch/powerpc/platforms/pseries/vio.c |   12 +++++++++++-
+ arch/sparc/kernel/vio.c              |   18 +++++++++++-------
  2 files changed, 22 insertions(+), 8 deletions(-)
 
---- a/arch/powerpc/kernel/vio.c
-+++ b/arch/powerpc/kernel/vio.c
+--- a/arch/powerpc/platforms/pseries/vio.c
++++ b/arch/powerpc/platforms/pseries/vio.c
 @@ -1537,6 +1537,7 @@ static ssize_t name_show(struct device *
  {
  	return sprintf(buf, "%s\n", to_vio_dev(dev)->name);
