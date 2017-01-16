@@ -25,9 +25,41 @@ Cc: NeilBrown <neilb@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
+ kernel/kmod.c    |   14 ++++++++++++++
  security/Kconfig |   35 +++++++++++++++++++++++++++++++++++
- 1 file changed, 35 insertions(+)
+ 2 files changed, 49 insertions(+)
 
+--- a/kernel/kmod.c
++++ b/kernel/kmod.c
+@@ -528,7 +528,12 @@ struct subprocess_info *call_usermodehel
+ 		goto out;
+ 
+ 	INIT_WORK(&sub_info->work, call_usermodehelper_exec_work);
++
++#ifdef CONFIG_STATIC_USERMODEHELPER
++	sub_info->path = CONFIG_STATIC_USERMODEHELPER_PATH;
++#else
+ 	sub_info->path = path;
++#endif
+ 	sub_info->argv = argv;
+ 	sub_info->envp = envp;
+ 
+@@ -566,6 +571,15 @@ int call_usermodehelper_exec(struct subp
+ 		retval = -EBUSY;
+ 		goto out;
+ 	}
++
++	/*
++	 * If there is no binary for us to call, then just return and get out of
++	 * here.  This allows us to set STATIC_USERMODEHELPER_PATH to "" and
++	 * disable all call_usermodehelper() calls.
++	 */
++	if (strlen(sub_info->path) == 0)
++		goto out;
++
+ 	/*
+ 	 * Set the completion pointer only if there is a waiter.
+ 	 * This makes it possible to use umh_complete to free
 --- a/security/Kconfig
 +++ b/security/Kconfig
 @@ -158,6 +158,41 @@ config HARDENED_USERCOPY_PAGESPAN
