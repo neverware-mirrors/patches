@@ -6,25 +6,23 @@ Subject: [PATCH 5/5] add CONFIG_READONLY_USERMODEHELPER support for lots of
 
 Dynamic usermode helper should be stopped, so support it...
 ---
- arch/x86/kernel/cpu/mcheck/mce.c | 12 ++++++++----
- drivers/block/drbd/drbd_int.h    |  2 +-
- drivers/block/drbd/drbd_main.c   |  4 +++-
- drivers/block/drbd/drbd_nl.c     |  4 ++--
- drivers/video/fbdev/uvesafb.c    | 17 +++++++++++------
- fs/nfs/cache_lib.c               | 12 +++++++++---
- include/linux/kobject.h          |  3 ++-
- include/linux/reboot.h           |  3 ++-
- kernel/ksysfs.c                  |  6 +++++-
- kernel/reboot.c                  |  2 +-
- kernel/sysctl.c                  |  4 ++++
- lib/kobject_uevent.c             |  4 ++--
+ arch/x86/kernel/cpu/mcheck/mce.c |   12 ++++++++----
+ drivers/block/drbd/drbd_int.h    |    2 +-
+ drivers/block/drbd/drbd_main.c   |    4 +++-
+ drivers/block/drbd/drbd_nl.c     |    4 ++--
+ drivers/video/fbdev/uvesafb.c    |   17 +++++++++++------
+ fs/nfs/cache_lib.c               |   12 +++++++++---
+ include/linux/kobject.h          |    3 ++-
+ include/linux/reboot.h           |    3 ++-
+ kernel/ksysfs.c                  |    6 +++++-
+ kernel/reboot.c                  |    2 +-
+ kernel/sysctl.c                  |    4 ++++
+ lib/kobject_uevent.c             |    4 ++--
  12 files changed, 50 insertions(+), 23 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/mcheck/mce.c b/arch/x86/kernel/cpu/mcheck/mce.c
-index 00ef43233e03..92a2ef8ffe3e 100644
 --- a/arch/x86/kernel/cpu/mcheck/mce.c
 +++ b/arch/x86/kernel/cpu/mcheck/mce.c
-@@ -2337,15 +2337,16 @@ static ssize_t set_bank(struct device *s, struct device_attribute *attr,
+@@ -2330,15 +2330,16 @@ static ssize_t set_bank(struct device *s
  }
  
  static ssize_t
@@ -44,7 +42,7 @@ index 00ef43233e03..92a2ef8ffe3e 100644
  {
  	char *p;
  
-@@ -2358,6 +2359,10 @@ static ssize_t set_trigger(struct device *s, struct device_attribute *attr,
+@@ -2351,6 +2352,10 @@ static ssize_t set_trigger(struct device
  
  	return strlen(mce_helper) + !!p;
  }
@@ -55,7 +53,7 @@ index 00ef43233e03..92a2ef8ffe3e 100644
  
  static ssize_t set_ignore_ce(struct device *s,
  			     struct device_attribute *attr,
-@@ -2415,7 +2420,6 @@ static ssize_t store_int_with_restart(struct device *s,
+@@ -2408,7 +2413,6 @@ static ssize_t store_int_with_restart(st
  	return ret;
  }
  
@@ -63,8 +61,6 @@ index 00ef43233e03..92a2ef8ffe3e 100644
  static DEVICE_INT_ATTR(tolerant, 0644, mca_cfg.tolerant);
  static DEVICE_INT_ATTR(monarch_timeout, 0644, mca_cfg.monarch_timeout);
  static DEVICE_BOOL_ATTR(dont_log_ce, 0644, mca_cfg.dont_log_ce);
-diff --git a/drivers/block/drbd/drbd_int.h b/drivers/block/drbd/drbd_int.h
-index a139a34f1f1e..17fd08c330c8 100644
 --- a/drivers/block/drbd/drbd_int.h
 +++ b/drivers/block/drbd/drbd_int.h
 @@ -75,7 +75,7 @@ extern int fault_rate;
@@ -76,11 +72,9 @@ index a139a34f1f1e..17fd08c330c8 100644
  
  
  /* This is used to stop/restart our threads.
-diff --git a/drivers/block/drbd/drbd_main.c b/drivers/block/drbd/drbd_main.c
-index 8f51eccc8de7..d5dce7b5f58d 100644
 --- a/drivers/block/drbd/drbd_main.c
 +++ b/drivers/block/drbd/drbd_main.c
-@@ -108,9 +108,11 @@ int proc_details;       /* Detail level in proc drbd*/
+@@ -108,9 +108,11 @@ int proc_details;       /* Detail level
  
  /* Module parameter for setting the user mode helper program
   * to run. Default is /sbin/drbdadm */
@@ -93,11 +87,9 @@ index 8f51eccc8de7..d5dce7b5f58d 100644
  
  /* in 2.6.x, our device mapping and config info contains our virtual gendisks
   * as member "struct gendisk *vdisk;"
-diff --git a/drivers/block/drbd/drbd_nl.c b/drivers/block/drbd/drbd_nl.c
-index 9edc6fb95f19..cdbe41649e69 100644
 --- a/drivers/block/drbd/drbd_nl.c
 +++ b/drivers/block/drbd/drbd_nl.c
-@@ -344,7 +344,7 @@ int drbd_khelper(struct drbd_device *device, char *cmd)
+@@ -344,7 +344,7 @@ int drbd_khelper(struct drbd_device *dev
  			 (char[60]) { }, /* address */
  			NULL };
  	char mb[14];
@@ -106,7 +98,7 @@ index 9edc6fb95f19..cdbe41649e69 100644
  	struct drbd_connection *connection = first_peer_device(device)->connection;
  	struct sib_info sib;
  	int ret;
-@@ -396,7 +396,7 @@ enum drbd_peer_state conn_khelper(struct drbd_connection *connection, char *cmd)
+@@ -396,7 +396,7 @@ enum drbd_peer_state conn_khelper(struct
  			 (char[60]) { }, /* address */
  			NULL };
  	char *resource_name = connection->resource->name;
@@ -115,8 +107,6 @@ index 9edc6fb95f19..cdbe41649e69 100644
  	int ret;
  
  	setup_khelper_env(connection, envp);
-diff --git a/drivers/video/fbdev/uvesafb.c b/drivers/video/fbdev/uvesafb.c
-index 98af9e02959b..ba6ac819877e 100644
 --- a/drivers/video/fbdev/uvesafb.c
 +++ b/drivers/video/fbdev/uvesafb.c
 @@ -30,7 +30,7 @@ static struct cb_id uvesafb_cn_id = {
@@ -175,8 +165,6 @@ index 98af9e02959b..ba6ac819877e 100644
  
  MODULE_LICENSE("GPL");
  MODULE_AUTHOR("Michal Januszewski <spock@gentoo.org>");
-diff --git a/fs/nfs/cache_lib.c b/fs/nfs/cache_lib.c
-index 6de15709d024..f1c99cb75706 100644
 --- a/fs/nfs/cache_lib.c
 +++ b/fs/nfs/cache_lib.c
 @@ -20,13 +20,16 @@
@@ -197,7 +185,7 @@ index 6de15709d024..f1c99cb75706 100644
  module_param_named(cache_getent_timeout, nfs_cache_getent_timeout, ulong, 0600);
  MODULE_PARM_DESC(cache_getent_timeout, "Timeout (in seconds) after which "
  		"the cache upcall is assumed to have failed");
-@@ -39,7 +42,7 @@ int nfs_cache_upcall(struct cache_detail *cd, char *entry_name)
+@@ -39,7 +42,7 @@ int nfs_cache_upcall(struct cache_detail
  		NULL
  	};
  	char *argv[] = {
@@ -206,7 +194,7 @@ index 6de15709d024..f1c99cb75706 100644
  		cd->name,
  		entry_name,
  		NULL
-@@ -48,15 +51,18 @@ int nfs_cache_upcall(struct cache_detail *cd, char *entry_name)
+@@ -48,15 +51,18 @@ int nfs_cache_upcall(struct cache_detail
  
  	if (nfs_cache_getent_prog[0] == '\0')
  		goto out;
@@ -226,8 +214,6 @@ index 6de15709d024..f1c99cb75706 100644
  out:
  	return ret > 0 ? 0 : ret;
  }
-diff --git a/include/linux/kobject.h b/include/linux/kobject.h
-index e6284591599e..a3b4f734c6d8 100644
 --- a/include/linux/kobject.h
 +++ b/include/linux/kobject.h
 @@ -27,6 +27,7 @@
@@ -247,8 +233,6 @@ index e6284591599e..a3b4f734c6d8 100644
  #endif
  
  /* counter to tag the uevent, read only except for the kobject core */
-diff --git a/include/linux/reboot.h b/include/linux/reboot.h
-index a7ff409f386d..c693e7d9b249 100644
 --- a/include/linux/reboot.h
 +++ b/include/linux/reboot.h
 @@ -3,6 +3,7 @@
@@ -268,11 +252,9 @@ index a7ff409f386d..c693e7d9b249 100644
  
  extern void orderly_poweroff(bool force);
  extern void orderly_reboot(void);
-diff --git a/kernel/ksysfs.c b/kernel/ksysfs.c
-index ee1bc1bb8feb..9158fb36cfae 100644
 --- a/kernel/ksysfs.c
 +++ b/kernel/ksysfs.c
-@@ -44,6 +44,7 @@ static ssize_t uevent_helper_show(struct kobject *kobj,
+@@ -44,6 +44,7 @@ static ssize_t uevent_helper_show(struct
  {
  	return sprintf(buf, "%s\n", uevent_helper);
  }
@@ -280,7 +262,7 @@ index ee1bc1bb8feb..9158fb36cfae 100644
  static ssize_t uevent_helper_store(struct kobject *kobj,
  				   struct kobj_attribute *attr,
  				   const char *buf, size_t count)
-@@ -57,7 +58,10 @@ static ssize_t uevent_helper_store(struct kobject *kobj,
+@@ -57,7 +58,10 @@ static ssize_t uevent_helper_store(struc
  	return count;
  }
  KERNEL_ATTR_RW(uevent_helper);
@@ -292,8 +274,6 @@ index ee1bc1bb8feb..9158fb36cfae 100644
  
  #ifdef CONFIG_PROFILING
  static ssize_t profiling_show(struct kobject *kobj,
-diff --git a/kernel/reboot.c b/kernel/reboot.c
-index bd30a973fe94..4127ac5366ee 100644
 --- a/kernel/reboot.c
 +++ b/kernel/reboot.c
 @@ -386,7 +386,7 @@ void ctrl_alt_del(void)
@@ -305,8 +285,6 @@ index bd30a973fe94..4127ac5366ee 100644
  static const char reboot_cmd[] = "/sbin/reboot";
  
  static int run_cmd(const char *cmd)
-diff --git a/kernel/sysctl.c b/kernel/sysctl.c
-index 8dbaec0e4f7f..2ebf08fb4047 100644
 --- a/kernel/sysctl.c
 +++ b/kernel/sysctl.c
 @@ -662,6 +662,7 @@ static struct ctl_table kern_table[] = {
@@ -341,8 +319,6 @@ index 8dbaec0e4f7f..2ebf08fb4047 100644
  #ifdef CONFIG_KEYS
  	{
  		.procname	= "keys",
-diff --git a/lib/kobject_uevent.c b/lib/kobject_uevent.c
-index 9a2b811966eb..3093b8d634db 100644
 --- a/lib/kobject_uevent.c
 +++ b/lib/kobject_uevent.c
 @@ -29,7 +29,7 @@
@@ -354,7 +330,7 @@ index 9a2b811966eb..3093b8d634db 100644
  #endif
  #ifdef CONFIG_NET
  struct uevent_sock {
-@@ -137,7 +137,7 @@ static int init_uevent_argv(struct kobj_uevent_env *env, const char *subsystem)
+@@ -137,7 +137,7 @@ static int init_uevent_argv(struct kobj_
  		return -ENOMEM;
  	}
  
@@ -363,6 +339,3 @@ index 9a2b811966eb..3093b8d634db 100644
  	env->argv[1] = &env->buf[env->buflen];
  	env->argv[2] = NULL;
  
--- 
-2.11.0
-

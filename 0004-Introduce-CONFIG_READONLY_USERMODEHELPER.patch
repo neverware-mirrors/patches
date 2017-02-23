@@ -18,12 +18,10 @@ coredumps, it's still a work in progress.
 
 Not-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/kmod.h |  6 ++++++
- security/Kconfig     | 17 +++++++++++++++++
+ include/linux/kmod.h |    6 ++++++
+ security/Kconfig     |   17 +++++++++++++++++
  2 files changed, 23 insertions(+)
 
-diff --git a/include/linux/kmod.h b/include/linux/kmod.h
-index c4e441e00db5..5b72a0f90874 100644
 --- a/include/linux/kmod.h
 +++ b/include/linux/kmod.h
 @@ -53,6 +53,12 @@ struct file;
@@ -39,13 +37,11 @@ index c4e441e00db5..5b72a0f90874 100644
  struct subprocess_info {
  	struct work_struct work;
  	struct completion *complete;
-diff --git a/security/Kconfig b/security/Kconfig
-index 118f4549404e..47e8011c6261 100644
 --- a/security/Kconfig
 +++ b/security/Kconfig
-@@ -158,6 +158,23 @@ config HARDENED_USERCOPY_PAGESPAN
- 	  been removed. This config is intended to be used only while
- 	  trying to find such users.
+@@ -193,6 +193,23 @@ config STATIC_USERMODEHELPER_PATH
+ 	  If you wish for all usermode helper programs to be disabled,
+ 	  specify an empty string here (i.e. "").
  
 +config READONLY_USERMODEHELPER
 +	bool "Make User Mode Helper program names read-only"
@@ -67,6 +63,3 @@ index 118f4549404e..47e8011c6261 100644
  source security/selinux/Kconfig
  source security/smack/Kconfig
  source security/tomoyo/Kconfig
--- 
-2.11.0
-
