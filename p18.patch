@@ -7,7 +7,7 @@
 
 --- a/arch/arm/mach-rpc/ecard.c
 +++ b/arch/arm/mach-rpc/ecard.c
-@@ -760,19 +760,21 @@ static struct expansion_card *__init eca
+@@ -761,19 +761,21 @@ static struct expansion_card *__init eca
  	return ec;
  }
  
@@ -32,7 +32,7 @@
  {
  	struct expansion_card *ec = ECARD_DEV(dev);
  	char *str = buf;
-@@ -786,35 +788,39 @@ static ssize_t ecard_show_resources(stru
+@@ -787,35 +789,39 @@ static ssize_t ecard_show_resources(stru
  
  	return str - buf;
  }
@@ -84,7 +84,7 @@
  
  int ecard_request_resources(struct expansion_card *ec)
  {
-@@ -1119,7 +1125,7 @@ static int ecard_match(struct device *_d
+@@ -1120,7 +1126,7 @@ static int ecard_match(struct device *_d
  
  struct bus_type ecard_bus_type = {
  	.name		= "ecard",

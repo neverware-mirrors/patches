@@ -240,7 +240,7 @@ Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
 +connected to different SDIO hosts.
 --- a/drivers/char/Kconfig
 +++ b/drivers/char/Kconfig
-@@ -590,5 +590,28 @@ config TILE_SROM
+@@ -594,5 +594,28 @@ config TILE_SROM
  
  source "drivers/char/xillybus/Kconfig"
  
@@ -1394,7 +1394,7 @@ Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
 +#endif
 --- a/include/uapi/linux/Kbuild
 +++ b/include/uapi/linux/Kbuild
-@@ -96,6 +96,7 @@ header-y += coff.h
+@@ -97,6 +97,7 @@ header-y += coff.h
  header-y += connector.h
  header-y += const.h
  header-y += cramfs_fs.h

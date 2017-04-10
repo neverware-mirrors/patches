@@ -93,7 +93,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
   * @bus_groups:	Default attributes of the bus.
   * @dev_groups:	Default attributes of the devices on the bus.
   * @drv_groups: Default attributes of the device drivers on the bus.
-@@ -110,7 +109,6 @@ struct bus_type {
+@@ -112,7 +111,6 @@ struct bus_type {
  	const char		*name;
  	const char		*dev_name;
  	struct device		*dev_root;

@@ -73,7 +73,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  }
 --- a/include/linux/device.h
 +++ b/include/linux/device.h
-@@ -359,7 +359,6 @@ int subsys_virtual_register(struct bus_t
+@@ -363,7 +363,6 @@ int subsys_virtual_register(struct bus_t
   * struct class - device classes
   * @name:	Name of the class.
   * @owner:	The module owner.
@@ -81,7 +81,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
   * @class_groups: Default attributes of this class.
   * @dev_groups:	Default attributes of the devices that belong to the class.
   * @dev_kobj:	The kobject that represents this class and links it into the hierarchy.
-@@ -388,7 +387,6 @@ struct class {
+@@ -392,7 +391,6 @@ struct class {
  	const char		*name;
  	struct module		*owner;
  

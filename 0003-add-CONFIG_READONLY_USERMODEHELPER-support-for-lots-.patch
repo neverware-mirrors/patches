@@ -1,7 +1,7 @@
-From 88f682301f10a9278e23aed64e911dde5ba30ed9 Mon Sep 17 00:00:00 2001
+From dd1c428188101dd5428aa7bb9ed1a1329a052763 Mon Sep 17 00:00:00 2001
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Date: Thu, 15 Dec 2016 13:09:59 -0800
-Subject: [PATCH 5/5] add CONFIG_READONLY_USERMODEHELPER support for lots of
+Subject: [PATCH 3/3] add CONFIG_READONLY_USERMODEHELPER support for lots of
  places.
 
 Dynamic usermode helper should be stopped, so support it...
@@ -22,7 +22,7 @@ Dynamic usermode helper should be stopped, so support it...
 
 --- a/arch/x86/kernel/cpu/mcheck/mce.c
 +++ b/arch/x86/kernel/cpu/mcheck/mce.c
-@@ -2330,15 +2330,16 @@ static ssize_t set_bank(struct device *s
+@@ -2292,15 +2292,16 @@ static ssize_t set_bank(struct device *s
  }
  
  static ssize_t
@@ -42,7 +42,7 @@ Dynamic usermode helper should be stopped, so support it...
  {
  	char *p;
  
-@@ -2351,6 +2352,10 @@ static ssize_t set_trigger(struct device
+@@ -2313,6 +2314,10 @@ static ssize_t set_trigger(struct device
  
  	return strlen(mce_helper) + !!p;
  }
@@ -53,7 +53,7 @@ Dynamic usermode helper should be stopped, so support it...
  
  static ssize_t set_ignore_ce(struct device *s,
  			     struct device_attribute *attr,
-@@ -2408,7 +2413,6 @@ static ssize_t store_int_with_restart(st
+@@ -2370,7 +2375,6 @@ static ssize_t store_int_with_restart(st
  	return ret;
  }
  
@@ -74,7 +74,7 @@ Dynamic usermode helper should be stopped, so support it...
  /* This is used to stop/restart our threads.
 --- a/drivers/block/drbd/drbd_main.c
 +++ b/drivers/block/drbd/drbd_main.c
-@@ -108,9 +108,11 @@ int proc_details;       /* Detail level
+@@ -109,9 +109,11 @@ int proc_details;       /* Detail level
  
  /* Module parameter for setting the user mode helper program
   * to run. Default is /sbin/drbdadm */
@@ -287,7 +287,7 @@ Dynamic usermode helper should be stopped, so support it...
  static int run_cmd(const char *cmd)
 --- a/kernel/sysctl.c
 +++ b/kernel/sysctl.c
-@@ -662,6 +662,7 @@ static struct ctl_table kern_table[] = {
+@@ -663,6 +663,7 @@ static struct ctl_table kern_table[] = {
  	},
  #endif
  #ifdef CONFIG_UEVENT_HELPER
@@ -295,7 +295,7 @@ Dynamic usermode helper should be stopped, so support it...
  	{
  		.procname	= "hotplug",
  		.data		= &uevent_helper,
-@@ -670,6 +671,7 @@ static struct ctl_table kern_table[] = {
+@@ -671,6 +672,7 @@ static struct ctl_table kern_table[] = {
  		.proc_handler	= proc_dostring,
  	},
  #endif
@@ -303,7 +303,7 @@ Dynamic usermode helper should be stopped, so support it...
  #ifdef CONFIG_CHR_DEV_SG
  	{
  		.procname	= "sg-big-buff",
-@@ -1079,6 +1081,7 @@ static struct ctl_table kern_table[] = {
+@@ -1080,6 +1082,7 @@ static struct ctl_table kern_table[] = {
  		.proc_handler	= proc_dointvec,
  	},
  #endif
@@ -311,7 +311,7 @@ Dynamic usermode helper should be stopped, so support it...
  	{
  		.procname	= "poweroff_cmd",
  		.data		= &poweroff_cmd,
-@@ -1086,6 +1089,7 @@ static struct ctl_table kern_table[] = {
+@@ -1087,6 +1090,7 @@ static struct ctl_table kern_table[] = {
  		.mode		= 0644,
  		.proc_handler	= proc_dostring,
  	},

@@ -1,7 +1,7 @@
-From 2f54800f230f77a5cbc784ff503497c201b0a5cd Mon Sep 17 00:00:00 2001
+From 7c57d60d77d05ad26fe7ea6effb9c02fcf5208cc Mon Sep 17 00:00:00 2001
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Date: Thu, 15 Dec 2016 13:07:19 -0800
-Subject: [PATCH 4/5] Introduce CONFIG_READONLY_USERMODEHELPER
+Subject: [PATCH 2/3] Introduce CONFIG_READONLY_USERMODEHELPER
 
 If you can write to kernel memory, an "easy" way to get the kernel to
 run any application is to change the pointer of one of the usermode

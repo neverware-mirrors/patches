@@ -22,7 +22,7 @@
  {
 --- a/drivers/scsi/megaraid/megaraid_sas_base.c
 +++ b/drivers/scsi/megaraid/megaraid_sas_base.c
-@@ -6991,49 +6991,39 @@ static struct pci_driver megasas_pci_dri
+@@ -7323,49 +7323,39 @@ static struct pci_driver megasas_pci_dri
  /*
   * Sysfs driver attributes
   */
@@ -83,7 +83,7 @@
  {
  	int retval = count;
  
-@@ -7043,9 +7033,7 @@ megasas_sysfs_set_dbg_lvl(struct device_
+@@ -7375,9 +7365,7 @@ megasas_sysfs_set_dbg_lvl(struct device_
  	}
  	return retval;
  }
@@ -92,11 +92,11 @@
 -		megasas_sysfs_set_dbg_lvl);
 +static DRIVER_ATTR_RW(dbg_lvl);
  
- static void
- megasas_aen_polling(struct work_struct *work)
+ static inline void megasas_remove_scsi_device(struct scsi_device *sdev)
+ {
 --- a/drivers/scsi/osst.c
 +++ b/drivers/scsi/osst.c
-@@ -5664,12 +5664,12 @@ static	struct	osst_support_data support_
+@@ -5668,12 +5668,12 @@ static	struct	osst_support_data support_
   * sysfs support for osst driver parameter information
   */
  

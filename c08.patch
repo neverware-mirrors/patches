@@ -4,7 +4,7 @@
 
 --- a/drivers/block/osdblk.c
 +++ b/drivers/block/osdblk.c
-@@ -468,9 +468,8 @@ static void class_osdblk_release(struct
+@@ -462,9 +462,8 @@ static void class_osdblk_release(struct
  	kfree(cls);
  }
  
@@ -16,7 +16,7 @@
  {
  	int n = 0;
  	struct list_head *tmp;
-@@ -493,10 +492,10 @@ static ssize_t class_osdblk_list(struct
+@@ -487,10 +486,10 @@ static ssize_t class_osdblk_list(struct
  	mutex_unlock(&ctl_mutex);
  	return n;
  }
@@ -30,7 +30,7 @@
  {
  	struct osdblk_device *osdev;
  	ssize_t rc;
-@@ -587,11 +586,10 @@ err_out_mod:
+@@ -581,11 +580,10 @@ err_out_mod:
  	module_put(THIS_MODULE);
  	return rc;
  }
@@ -45,7 +45,7 @@
  {
  	struct osdblk_device *osdev = NULL;
  	int target_id, rc;
-@@ -635,13 +633,15 @@ static ssize_t class_osdblk_remove(struc
+@@ -629,13 +627,15 @@ static ssize_t class_osdblk_remove(struc
  
  	return count;
  }
@@ -66,7 +66,7 @@
  
  static int osdblk_sysfs_init(void)
  {
-@@ -658,7 +658,7 @@ static int osdblk_sysfs_init(void)
+@@ -652,7 +652,7 @@ static int osdblk_sysfs_init(void)
  	class_osdblk->name = DRV_NAME;
  	class_osdblk->owner = THIS_MODULE;
  	class_osdblk->class_release = class_osdblk_release;
