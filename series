@@ -1,3 +1,6 @@
+0001-goldfish_pipe-An-implementation-of-more-parallel-pip.patch
+0002-CHROMIUM-android-fix-warning-when-releasing-active-s.patch
+0003-goldfish-Add-goldfish-sync-driver.patch
 eventpoll.h-fix-epoll-event-masks.patch
 eventpoll.h-add-missing-epoll-event-masks.patch
 0001-drbd-rename-usermode_helper-to-drbd_usermode_helper.patch
