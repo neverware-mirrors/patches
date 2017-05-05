@@ -1,3 +1,10 @@
+#goldfish_pipe-an-implementation-of-more-parallel-pipe.patch
+lib-vsprintf-additional-kernel-pointer-filtering-options.patch
+lib-vsprintf-whitelist-stack-traces.patch
+lib-vsprintf-physical-address-kernel-pointer-filtering-options.patch
+lib-vsprintf-default-kptr_restrict-to-the-maximum-value.patch
+lib-vsprintf-add-pap-padp-options.patch
+drivers-uio-un-restrict-sysfs-pointers-for-uio.patch
 0001-goldfish_pipe-An-implementation-of-more-parallel-pip.patch
 0002-CHROMIUM-android-fix-warning-when-releasing-active-s.patch
 0003-goldfish-Add-goldfish-sync-driver.patch
