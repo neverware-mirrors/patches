@@ -1,11 +1,11 @@
 From: Dave Weinstein <olorin@google.com>
-Date: Wed, 11 Jan 2017 16:02:44 -0800
 Subject: lib: vsprintf: whitelist stack traces
 
 Use the %pP functionality to explicitly allow kernel
 pointers to be logged for stack traces
 
 Signed-off-by: Dave Weinstein <olorin@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
  arch/arm64/kernel/traps.c |    4 ++--

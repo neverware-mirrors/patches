@@ -1,13 +1,11 @@
 From: Chris Fries <cfries@google.com>
-Date: Thu, 27 Apr 2017 23:29:40 -0500
 Subject: lib: vsprintf: Add "%paP", "%padP" options
 
 Add %paP and %padP for physical address that need to always be shown
 regardless of kptr restrictions.
 
 Signed-off-by: Chris Fries <cfries@google.com>
----
-
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  Documentation/printk-formats.txt |   10 ++++++----
  lib/vsprintf.c                   |   12 +++++++++---

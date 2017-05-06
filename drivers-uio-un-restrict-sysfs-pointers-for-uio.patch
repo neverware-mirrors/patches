@@ -1,13 +1,11 @@
 From: Chris Fries <cfries@google.com>
-Date: Thu, 27 Apr 2017 23:30:55 -0500
 Subject: drivers: uio: Un-restrict sysfs pointers for UIO
 
 The addr and size on the UIO devices are required by userspace to function
 properly.  Let's unrestrict these by adding the 'P' modifier to %p and %pa.
 
 Signed-off-by: Chris Fries <cfries@google.com>
----
-
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  drivers/uio/uio.c |    4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)

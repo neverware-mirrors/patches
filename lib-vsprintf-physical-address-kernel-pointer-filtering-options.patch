@@ -1,13 +1,11 @@
 From: Dave Weinstein <olorin@google.com>
-Date: Wed, 11 Jan 2017 16:13:09 -0800
 Subject: lib: vsprintf: physical address kernel pointer filtering options
 
 Add the kptr_restrict setting of 4 which results in %pa and
 %p[rR] values being replaced by zeros.
 
 Signed-off-by: Dave Weinstein <olorin@google.com>
----
-
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  Documentation/sysctl/kernel.txt |    8 +++++++-
  kernel/sysctl.c                 |    3 +--

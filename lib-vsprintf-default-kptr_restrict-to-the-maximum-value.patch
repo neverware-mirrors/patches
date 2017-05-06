@@ -1,5 +1,4 @@
 From: Dave Weinstein <olorin@google.com>
-Date: Wed, 11 Jan 2017 16:27:59 -0800
 Subject: lib: vsprintf: default kptr_restrict to the maximum value
 
 Set the initial value of kptr_restrict to the maximum
@@ -7,8 +6,7 @@ setting rather than the minimum setting, to ensure that
 early boot logging is not leaking information.
 
 Signed-off-by: Dave Weinstein <olorin@google.com>
----
-
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  lib/vsprintf.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
