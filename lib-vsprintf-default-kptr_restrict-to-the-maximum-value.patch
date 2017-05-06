@@ -5,6 +5,8 @@ Set the initial value of kptr_restrict to the maximum
 setting rather than the minimum setting, to ensure that
 early boot logging is not leaking information.
 
+Cc: William Roberts <william.c.roberts@intel.com>
+Cc: Chris Fries <cfries@google.com>
 Signed-off-by: Dave Weinstein <olorin@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---

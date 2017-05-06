@@ -4,6 +4,8 @@ Subject: lib: vsprintf: whitelist stack traces
 Use the %pP functionality to explicitly allow kernel
 pointers to be logged for stack traces
 
+Cc: William Roberts <william.c.roberts@intel.com>
+Cc: Chris Fries <cfries@google.com>
 Signed-off-by: Dave Weinstein <olorin@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 

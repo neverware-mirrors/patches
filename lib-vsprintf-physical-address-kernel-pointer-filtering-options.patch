@@ -4,6 +4,8 @@ Subject: lib: vsprintf: physical address kernel pointer filtering options
 Add the kptr_restrict setting of 4 which results in %pa and
 %p[rR] values being replaced by zeros.
 
+Cc: William Roberts <william.c.roberts@intel.com>
+Cc: Chris Fries <cfries@google.com>
 Signed-off-by: Dave Weinstein <olorin@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---

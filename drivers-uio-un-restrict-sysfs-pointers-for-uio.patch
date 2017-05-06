@@ -4,6 +4,8 @@ Subject: drivers: uio: Un-restrict sysfs pointers for UIO
 The addr and size on the UIO devices are required by userspace to function
 properly.  Let's unrestrict these by adding the 'P' modifier to %p and %pa.
 
+Cc: William Roberts <william.c.roberts@intel.com>
+Cc: Dave Weinstein <olorin@google.com>
 Signed-off-by: Chris Fries <cfries@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
