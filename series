@@ -1,4 +1,5 @@
 #goldfish_pipe-an-implementation-of-more-parallel-pipe.patch
+usb-core-replace-p-with-pk.patch
 lib-vsprintf-additional-kernel-pointer-filtering-options.patch
 lib-vsprintf-whitelist-stack-traces.patch
 lib-vsprintf-physical-address-kernel-pointer-filtering-options.patch
