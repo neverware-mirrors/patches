@@ -1,16 +1,13 @@
 #goldfish_pipe-an-implementation-of-more-parallel-pipe.patch
-usb-core-replace-p-with-pk.patch
+tests-convert-the-membarrier-test-to-tap-format.patch
 lib-vsprintf-additional-kernel-pointer-filtering-options.patch
 lib-vsprintf-whitelist-stack-traces.patch
 lib-vsprintf-physical-address-kernel-pointer-filtering-options.patch
 lib-vsprintf-default-kptr_restrict-to-the-maximum-value.patch
 lib-vsprintf-add-pap-padp-options.patch
 drivers-uio-un-restrict-sysfs-pointers-for-uio.patch
-0001-goldfish_pipe-An-implementation-of-more-parallel-pip.patch
 0002-CHROMIUM-android-fix-warning-when-releasing-active-s.patch
 0003-goldfish-Add-goldfish-sync-driver.patch
-eventpoll.h-fix-epoll-event-masks.patch
-eventpoll.h-add-missing-epoll-event-masks.patch
 0001-drbd-rename-usermode_helper-to-drbd_usermode_helper.patch
 0002-Introduce-CONFIG_READONLY_USERMODEHELPER.patch
 0003-add-CONFIG_READONLY_USERMODEHELPER-support-for-lots-.patch

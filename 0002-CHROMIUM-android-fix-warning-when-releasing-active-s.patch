@@ -42,7 +42,7 @@ Signed-off-by: Jin Qian <jinqian@android.com>
 
 --- a/drivers/dma-buf/dma-fence.c
 +++ b/drivers/dma-buf/dma-fence.c
-@@ -332,8 +332,12 @@ dma_fence_remove_callback(struct dma_fen
+@@ -334,8 +334,12 @@ dma_fence_remove_callback(struct dma_fen
  	spin_lock_irqsave(fence->lock, flags);
  
  	ret = !list_empty(&cb->node);

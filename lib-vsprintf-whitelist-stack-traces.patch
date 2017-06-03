@@ -48,7 +48,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  #endif /*_LINUX_KALLSYMS_H*/
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
-@@ -3110,7 +3110,7 @@ void show_regs_print_info(const char *lo
+@@ -3165,7 +3165,7 @@ void show_regs_print_info(const char *lo
  {
  	dump_stack_print_info(log_lvl);
  

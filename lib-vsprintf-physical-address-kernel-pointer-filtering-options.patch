@@ -108,7 +108,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  }
  
  static noinline_for_stack
-@@ -1581,6 +1601,12 @@ char *flags_string(char *buf, char *end,
+@@ -1584,6 +1604,12 @@ char *flags_string(char *buf, char *end,
   *
   * Note: That for kptr_restrict set to 3, %p and %pK have the same
   * meaning.
@@ -121,7 +121,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
   */
  static noinline_for_stack
  char *pointer(const char *fmt, char *buf, char *end, void *ptr,
-@@ -1738,6 +1764,7 @@ char *pointer(const char *fmt, char *buf
+@@ -1741,6 +1767,7 @@ char *pointer(const char *fmt, char *buf
  		}
  		case 2: /* restrict only %pK */
  		case 3: /* restrict all non-extensioned %p and %pK */

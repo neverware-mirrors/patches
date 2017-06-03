@@ -95,7 +95,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  /*
   * Show a '%p' thing.  A kernel extension is that the '%p' is followed
   * by an extra set of alphanumeric characters that are extended format
-@@ -1540,6 +1548,7 @@ int kptr_restrict __read_mostly;
+@@ -1543,6 +1551,7 @@ int kptr_restrict __read_mostly;
   *       Do not use this feature without some mechanism to verify the
   *       correctness of the format string and va_list arguments.
   * - 'K' For a kernel pointer that should be hidden from unprivileged users
@@ -103,7 +103,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
   * - 'NF' For a netdev_features_t
   * - 'h[CDN]' For a variable-length buffer, it prints it as a hex string with
   *            a certain separator (' ' by default):
-@@ -1569,6 +1578,9 @@ int kptr_restrict __read_mostly;
+@@ -1572,6 +1581,9 @@ int kptr_restrict __read_mostly;
   * Note: The difference between 'S' and 'F' is that on ia64 and ppc64
   * function pointers are really function descriptors, which contain a
   * pointer to the real address.
@@ -113,7 +113,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
   */
  static noinline_for_stack
  char *pointer(const char *fmt, char *buf, char *end, void *ptr,
-@@ -1576,7 +1588,7 @@ char *pointer(const char *fmt, char *buf
+@@ -1579,7 +1591,7 @@ char *pointer(const char *fmt, char *buf
  {
  	const int default_width = 2 * sizeof(void *);
  
@@ -122,7 +122,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		/*
  		 * Print (null) with the same width as a pointer so it makes
  		 * tabular output look nice.
-@@ -1657,10 +1669,43 @@ char *pointer(const char *fmt, char *buf
+@@ -1660,10 +1672,43 @@ char *pointer(const char *fmt, char *buf
  			va_end(va);
  			return buf;
  		}
@@ -167,7 +167,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  			break;
  		case 1: {
  			const struct cred *cred;
-@@ -1679,7 +1724,7 @@ char *pointer(const char *fmt, char *buf
+@@ -1682,7 +1727,7 @@ char *pointer(const char *fmt, char *buf
  			 * Only print the real pointer value if the current
  			 * process has CAP_SYSLOG and is running with the
  			 * same credentials it started with. This is because
@@ -176,7 +176,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  			 * checks permission at read() time. We don't want to
  			 * leak pointer values if a binary opens a file using
  			 * %pK and then elevates privileges before reading it.
-@@ -1691,33 +1736,13 @@ char *pointer(const char *fmt, char *buf
+@@ -1694,33 +1739,13 @@ char *pointer(const char *fmt, char *buf
  				ptr = NULL;
  			break;
  		}
@@ -212,7 +212,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	}
  	spec.flags |= SMALL;
  	if (spec.field_width == -1) {
-@@ -1726,7 +1751,7 @@ char *pointer(const char *fmt, char *buf
+@@ -1729,7 +1754,7 @@ char *pointer(const char *fmt, char *buf
  	}
  	spec.base = 16;
  

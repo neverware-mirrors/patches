@@ -39,7 +39,7 @@ Not-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	struct completion *complete;
 --- a/security/Kconfig
 +++ b/security/Kconfig
-@@ -193,6 +193,23 @@ config STATIC_USERMODEHELPER_PATH
+@@ -189,6 +189,23 @@ config STATIC_USERMODEHELPER_PATH
  	  If you wish for all usermode helper programs to be disabled,
  	  specify an empty string here (i.e. "").
  
