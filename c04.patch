@@ -4,7 +4,7 @@
 
 --- a/drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c
 +++ b/drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c
-@@ -3851,10 +3851,6 @@ static const struct target_core_fabric_o
+@@ -3934,10 +3934,6 @@ static const struct target_core_fabric_o
  
  static void ibmvscsis_dev_release(struct device *dev) {};
  
@@ -15,7 +15,7 @@
  static struct device_attribute dev_attr_system_id =
  	__ATTR(system_id, S_IRUGO, system_id_show, NULL);
  
-@@ -3874,7 +3870,6 @@ ATTRIBUTE_GROUPS(ibmvscsis_dev);
+@@ -3957,7 +3953,6 @@ ATTRIBUTE_GROUPS(ibmvscsis_dev);
  static struct class ibmvscsis_class = {
  	.name		= "ibmvscsis",
  	.dev_release	= ibmvscsis_dev_release,

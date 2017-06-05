@@ -51,7 +51,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
 --- a/include/linux/device.h
 +++ b/include/linux/device.h
-@@ -303,8 +303,6 @@ struct driver_attribute {
+@@ -307,8 +307,6 @@ struct driver_attribute {
  			 size_t count);
  };
  

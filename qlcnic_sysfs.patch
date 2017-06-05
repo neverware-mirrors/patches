@@ -113,7 +113,7 @@
 -	.store = qlcnic_store_beacon,
 -};
 -
- static struct bin_attribute bin_attr_crb = {
+ static const struct bin_attribute bin_attr_crb = {
  	.attr = {.name = "crb", .mode = (S_IRUGO | S_IWUSR)},
  	.size = 0,
 @@ -1317,6 +1300,24 @@ void qlcnic_unregister_hwmon_dev(struct

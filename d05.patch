@@ -6,7 +6,7 @@
 
 --- a/drivers/scsi/aic94xx/aic94xx_init.c
 +++ b/drivers/scsi/aic94xx/aic94xx_init.c
-@@ -957,11 +957,11 @@ static int asd_scan_finished(struct Scsi
+@@ -956,11 +956,11 @@ static int asd_scan_finished(struct Scsi
  	return 1;
  }
  

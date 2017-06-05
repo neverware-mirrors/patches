@@ -169,7 +169,7 @@
  #endif
  
  /* --------------------------------------------------------------------- */
-@@ -8537,14 +8505,13 @@ static ssize_t fan_fan2_input_show(struc
+@@ -8606,14 +8574,13 @@ static ssize_t fan_fan2_input_show(struc
  static DEVICE_ATTR(fan2_input, S_IRUGO, fan_fan2_input_show, NULL);
  
  /* sysfs fan fan_watchdog (hwmon driver) ------------------------------- */
@@ -187,7 +187,7 @@
  {
  	unsigned long t;
  
-@@ -8561,9 +8528,7 @@ static ssize_t fan_fan_watchdog_store(st
+@@ -8630,9 +8597,7 @@ static ssize_t fan_fan_watchdog_store(st
  
  	return count;
  }

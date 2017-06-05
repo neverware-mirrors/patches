@@ -4,7 +4,7 @@
 
 --- a/drivers/block/zram/zram_drv.c
 +++ b/drivers/block/zram/zram_drv.c
-@@ -1276,6 +1276,13 @@ static int zram_remove(struct zram *zram
+@@ -1272,6 +1272,13 @@ static int zram_remove(struct zram *zram
  }
  
  /* zram-control sysfs attributes */
@@ -18,7 +18,7 @@
  static ssize_t hot_add_show(struct class *class,
  			struct class_attribute *attr,
  			char *buf)
-@@ -1290,6 +1297,7 @@ static ssize_t hot_add_show(struct class
+@@ -1286,6 +1293,7 @@ static ssize_t hot_add_show(struct class
  		return ret;
  	return scnprintf(buf, PAGE_SIZE, "%d\n", ret);
  }
@@ -26,7 +26,7 @@
  
  static ssize_t hot_remove_store(struct class *class,
  			struct class_attribute *attr,
-@@ -1320,23 +1328,19 @@ static ssize_t hot_remove_store(struct c
+@@ -1316,23 +1324,19 @@ static ssize_t hot_remove_store(struct c
  	mutex_unlock(&zram_index_mutex);
  	return ret ? ret : count;
  }

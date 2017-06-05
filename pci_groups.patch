@@ -6,7 +6,7 @@
 
 --- a/drivers/infiniband/hw/nes/nes.c
 +++ b/drivers/infiniband/hw/nes/nes.c
-@@ -809,13 +809,6 @@ static void nes_remove(struct pci_dev *p
+@@ -808,13 +808,6 @@ static void nes_remove(struct pci_dev *p
  }
  
  
@@ -20,7 +20,7 @@
  static ssize_t adapter_show(struct device_driver *ddp, char *buf)
  {
  	unsigned int  devfn = 0xffffffff;
-@@ -1157,35 +1150,29 @@ static DRIVER_ATTR_RW(idx_addr);
+@@ -1156,35 +1149,29 @@ static DRIVER_ATTR_RW(idx_addr);
  static DRIVER_ATTR_RW(idx_data);
  static DRIVER_ATTR_RW(wqm_quanta);
  
@@ -79,7 +79,7 @@
  
  /**
   * nes_init_module - module initialization entry point
-@@ -1193,20 +1180,13 @@ static void nes_remove_driver_sysfs(stru
+@@ -1192,20 +1179,13 @@ static void nes_remove_driver_sysfs(stru
  static int __init nes_init_module(void)
  {
  	int retval;
@@ -101,7 +101,7 @@
  }
  
  
-@@ -1216,7 +1196,6 @@ static int __init nes_init_module(void)
+@@ -1215,7 +1195,6 @@ static int __init nes_init_module(void)
  static void __exit nes_exit_module(void)
  {
  	nes_cm_stop();
@@ -111,7 +111,7 @@
  }
 --- a/drivers/pci/pci-driver.c
 +++ b/drivers/pci/pci-driver.c
-@@ -1289,6 +1289,7 @@ int __pci_register_driver(struct pci_dri
+@@ -1299,6 +1299,7 @@ int __pci_register_driver(struct pci_dri
  	drv->driver.bus = &pci_bus_type;
  	drv->driver.owner = owner;
  	drv->driver.mod_name = mod_name;
@@ -121,7 +121,7 @@
  	INIT_LIST_HEAD(&drv->dynids.list);
 --- a/include/linux/pci.h
 +++ b/include/linux/pci.h
-@@ -689,6 +689,7 @@ struct pci_driver {
+@@ -716,6 +716,7 @@ struct pci_driver {
  	void (*shutdown) (struct pci_dev *dev);
  	int (*sriov_configure) (struct pci_dev *dev, int num_vfs); /* PF pdev */
  	const struct pci_error_handlers *err_handler;

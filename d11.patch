@@ -125,7 +125,7 @@
  	&driver_attr_connection.attr,
 --- a/drivers/s390/net/qeth_core_main.c
 +++ b/drivers/s390/net/qeth_core_main.c
-@@ -5738,8 +5738,8 @@ static struct ccwgroup_driver qeth_core_
+@@ -5800,8 +5800,8 @@ static struct ccwgroup_driver qeth_core_
  	.restore = qeth_core_restore,
  };
  
@@ -136,7 +136,7 @@
  {
  	int err;
  
-@@ -5748,7 +5748,7 @@ static ssize_t qeth_core_driver_group_st
+@@ -5810,7 +5810,7 @@ static ssize_t qeth_core_driver_group_st
  
  	return err ? err : count;
  }

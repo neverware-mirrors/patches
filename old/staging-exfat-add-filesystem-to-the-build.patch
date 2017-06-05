@@ -11,27 +11,26 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
  drivers/staging/Kconfig        |    2 ++
- drivers/staging/Makefile       |    2 +-
+ drivers/staging/Makefile       |    1 +
  drivers/staging/exfat/Kconfig  |    4 ++++
  drivers/staging/exfat/Makefile |   14 ++++----------
- 4 files changed, 11 insertions(+), 11 deletions(-)
+ 4 files changed, 11 insertions(+), 10 deletions(-)
 
 --- a/drivers/staging/Kconfig
 +++ b/drivers/staging/Kconfig
-@@ -104,4 +104,6 @@ source "drivers/staging/vc04_services/Kc
+@@ -110,4 +110,6 @@ source "drivers/staging/ccree/Kconfig"
  
- source "drivers/staging/bcm2835-audio/Kconfig"
+ source "drivers/staging/typec/Kconfig"
  
 +source "drivers/staging/exfat/Kconfig"
 +
  endif # STAGING
 --- a/drivers/staging/Makefile
 +++ b/drivers/staging/Makefile
-@@ -41,4 +41,4 @@ obj-$(CONFIG_KS7010)		+= ks7010/
+@@ -44,3 +44,4 @@ obj-$(CONFIG_KS7010)		+= ks7010/
  obj-$(CONFIG_GREYBUS)		+= greybus/
  obj-$(CONFIG_BCM2835_VCHIQ)	+= vc04_services/
- obj-$(CONFIG_SND_BCM2835)	+= bcm2835-audio/
--
+ obj-$(CONFIG_CRYPTO_DEV_CCREE)	+= ccree/
 +obj-$(CONFIG_EXFAT_FS)		+= exfat/
 --- /dev/null
 +++ b/drivers/staging/exfat/Kconfig

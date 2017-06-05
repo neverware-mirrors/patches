@@ -1,4 +1,4 @@
-#goldfish_pipe-an-implementation-of-more-parallel-pipe.patch
+#
 tests-convert-the-membarrier-test-to-tap-format.patch
 lib-vsprintf-additional-kernel-pointer-filtering-options.patch
 lib-vsprintf-whitelist-stack-traces.patch
@@ -9,28 +9,11 @@ drivers-uio-un-restrict-sysfs-pointers-for-uio.patch
 0002-CHROMIUM-android-fix-warning-when-releasing-active-s.patch
 0003-goldfish-Add-goldfish-sync-driver.patch
 0001-drbd-rename-usermode_helper-to-drbd_usermode_helper.patch
-0002-Introduce-CONFIG_READONLY_USERMODEHELPER.patch
-0003-add-CONFIG_READONLY_USERMODEHELPER-support-for-lots-.patch
 
 ## broken patch!
 #
-csdio2.patch
-##input-xpad-set-the-leds-properly-on-xbox-wireless-controllers.patch
-##defer-input-nodes-and-led-support
-##input-xpad-move-the-input-device-creation-to-a-new-function.patch
-##input-xpad-set-the-correct-led-number.patch
-##input-xpad-disconnect-all-wireless-controllers-at-init.patch
-##input-xpad-handle-present-and-gone-correctly.patch
-##input-xpad-properly-name-the-led-class-devices.patch
 #
 #
-staging-exfat-add-filesystem-to-drivers-staging-exfat.patch
-staging-exfat-add-filesystem-to-the-build.patch
-staging-exfat-include-aio.h.patch
-staging-exfat-hlist_for_each-api-change.patch
-staging-exfat-truncage_pagecache-api-change.patch
-staging-exfat-readdir-to-iterate-change.patch
-staging-exfat-kuid-fixes.patch
 #
 #
 ## patches already in my git trees, but still here so I don't loose them.
@@ -44,9 +27,6 @@ staging-exfat-kuid-fixes.patch
 #
 ## dev_groups to struct class work
 #
-#
-e.patch
-simulate-fake-fn-key-on-ps-2-keyboards-w-o-one-eg.-chromebook-pixel.patch
 #
 ##gregkh/gkh-version.patch
 #
@@ -71,9 +51,7 @@ c04.patch
 c05.patch
 c06.patch
 c07.patch
-c08.patch
 c09.patch
-c10.patch
 c99.patch
 
 #
