@@ -2,7 +2,7 @@ From foo@baz Wed Nov 23 11:18:27 CET 2016
 Date: Wed, 23 Nov 2016 11:18:27 +0100
 To: Greg KH <gregkh@linuxfoundation.org>
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: remove class_attrs from struct class
+Subject: driver core: remove class_attrs from struct class
 
 This field is no longer used or needed (use class_groups instead), so it
 can be removed along with the driver core functionality that created and

@@ -1,3 +1,19 @@
+From foo@baz Tue Jun  6 14:48:05 CEST 2017
+Date: Tue, 06 Jun 2017 14:48:05 +0200
+To: Greg KH <gregkh@linuxfoundation.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: scsi: ibmvscsi_tgt: remove use of class_attrs
+
+The class_attrs pointer is going away and it's not even being used in
+this driver, so just remove it entirely.
+
+Cc: "Bryant G. Ly" <bryantly@linux.vnet.ibm.com>
+Cc: Michael Cyr <mikecyr@linux.vnet.ibm.com>
+Cc: "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>
+Cc: "Martin K. Petersen" <martin.petersen@oracle.com>
+Cc: <linux-scsi@vger.kernel.org>
+Cc: <target-devel@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c |    5 -----
  1 file changed, 5 deletions(-)
