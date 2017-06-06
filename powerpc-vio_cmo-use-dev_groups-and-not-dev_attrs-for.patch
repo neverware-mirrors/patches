@@ -1,7 +1,31 @@
----
- arch/powerpc/platforms/pseries/vio.c |   43 +++++++++++++++++------------------
- 1 file changed, 22 insertions(+), 21 deletions(-)
+From fc258d29b0306327b379f07610384566fca1a921 Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Tue, 6 Jun 2017 14:17:27 +0200
+Subject: [PATCH 11/15] powerpc: vio_cmo: use dev_groups and not dev_attrs for
+ bus_type
 
+The dev_attrs field has long been "depreciated" and is finally being
+removed, so move the driver to use the "correct" dev_groups field
+instead for struct bus_type.
+
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Vineet Gupta <vgupta@synopsys.com>
+Cc: Bart Van Assche <bart.vanassche@sandisk.com>
+Cc: Robin Murphy <robin.murphy@arm.com>
+Cc: Joerg Roedel <jroedel@suse.de>
+Cc: Johan Hovold <johan@kernel.org>
+Cc: Alexey Kardashevskiy <aik@ozlabs.ru>
+Cc: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: <linuxppc-dev@lists.ozlabs.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ arch/powerpc/platforms/pseries/vio.c | 37 +++++++++++++++++++++---------------
+ 1 file changed, 22 insertions(+), 15 deletions(-)
+
+diff --git a/arch/powerpc/platforms/pseries/vio.c b/arch/powerpc/platforms/pseries/vio.c
+index fd6595598662..176edf422867 100644
 --- a/arch/powerpc/platforms/pseries/vio.c
 +++ b/arch/powerpc/platforms/pseries/vio.c
 @@ -948,7 +948,7 @@ static void vio_cmo_bus_init(void)
@@ -13,7 +37,7 @@
                                          struct device_attribute *attr,  \
                                           char *buf)                     \
  {                                                                       \
-@@ -962,7 +962,7 @@ static ssize_t viodev_cmo_allocs_failed_
+@@ -962,7 +962,7 @@ static ssize_t viodev_cmo_allocs_failed_show(struct device *dev,
  	return sprintf(buf, "%d\n", atomic_read(&viodev->cmo.allocs_failed));
  }
  
@@ -22,7 +46,7 @@
  		struct device_attribute *attr, const char *buf, size_t count)
  {
  	struct vio_dev *viodev = to_vio_dev(dev);
-@@ -970,7 +970,7 @@ static ssize_t viodev_cmo_allocs_failed_
+@@ -970,7 +970,7 @@ static ssize_t viodev_cmo_allocs_failed_reset(struct device *dev,
  	return count;
  }
  
@@ -31,7 +55,7 @@
  		struct device_attribute *attr, const char *buf, size_t count)
  {
  	struct vio_dev *viodev = to_vio_dev(dev);
-@@ -993,18 +993,25 @@ static ssize_t name_show(struct device *
+@@ -993,18 +993,25 @@ static ssize_t name_show(struct device *, struct device_attribute *, char *);
  static ssize_t devspec_show(struct device *, struct device_attribute *, char *);
  static ssize_t modalias_show(struct device *dev, struct device_attribute *attr,
  			     char *buf);
@@ -77,16 +101,6 @@
  	vio_bus_type.bus_groups = vio_bus_groups;
  }
  #else /* CONFIG_PPC_SMLPAR */
-@@ -1570,12 +1577,6 @@ static ssize_t modalias_show(struct devi
- }
- static DEVICE_ATTR_RO(modalias);
- 
--static struct device_attribute vio_dev_attrs[] = {
--	__ATTR_RO(name),
--	__ATTR_RO(devspec),
--	__ATTR_RO(modalias),
--	__ATTR_NULL
--};
- static struct attribute *vio_dev_attrs[] = {
- 	&dev_attr_name.attr,
- 	&dev_attr_devspec.attr,
+-- 
+2.13.0
+

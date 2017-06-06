@@ -1,10 +1,23 @@
+From ebeaed29497ada5c0bf20638518813a06a218030 Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Tue, 6 Jun 2017 14:16:49 +0200
+Subject: [PATCH 04/15] amba: use dev_groups and not dev_attrs for bus_type
+
+The dev_attrs field has long been "depreciated" and is finally being
+removed, so move the driver to use the "correct" dev_groups field
+instead for struct bus_type.
+
+Cc: Russell King <linux@armlinux.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/amba/bus.c |   25 ++++++++++++-------------
+ drivers/amba/bus.c | 25 ++++++++++++-------------
  1 file changed, 12 insertions(+), 13 deletions(-)
 
+diff --git a/drivers/amba/bus.c b/drivers/amba/bus.c
+index a56fa2a1e9aa..e0f74ddc22b7 100644
 --- a/drivers/amba/bus.c
 +++ b/drivers/amba/bus.c
-@@ -105,6 +105,7 @@ static ssize_t driver_override_store(str
+@@ -105,6 +105,7 @@ static ssize_t driver_override_store(struct device *_dev,
  
  	return count;
  }
@@ -12,7 +25,7 @@
  
  #define amba_attr_func(name,fmt,arg...)					\
  static ssize_t name##_show(struct device *_dev,				\
-@@ -112,25 +113,23 @@ static ssize_t name##_show(struct device
+@@ -112,25 +113,23 @@ static ssize_t name##_show(struct device *_dev,				\
  {									\
  	struct amba_device *dev = to_amba_device(_dev);			\
  	return sprintf(buf, fmt, arg);					\
@@ -48,7 +61,7 @@
  
  #ifdef CONFIG_PM
  /*
-@@ -192,7 +191,7 @@ static const struct dev_pm_ops amba_pm =
+@@ -192,7 +191,7 @@ static const struct dev_pm_ops amba_pm = {
   */
  struct bus_type amba_bustype = {
  	.name		= "amba",
@@ -57,3 +70,6 @@
  	.match		= amba_match,
  	.uevent		= amba_uevent,
  	.pm		= &amba_pm,
+-- 
+2.13.0
+
