@@ -1,3 +1,15 @@
+From foo@baz Thu Jun  8 15:03:31 CEST 2017
+Date: Thu, 08 Jun 2017 15:03:31 +0200
+To: Greg KH <gregkh@linuxfoundation.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: pcmcia: ds: convert to use DRIVER_ATTR_RO
+
+We are trying to get rid of DRIVER_ATTR(), and the pcmcia driver's
+attribute can be trivially changed to use DRIVER_ATTR_RO().
+
+Cc: Russell King <rmk+kernel@armlinux.org.uk>
+Cc: <linux-pcmcia@lists.infradead.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  drivers/pcmcia/ds.c |    4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)

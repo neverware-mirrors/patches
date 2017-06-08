@@ -1,3 +1,19 @@
+From foo@baz Thu Jun  8 15:02:46 CEST 2017
+Date: Thu, 08 Jun 2017 15:02:46 +0200
+To: Greg KH <gregkh@linuxfoundation.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: IB: nes: convert to use DRIVER_ATTR_RW
+
+We are trying to get rid of DRIVER_ATTR(), and all of the nes.c driver
+attributes can be trivially changed to use DRIVER_ATTR_RW(), making the
+code smaller and easier to manage over time.
+
+Cc: Faisal Latif <faisal.latif@intel.com>
+Cc: Doug Ledford <dledford@redhat.com>
+Cc: Sean Hefty <sean.hefty@intel.com>
+Cc: Hal Rosenstock <hal.rosenstock@gmail.com>
+Cc: <linux-rdma@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  drivers/infiniband/hw/nes/nes.c |   80 +++++++++++++++-------------------------
  1 file changed, 31 insertions(+), 49 deletions(-)

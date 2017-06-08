@@ -1,3 +1,19 @@
+From foo@baz Thu Jun  8 15:18:55 CEST 2017
+Date: Thu, 08 Jun 2017 15:18:55 +0200
+To: Greg KH <gregkh@linuxfoundation.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: platform: thinkpad_acpi: convert to use DRIVER_ATTR_RO/RW
+
+We are trying to get rid of DRIVER_ATTR(), and the thinkpad_acpi
+driver's attributes can be trivially changed to use DRIVER_ATTR_RO() and
+DRIVER_ATTR_RW().
+
+Cc: Henrique de Moraes Holschuh <ibm-acpi@hmh.eng.br>
+Cc: Darren Hart <dvhart@infradead.org>
+Cc: Andy Shevchenko <andy@infradead.org>
+Cc: <ibm-acpi-devel@lists.sourceforge.net>
+Cc: <platform-driver-x86@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  drivers/platform/x86/thinkpad_acpi.c |   91 ++++++++++-------------------------
  1 file changed, 28 insertions(+), 63 deletions(-)

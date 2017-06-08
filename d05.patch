@@ -1,3 +1,8 @@
+From foo@baz Thu Jun  8 15:03:04 CEST 2017
+Date: Thu, 08 Jun 2017 15:03:04 +0200
+To: Greg KH <gregkh@linuxfoundation.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: 
 ---
  drivers/scsi/aic94xx/aic94xx_init.c       |    4 +--
  drivers/scsi/megaraid/megaraid_sas_base.c |   36 ++++++++++--------------------

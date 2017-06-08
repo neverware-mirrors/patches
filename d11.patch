@@ -1,3 +1,21 @@
+From foo@baz Thu Jun  8 15:28:21 CEST 2017
+Date: Thu, 08 Jun 2017 15:28:21 +0200
+To: Greg KH <gregkh@linuxfoundation.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: s390: drivers: convert to use DRIVER_ATTR_RO/WO
+
+We are trying to get rid of DRIVER_ATTR(), and the s390 drivers'
+attributes can be trivially changed to use DRIVER_ATTR_RO() and
+DRIVER_ATTR_WO().
+
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Julian Wiedmann <jwi@linux.vnet.ibm.com>
+Cc: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Cc: Peter Oberparleiter <oberpar@linux.vnet.ibm.com>
+Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Cc: <linux-s390@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  drivers/s390/char/sclp.c          |   12 ++++++------
  drivers/s390/char/vmlogrdr.c      |    7 ++-----
