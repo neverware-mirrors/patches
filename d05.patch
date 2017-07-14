@@ -101,7 +101,7 @@ Subject:
  {
 --- a/drivers/scsi/osst.c
 +++ b/drivers/scsi/osst.c
-@@ -5668,12 +5668,12 @@ static	struct	osst_support_data support_
+@@ -5667,12 +5667,12 @@ static	struct	osst_support_data support_
   * sysfs support for osst driver parameter information
   */
  

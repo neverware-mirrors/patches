@@ -111,7 +111,7 @@
  }
 --- a/drivers/pci/pci-driver.c
 +++ b/drivers/pci/pci-driver.c
-@@ -1299,6 +1299,7 @@ int __pci_register_driver(struct pci_dri
+@@ -1305,6 +1305,7 @@ int __pci_register_driver(struct pci_dri
  	drv->driver.bus = &pci_bus_type;
  	drv->driver.owner = owner;
  	drv->driver.mod_name = mod_name;
@@ -121,7 +121,7 @@
  	INIT_LIST_HEAD(&drv->dynids.list);
 --- a/include/linux/pci.h
 +++ b/include/linux/pci.h
-@@ -716,6 +716,7 @@ struct pci_driver {
+@@ -729,6 +729,7 @@ struct pci_driver {
  	void (*shutdown) (struct pci_dev *dev);
  	int (*sriov_configure) (struct pci_dev *dev, int num_vfs); /* PF pdev */
  	const struct pci_error_handlers *err_handler;

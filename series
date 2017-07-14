@@ -1,6 +1,4 @@
 #
-driver-core-remove-class_attr-usage.patch
-tests-convert-the-membarrier-test-to-tap-format.patch
 lib-vsprintf-additional-kernel-pointer-filtering-options.patch
 lib-vsprintf-whitelist-stack-traces.patch
 lib-vsprintf-physical-address-kernel-pointer-filtering-options.patch
@@ -32,46 +30,12 @@ drivers-uio-un-restrict-sysfs-pointers-for-uio.patch
 ##gregkh/gkh-version.patch
 #
 
-arm-ecard-use-dev_groups-and-not-dev_attrs-for.patch
-mips-sgi-ip22-ecard-use-dev_groups-and-not-dev_attrs.patch
-parisc-parisc_bus_type-use-dev_groups-and-not.patch
-amba-use-dev_groups-and-not-dev_attrs-for-bus_type.patch
-rpmsg-use-dev_groups-and-not-dev_attrs-for-bus_type.patch
-sh-superhyway-use-dev_groups-and-not-dev_attrs-for.patch
-macintosh-use-dev_groups-and-not-dev_attrs-for.patch
-powerpc-ps3-use-dev_groups-and-not-dev_attrs-for.patch
-powerpc-ibmebus-use-dev_groups-and-not-dev_attrs-for.patch
-powerpc-vio-use-dev_groups-and-not-dev_attrs-for.patch
-powerpc-vio_cmo-use-dev_groups-and-not-dev_attrs-for.patch
-hwtracing-intel_th-use-dev_groups-and-not-dev_attrs.patch
-hid-intel-ish-hid-use-dev_groups-and-not-dev_attrs.patch
-sparc-vio-use-dev_groups-and-not-dev_attrs-for.patch
-driver-core-remove-struct-bus_type.dev_attrs.patch
 
-c03.patch
-c04.patch
-c05.patch
-c06.patch
-c07.patch
-c09.patch
-c99.patch
 
 #
-d01.patch
-d02.patch
-d03.patch
-d04.patch
 d05.patch
-d06.patch
-d07.patch
-d08.patch
-d09.patch
-d10.patch
-d11.patch
-d12.patch
 d13.patch
 d14.patch
-d15.patch
 d16.patch
 
 d99.patch

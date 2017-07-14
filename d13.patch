@@ -4,7 +4,7 @@
 
 --- a/drivers/video/fbdev/uvesafb.c
 +++ b/drivers/video/fbdev/uvesafb.c
-@@ -1883,19 +1883,18 @@ static int uvesafb_setup(char *options)
+@@ -1860,19 +1860,18 @@ static int uvesafb_setup(char *options)
  }
  #endif /* !MODULE */
  
