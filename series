@@ -1,4 +1,12 @@
 #
+
+lib-vsprintf-additional-kernel-pointer-filtering-options.patch
+lib-vsprintf-whitelist-stack-traces.patch
+lib-vsprintf-physical-address-kernel-pointer-filtering-options.patch
+lib-vsprintf-default-kptr_restrict-to-the-maximum-value.patch
+lib-vsprintf-add-pap-padp-options.patch
+drivers-uio-un-restrict-sysfs-pointers-for-uio.patch
+
 u01.patch
 u02.patch
 u03.patch
@@ -11,12 +19,7 @@ u09.patch
 
 
 
-lib-vsprintf-additional-kernel-pointer-filtering-options.patch
-lib-vsprintf-whitelist-stack-traces.patch
-lib-vsprintf-physical-address-kernel-pointer-filtering-options.patch
-lib-vsprintf-default-kptr_restrict-to-the-maximum-value.patch
-lib-vsprintf-add-pap-padp-options.patch
-drivers-uio-un-restrict-sysfs-pointers-for-uio.patch
+
 0002-CHROMIUM-android-fix-warning-when-releasing-active-s.patch
 0003-goldfish-Add-goldfish-sync-driver.patch
 0001-drbd-rename-usermode_helper-to-drbd_usermode_helper.patch
