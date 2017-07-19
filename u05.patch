@@ -1,0 +1,28 @@
+From foo@baz Wed Jul 19 14:04:02 CEST 2017
+Date: Wed, 19 Jul 2017 14:04:02 +0200
+To: Greg KH <gregkh@linuxfoundation.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: USB: microtek: remove unneeded DRIVER_VERSION macro
+
+No one uses the DRIVER_VERSION define in this driver, so just delete it.
+
+Cc: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ drivers/usb/image/microtek.c |    4 ----
+ 1 file changed, 4 deletions(-)
+
+--- a/drivers/usb/image/microtek.c
++++ b/drivers/usb/image/microtek.c
+@@ -137,10 +137,6 @@
+ 
+ #include "microtek.h"
+ 
+-/*
+- * Version Information
+- */
+-#define DRIVER_VERSION "v0.4.3"
+ #define DRIVER_AUTHOR "John Fremlin <vii@penguinpowered.com>, Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>"
+ #define DRIVER_DESC "Microtek Scanmaker X6 USB scanner driver"
+ 

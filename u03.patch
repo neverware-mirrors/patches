@@ -1,0 +1,28 @@
+From foo@baz Wed Jul 19 14:01:06 CEST 2017
+Date: Wed, 19 Jul 2017 14:01:06 +0200
+To: Greg KH <gregkh@linuxfoundation.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: USB: cdc-wdm: remove unneeded DRIVER_VERSION define
+
+No one uses the DRIVER_VERSION define in this driver, so just delete it.
+
+Cc: Oliver Neukum <oneukum@suse.com>
+Cc: "Bjørn Mork" <bjorn@mork.no>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/class/cdc-wdm.c |    4 ----
+ 1 file changed, 4 deletions(-)
+
+--- a/drivers/usb/class/cdc-wdm.c
++++ b/drivers/usb/class/cdc-wdm.c
+@@ -26,10 +26,6 @@
+ #include <asm/unaligned.h>
+ #include <linux/usb/cdc-wdm.h>
+ 
+-/*
+- * Version Information
+- */
+-#define DRIVER_VERSION "v0.03"
+ #define DRIVER_AUTHOR "Oliver Neukum"
+ #define DRIVER_DESC "USB Abstract Control Model driver for USB WCM Device Management"
+ 

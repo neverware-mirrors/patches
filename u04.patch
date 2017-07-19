@@ -1,0 +1,69 @@
+From foo@baz Wed Jul 19 14:02:47 CEST 2017
+Date: Wed, 19 Jul 2017 14:02:47 +0200
+To: Greg KH <gregkh@linuxfoundation.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: USB: gadget: remove unneeded MODULE_VERSION() usage
+
+MODULE_VERSION is useless for in-kernel drivers, so just remove all
+usage of it in the USB gadget drivers.  Along with this, some
+DRIVER_VERSION macros were removed as they are also pointless.
+
+Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ drivers/usb/gadget/legacy/webcam.c   |    1 -
+ drivers/usb/gadget/udc/mv_udc_core.c |    2 --
+ drivers/usb/gadget/udc/s3c2410_udc.c |    4 +---
+ 3 files changed, 1 insertion(+), 6 deletions(-)
+
+--- a/drivers/usb/gadget/legacy/webcam.c
++++ b/drivers/usb/gadget/legacy/webcam.c
+@@ -436,5 +436,4 @@ module_usb_composite_driver(webcam_drive
+ MODULE_AUTHOR("Laurent Pinchart");
+ MODULE_DESCRIPTION("Webcam Video Gadget");
+ MODULE_LICENSE("GPL");
+-MODULE_VERSION("0.1.0");
+ 
+--- a/drivers/usb/gadget/udc/mv_udc_core.c
++++ b/drivers/usb/gadget/udc/mv_udc_core.c
+@@ -39,7 +39,6 @@
+ #include "mv_udc.h"
+ 
+ #define DRIVER_DESC		"Marvell PXA USB Device Controller driver"
+-#define DRIVER_VERSION		"8 Nov 2010"
+ 
+ #define ep_dir(ep)	(((ep)->ep_num == 0) ? \
+ 				((ep)->udc->ep0_dir) : ((ep)->direction))
+@@ -2427,5 +2426,4 @@ module_platform_driver(udc_driver);
+ MODULE_ALIAS("platform:mv-udc");
+ MODULE_DESCRIPTION(DRIVER_DESC);
+ MODULE_AUTHOR("Chao Xie <chao.xie@marvell.com>");
+-MODULE_VERSION(DRIVER_VERSION);
+ MODULE_LICENSE("GPL");
+--- a/drivers/usb/gadget/udc/s3c2410_udc.c
++++ b/drivers/usb/gadget/udc/s3c2410_udc.c
+@@ -51,7 +51,6 @@
+ #include "s3c2410_udc.h"
+ 
+ #define DRIVER_DESC	"S3C2410 USB Device Controller Gadget"
+-#define DRIVER_VERSION	"29 Apr 2007"
+ #define DRIVER_AUTHOR	"Herbert Pötzl <herbert@13thfloor.at>, " \
+ 			"Arnaud Patard <arnaud.patard@rtp-net.org>"
+ 
+@@ -1996,7 +1995,7 @@ static int __init udc_init(void)
+ {
+ 	int retval;
+ 
+-	dprintk(DEBUG_NORMAL, "%s: version %s\n", gadget_name, DRIVER_VERSION);
++	dprintk(DEBUG_NORMAL, "%s\n", gadget_name);
+ 
+ 	s3c2410_udc_debugfs_root = debugfs_create_dir(gadget_name, NULL);
+ 	if (IS_ERR(s3c2410_udc_debugfs_root)) {
+@@ -2027,5 +2026,4 @@ module_exit(udc_exit);
+ 
+ MODULE_AUTHOR(DRIVER_AUTHOR);
+ MODULE_DESCRIPTION(DRIVER_DESC);
+-MODULE_VERSION(DRIVER_VERSION);
+ MODULE_LICENSE("GPL");

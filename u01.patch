@@ -1,0 +1,79 @@
+From foo@baz Wed Jul 19 13:57:51 CEST 2017
+Date: Wed, 19 Jul 2017 13:57:51 +0200
+To: Greg KH <gregkh@linuxfoundation.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: USB: atm: remove unneeded MODULE_VERSION() usage
+
+MODULE_VERSION is useless for in-kernel drivers, so just remove all
+usage of it in the USB ATM drivers.  Along with this, some
+DRIVER_VERSION macros were removed as they are also pointless.
+
+Cc: Duncan Sands <duncan.sands@free.fr>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ drivers/usb/atm/cxacru.c   |    2 --
+ drivers/usb/atm/speedtch.c |    4 +---
+ drivers/usb/atm/usbatm.c   |    4 +---
+ drivers/usb/atm/xusbatm.c  |    1 -
+ 4 files changed, 2 insertions(+), 9 deletions(-)
+
+--- a/drivers/usb/atm/cxacru.c
++++ b/drivers/usb/atm/cxacru.c
+@@ -43,7 +43,6 @@
+ #include "usbatm.h"
+ 
+ #define DRIVER_AUTHOR	"Roman Kagan, David Woodhouse, Duncan Sands, Simon Arlott"
+-#define DRIVER_VERSION	"0.4"
+ #define DRIVER_DESC	"Conexant AccessRunner ADSL USB modem driver"
+ 
+ static const char cxacru_driver_name[] = "cxacru";
+@@ -1380,4 +1379,3 @@ module_usb_driver(cxacru_usb_driver);
+ MODULE_AUTHOR(DRIVER_AUTHOR);
+ MODULE_DESCRIPTION(DRIVER_DESC);
+ MODULE_LICENSE("GPL");
+-MODULE_VERSION(DRIVER_VERSION);
+--- a/drivers/usb/atm/speedtch.c
++++ b/drivers/usb/atm/speedtch.c
+@@ -40,8 +40,7 @@
+ #include "usbatm.h"
+ 
+ #define DRIVER_AUTHOR	"Johan Verrept, Duncan Sands <duncan.sands@free.fr>"
+-#define DRIVER_VERSION	"1.10"
+-#define DRIVER_DESC	"Alcatel SpeedTouch USB driver version " DRIVER_VERSION
++#define DRIVER_DESC	"Alcatel SpeedTouch USB driver"
+ 
+ static const char speedtch_driver_name[] = "speedtch";
+ 
+@@ -962,4 +961,3 @@ module_usb_driver(speedtch_usb_driver);
+ MODULE_AUTHOR(DRIVER_AUTHOR);
+ MODULE_DESCRIPTION(DRIVER_DESC);
+ MODULE_LICENSE("GPL");
+-MODULE_VERSION(DRIVER_VERSION);
+--- a/drivers/usb/atm/usbatm.c
++++ b/drivers/usb/atm/usbatm.c
+@@ -93,8 +93,7 @@ static int usbatm_print_packet(struct us
+ #endif
+ 
+ #define DRIVER_AUTHOR	"Johan Verrept, Duncan Sands <duncan.sands@free.fr>"
+-#define DRIVER_VERSION	"1.10"
+-#define DRIVER_DESC	"Generic USB ATM/DSL I/O, version " DRIVER_VERSION
++#define DRIVER_DESC	"Generic USB ATM/DSL I/O"
+ 
+ static const char usbatm_driver_name[] = "usbatm";
+ 
+@@ -1315,7 +1314,6 @@ module_exit(usbatm_usb_exit);
+ MODULE_AUTHOR(DRIVER_AUTHOR);
+ MODULE_DESCRIPTION(DRIVER_DESC);
+ MODULE_LICENSE("GPL");
+-MODULE_VERSION(DRIVER_VERSION);
+ 
+ /************
+ **  debug  **
+--- a/drivers/usb/atm/xusbatm.c
++++ b/drivers/usb/atm/xusbatm.c
+@@ -228,4 +228,3 @@ module_exit(xusbatm_exit);
+ MODULE_AUTHOR("Roman Kagan, Duncan Sands");
+ MODULE_DESCRIPTION("Driver for USB ADSL modems initialized in userspace");
+ MODULE_LICENSE("GPL");
+-MODULE_VERSION("0.1");
