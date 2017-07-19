@@ -96,8 +96,8 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
 -static ssize_t pcistub_quirk_add(struct device_driver *drv, const char *buf,
 -				 size_t count)
-+static ssize_t quirks_add(struct device_driver *drv, const char *buf,
-+			  size_t count)
++static ssize_t quirks_store(struct device_driver *drv, const char *buf,
++			    size_t count)
  {
  	int domain, bus, slot, func, reg, size, mask;
  	int err;
