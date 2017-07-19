@@ -41,7 +41,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  static int ten_thousand = 10000;
  #endif
  #ifdef CONFIG_PERF_EVENTS
-@@ -831,7 +830,7 @@ static struct ctl_table kern_table[] = {
+@@ -852,7 +851,7 @@ static struct ctl_table kern_table[] = {
  		.mode		= 0644,
  		.proc_handler	= proc_dointvec_minmax_sysadmin,
  		.extra1		= &zero,
@@ -52,7 +52,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	{
 --- a/lib/vsprintf.c
 +++ b/lib/vsprintf.c
-@@ -405,6 +405,22 @@ static inline int kptr_restrict_always_c
+@@ -406,6 +406,22 @@ static inline int kptr_restrict_always_c
  	return kptr_restrict >= 3;
  }
  
@@ -75,7 +75,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  static noinline_for_stack
  char *number(char *buf, char *end, unsigned long long num,
  	     struct printf_spec spec)
-@@ -757,6 +773,7 @@ char *resource_string(char *buf, char *e
+@@ -758,6 +774,7 @@ char *resource_string(char *buf, char *e
  
  	char *p = sym, *pend = sym + sizeof(sym);
  	int decode = (fmt[0] == 'R') ? 1 : 0;
@@ -83,7 +83,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	const struct printf_spec *specp;
  
  	*p++ = '[';
-@@ -784,10 +801,11 @@ char *resource_string(char *buf, char *e
+@@ -785,10 +802,11 @@ char *resource_string(char *buf, char *e
  		p = string(p, pend, "size ", str_spec);
  		p = number(p, pend, resource_size(res), *specp);
  	} else {
@@ -97,7 +97,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		}
  	}
  	if (decode) {
-@@ -1390,7 +1408,9 @@ char *address_val(char *buf, char *end,
+@@ -1391,7 +1409,9 @@ char *address_val(char *buf, char *end,
  		break;
  	}
  
@@ -108,7 +108,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  }
  
  static noinline_for_stack
-@@ -1584,6 +1604,12 @@ char *flags_string(char *buf, char *end,
+@@ -1715,6 +1735,12 @@ char *device_node_string(char *buf, char
   *
   * Note: That for kptr_restrict set to 3, %p and %pK have the same
   * meaning.
@@ -121,7 +121,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
   */
  static noinline_for_stack
  char *pointer(const char *fmt, char *buf, char *end, void *ptr,
-@@ -1741,6 +1767,7 @@ char *pointer(const char *fmt, char *buf
+@@ -1877,6 +1903,7 @@ char *pointer(const char *fmt, char *buf
  		}
  		case 2: /* restrict only %pK */
  		case 3: /* restrict all non-extensioned %p and %pK */

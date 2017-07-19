@@ -15,7 +15,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/lib/vsprintf.c
 +++ b/lib/vsprintf.c
-@@ -395,7 +395,7 @@ struct printf_spec {
+@@ -396,7 +396,7 @@ struct printf_spec {
  #define FIELD_WIDTH_MAX ((1 << 23) - 1)
  #define PRECISION_MAX ((1 << 15) - 1)
  

@@ -15,34 +15,37 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/Documentation/printk-formats.txt
 +++ b/Documentation/printk-formats.txt
-@@ -82,18 +82,20 @@ Struct Resources:
+@@ -108,21 +108,23 @@ Physical addresses types ``phys_addr_t``
  
- Physical addresses types phys_addr_t:
+ ::
  
 -	%pa[p]	0x01234567 or 0x0123456789abcdef
 +	%pa[p][P] 0x01234567 or 0x0123456789abcdef
  
- 	For printing a phys_addr_t type (and its derivatives, such as
- 	resource_size_t) which can vary based on build options, regardless of
--	the width of the CPU data path. Passed by reference.
-+	the width of the CPU data path. Passed by reference.  Use the trailing
-+	'P' if it needs to be always shown.
+ For printing a ``phys_addr_t`` type (and its derivatives, such as
+ ``resource_size_t``) which can vary based on build options, regardless of
+-the width of the CPU data path. Passed by reference.
++the width of the CPU data path. Passed by reference. Use the trailing
++'P' if it needs to be always shown.
  
- DMA addresses types dma_addr_t:
+ DMA addresses types ``dma_addr_t``
+ ==================================
+ 
+ ::
  
 -	%pad	0x01234567 or 0x0123456789abcdef
 +	%pad[P]	0x01234567 or 0x0123456789abcdef
  
- 	For printing a dma_addr_t type which can vary based on build options,
--	regardless of the width of the CPU data path. Passed by reference.
-+	regardless of the width of the CPU data path. Passed by reference. Use
-+	the trailing 'P' if it needs to be always shown.
+ For printing a ``dma_addr_t`` type which can vary based on build options,
+-regardless of the width of the CPU data path. Passed by reference.
++regardless of the width of the CPU data path. Passed by reference. Use
++the trailing 'P' if it needs to be always shown.
  
- Raw buffer as an escaped string:
- 
+ Raw buffer as an escaped string
+ ===============================
 --- a/lib/vsprintf.c
 +++ b/lib/vsprintf.c
-@@ -1394,23 +1394,29 @@ static noinline_for_stack
+@@ -1395,23 +1395,29 @@ static noinline_for_stack
  char *address_val(char *buf, char *end, const void *addr, const char *fmt)
  {
  	unsigned long long num;

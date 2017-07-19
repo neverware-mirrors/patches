@@ -17,7 +17,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/arch/arm64/kernel/traps.c
 +++ b/arch/arm64/kernel/traps.c
-@@ -146,7 +146,7 @@ static void dump_backtrace(struct pt_reg
+@@ -146,7 +146,7 @@ void dump_backtrace(struct pt_regs *regs
  	unsigned long irq_stack_ptr;
  	int skip;
  
@@ -48,7 +48,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  #endif /*_LINUX_KALLSYMS_H*/
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
-@@ -3165,7 +3165,7 @@ void show_regs_print_info(const char *lo
+@@ -3148,7 +3148,7 @@ void show_regs_print_info(const char *lo
  {
  	dump_stack_print_info(log_lvl);
  

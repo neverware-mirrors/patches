@@ -19,23 +19,23 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  Documentation/printk-formats.txt |    5 ++
  Documentation/sysctl/kernel.txt  |    3 +
  kernel/sysctl.c                  |    3 -
- lib/vsprintf.c                   |   81 +++++++++++++++++++++++++--------------
- 4 files changed, 63 insertions(+), 29 deletions(-)
+ lib/vsprintf.c                   |   90 +++++++++++++++++++++++++--------------
+ 4 files changed, 68 insertions(+), 33 deletions(-)
 
 --- a/Documentation/printk-formats.txt
 +++ b/Documentation/printk-formats.txt
-@@ -64,6 +64,11 @@ Kernel Pointers:
- 	users. The behaviour of %pK depends on the kptr_restrict sysctl - see
- 	Documentation/sysctl/kernel.txt for more details.
+@@ -84,6 +84,11 @@ For printing kernel pointers which shoul
+ users. The behaviour of ``%pK`` depends on the ``kptr_restrict sysctl`` - see
+ Documentation/sysctl/kernel.txt for more details.
  
 +	%pP     0x01234567 or 0x0123456789abcdef
 +
-+	For printing kernel pointers which should always be shown, even to
-+	unprivileged users.
++For printing kernel pointers which should always be shown, even to
++unprivileged users.
 +
- Struct Resources:
+ Struct Resources
+ ================
  
- 	%pr	[mem 0x60000000-0x6fffffff flags 0x2200] or
 --- a/Documentation/sysctl/kernel.txt
 +++ b/Documentation/sysctl/kernel.txt
 @@ -392,6 +392,9 @@ values to unprivileged users is a concer
@@ -58,7 +58,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  static int ten_thousand = 10000;
  #endif
  #ifdef CONFIG_PERF_EVENTS
-@@ -830,7 +831,7 @@ static struct ctl_table kern_table[] = {
+@@ -851,7 +852,7 @@ static struct ctl_table kern_table[] = {
  		.mode		= 0644,
  		.proc_handler	= proc_dointvec_minmax_sysadmin,
  		.extra1		= &zero,
@@ -69,7 +69,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	{
 --- a/lib/vsprintf.c
 +++ b/lib/vsprintf.c
-@@ -395,6 +395,16 @@ struct printf_spec {
+@@ -396,6 +396,16 @@ struct printf_spec {
  #define FIELD_WIDTH_MAX ((1 << 23) - 1)
  #define PRECISION_MAX ((1 << 15) - 1)
  
@@ -86,8 +86,8 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  static noinline_for_stack
  char *number(char *buf, char *end, unsigned long long num,
  	     struct printf_spec spec)
-@@ -1470,8 +1480,6 @@ char *flags_string(char *buf, char *end,
- 	return format_flags(buf, end, flags, names);
+@@ -1591,8 +1601,6 @@ char *device_node_string(char *buf, char
+ 	return widen_string(buf, buf - buf_start, end, spec);
  }
  
 -int kptr_restrict __read_mostly;
@@ -95,7 +95,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  /*
   * Show a '%p' thing.  A kernel extension is that the '%p' is followed
   * by an extra set of alphanumeric characters that are extended format
-@@ -1543,6 +1551,7 @@ int kptr_restrict __read_mostly;
+@@ -1664,6 +1672,7 @@ int kptr_restrict __read_mostly;
   *       Do not use this feature without some mechanism to verify the
   *       correctness of the format string and va_list arguments.
   * - 'K' For a kernel pointer that should be hidden from unprivileged users
@@ -103,7 +103,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
   * - 'NF' For a netdev_features_t
   * - 'h[CDN]' For a variable-length buffer, it prints it as a hex string with
   *            a certain separator (' ' by default):
-@@ -1572,6 +1581,9 @@ int kptr_restrict __read_mostly;
+@@ -1703,6 +1712,9 @@ int kptr_restrict __read_mostly;
   * Note: The difference between 'S' and 'F' is that on ia64 and ppc64
   * function pointers are really function descriptors, which contain a
   * pointer to the real address.
@@ -113,7 +113,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
   */
  static noinline_for_stack
  char *pointer(const char *fmt, char *buf, char *end, void *ptr,
-@@ -1579,7 +1591,7 @@ char *pointer(const char *fmt, char *buf
+@@ -1710,7 +1722,7 @@ char *pointer(const char *fmt, char *buf
  {
  	const int default_width = 2 * sizeof(void *);
  
@@ -122,7 +122,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		/*
  		 * Print (null) with the same width as a pointer so it makes
  		 * tabular output look nice.
-@@ -1660,10 +1672,43 @@ char *pointer(const char *fmt, char *buf
+@@ -1791,10 +1803,48 @@ char *pointer(const char *fmt, char *buf
  			va_end(va);
  			return buf;
  		}
@@ -145,6 +145,11 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +
 +	case 'G':
 +		return flags_string(buf, end, ptr, fmt);
++	case 'O':
++		switch (fmt[1]) {
++		case 'F':
++			return device_node_string(buf, end, ptr, spec, fmt + 1);
++		}
 +	case 'P':
 +		/*
 +		 * an explicitly whitelisted kernel pointer should never be
@@ -167,7 +172,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  			break;
  		case 1: {
  			const struct cred *cred;
-@@ -1682,7 +1727,7 @@ char *pointer(const char *fmt, char *buf
+@@ -1813,7 +1863,7 @@ char *pointer(const char *fmt, char *buf
  			 * Only print the real pointer value if the current
  			 * process has CAP_SYSLOG and is running with the
  			 * same credentials it started with. This is because
@@ -176,7 +181,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  			 * checks permission at read() time. We don't want to
  			 * leak pointer values if a binary opens a file using
  			 * %pK and then elevates privileges before reading it.
-@@ -1694,33 +1739,13 @@ char *pointer(const char *fmt, char *buf
+@@ -1825,38 +1875,14 @@ char *pointer(const char *fmt, char *buf
  				ptr = NULL;
  			break;
  		}
@@ -189,7 +194,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  			break;
  		}
  		break;
--
+ 
 -	case 'N':
 -		return netdev_bits(buf, end, ptr, fmt);
 -	case 'a':
@@ -209,10 +214,15 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 -
 -	case 'G':
 -		return flags_string(buf, end, ptr, fmt);
+-	case 'O':
+-		switch (fmt[1]) {
+-		case 'F':
+-			return device_node_string(buf, end, ptr, spec, fmt + 1);
+-		}
  	}
  	spec.flags |= SMALL;
  	if (spec.field_width == -1) {
-@@ -1729,7 +1754,7 @@ char *pointer(const char *fmt, char *buf
+@@ -1865,7 +1891,7 @@ char *pointer(const char *fmt, char *buf
  	}
  	spec.base = 16;
  
