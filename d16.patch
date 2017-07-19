@@ -1,3 +1,20 @@
+From foo@baz Wed Jul 19 14:33:41 CEST 2017
+Date: Wed, 19 Jul 2017 14:33:41 +0200
+To: Greg KH <gregkh@linuxfoundation.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: xen: xen-pciback: remove DRIVER_ATTR() usage
+
+It's better to be explicit and use the DRIVER_ATTR_RW() and
+DRIVER_ATTR_RO() macros when defining a driver's sysfs file.
+
+Bonus is this fixes up a checkpatch.pl warning.
+
+This is part of a series to drop DRIVER_ATTR() from the tree entirely.
+
+Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: Juergen Gross <jgross@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
  drivers/xen/xen-pciback/pci_stub.c |   44 ++++++++++++++++---------------------
  1 file changed, 20 insertions(+), 24 deletions(-)
