@@ -1,0 +1,896 @@
+---
+ drivers/usb/chipidea/core.c                  |   10 +--
+ drivers/usb/class/cdc-acm.c                  |   21 +++---
+ drivers/usb/class/usblp.c                    |    6 -
+ drivers/usb/gadget/function/f_mass_storage.c |    5 -
+ drivers/usb/gadget/udc/core.c                |   13 ++--
+ drivers/usb/host/ehci-sysfs.c                |   12 +--
+ drivers/usb/host/fotg210-hcd.c               |    8 --
+ drivers/usb/misc/cypress_cy7c63.c            |   23 +++----
+ drivers/usb/misc/cytherm.c                   |   54 +++++++----------
+ drivers/usb/misc/trancevibrator.c            |    9 +-
+ drivers/usb/misc/usbsevseg.c                 |   40 +++++--------
+ drivers/usb/serial/ftdi_sio.c                |    4 -
+ drivers/usb/storage/sierra_ms.c              |    6 -
+ drivers/usb/usbip/stub_dev.c                 |    7 +-
+ drivers/usb/usbip/vhci_sysfs.c               |    8 +-
+ drivers/usb/usbip/vudc_sysfs.c               |    7 +-
+ drivers/usb/wusbcore/cbaf.c                  |   82 +++++++++++----------------
+ 17 files changed, 143 insertions(+), 172 deletions(-)
+
+--- a/drivers/usb/chipidea/core.c
++++ b/drivers/usb/chipidea/core.c
+@@ -838,8 +838,8 @@ static void ci_get_otg_capable(struct ci
+ 	}
+ }
+ 
+-static ssize_t ci_role_show(struct device *dev, struct device_attribute *attr,
+-			  char *buf)
++static ssize_t role_show(struct device *dev, struct device_attribute *attr,
++			 char *buf)
+ {
+ 	struct ci_hdrc *ci = dev_get_drvdata(dev);
+ 
+@@ -849,8 +849,8 @@ static ssize_t ci_role_show(struct devic
+ 	return 0;
+ }
+ 
+-static ssize_t ci_role_store(struct device *dev,
+-		struct device_attribute *attr, const char *buf, size_t n)
++static ssize_t role_store(struct device *dev, struct device_attribute *attr,
++			  const char *buf, size_t n)
+ {
+ 	struct ci_hdrc *ci = dev_get_drvdata(dev);
+ 	enum ci_role role;
+@@ -880,7 +880,7 @@ static ssize_t ci_role_store(struct devi
+ 
+ 	return (ret == 0) ? n : ret;
+ }
+-static DEVICE_ATTR(role, 0644, ci_role_show, ci_role_store);
++static DEVICE_ATTR_RW(role);
+ 
+ static struct attribute *ci_attrs[] = {
+ 	&dev_attr_role.attr,
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -248,18 +248,18 @@ static int acm_start_wb(struct acm *acm,
+ /*
+  * attributes exported through sysfs
+  */
+-static ssize_t show_caps
+-(struct device *dev, struct device_attribute *attr, char *buf)
++static ssize_t bmCapabilities_show(struct device *dev,
++				   struct device_attribute *attr, char *buf)
+ {
+ 	struct usb_interface *intf = to_usb_interface(dev);
+ 	struct acm *acm = usb_get_intfdata(intf);
+ 
+ 	return sprintf(buf, "%d", acm->ctrl_caps);
+ }
+-static DEVICE_ATTR(bmCapabilities, S_IRUGO, show_caps, NULL);
++static DEVICE_ATTR_RO(bmCapabilities);
+ 
+-static ssize_t show_country_codes
+-(struct device *dev, struct device_attribute *attr, char *buf)
++static ssize_t wCountryCodes_show(struct device *dev,
++				  struct device_attribute *attr, char *buf)
+ {
+ 	struct usb_interface *intf = to_usb_interface(dev);
+ 	struct acm *acm = usb_get_intfdata(intf);
+@@ -267,19 +267,18 @@ static ssize_t show_country_codes
+ 	memcpy(buf, acm->country_codes, acm->country_code_size);
+ 	return acm->country_code_size;
+ }
++static DEVICE_ATTR_RO(wCountryCodes);
+ 
+-static DEVICE_ATTR(wCountryCodes, S_IRUGO, show_country_codes, NULL);
+-
+-static ssize_t show_country_rel_date
+-(struct device *dev, struct device_attribute *attr, char *buf)
++static ssize_t iCountryCodeRelDate_show(struct device *dev,
++					struct device_attribute *attr,
++					char *buf)
+ {
+ 	struct usb_interface *intf = to_usb_interface(dev);
+ 	struct acm *acm = usb_get_intfdata(intf);
+ 
+ 	return sprintf(buf, "%d", acm->country_rel_date);
+ }
+-
+-static DEVICE_ATTR(iCountryCodeRelDate, S_IRUGO, show_country_rel_date, NULL);
++static DEVICE_ATTR_RO(iCountryCodeRelDate);
+ /*
+  * Interrupt handlers for various ACM device responses
+  */
+--- a/drivers/usb/class/usblp.c
++++ b/drivers/usb/class/usblp.c
+@@ -1081,7 +1081,8 @@ static struct usb_class_driver usblp_cla
+ 	.minor_base =	USBLP_MINOR_BASE,
+ };
+ 
+-static ssize_t usblp_show_ieee1284_id(struct device *dev, struct device_attribute *attr, char *buf)
++static ssize_t ieee1284_id_show(struct device *dev,
++				struct device_attribute *attr, char *buf)
+ {
+ 	struct usb_interface *intf = to_usb_interface(dev);
+ 	struct usblp *usblp = usb_get_intfdata(intf);
+@@ -1092,8 +1093,7 @@ static ssize_t usblp_show_ieee1284_id(st
+ 
+ 	return sprintf(buf, "%s", usblp->device_id_string+2);
+ }
+-
+-static DEVICE_ATTR(ieee1284_id, S_IRUGO, usblp_show_ieee1284_id, NULL);
++static DEVICE_ATTR_RO(ieee1284_id);
+ 
+ static int usblp_probe(struct usb_interface *intf,
+ 		       const struct usb_device_id *id)
+--- a/drivers/usb/gadget/function/f_mass_storage.c
++++ b/drivers/usb/gadget/function/f_mass_storage.c
+@@ -2559,9 +2559,8 @@ static ssize_t file_store(struct device
+ }
+ 
+ static DEVICE_ATTR_RW(nofua);
+-/* mode wil be set in fsg_lun_attr_is_visible() */
+-static DEVICE_ATTR(ro, 0, ro_show, ro_store);
+-static DEVICE_ATTR(file, 0, file_show, file_store);
++static DEVICE_ATTR_RW(ro);
++static DEVICE_ATTR_RW(file);
+ 
+ /****************************** FSG COMMON ******************************/
+ 
+--- a/drivers/usb/gadget/udc/core.c
++++ b/drivers/usb/gadget/udc/core.c
+@@ -1421,8 +1421,8 @@ EXPORT_SYMBOL_GPL(usb_gadget_unregister_
+ 
+ /* ------------------------------------------------------------------------- */
+ 
+-static ssize_t usb_udc_srp_store(struct device *dev,
+-		struct device_attribute *attr, const char *buf, size_t n)
++static ssize_t srp_store(struct device *dev, struct device_attribute *attr,
++			 const char *buf, size_t n)
+ {
+ 	struct usb_udc		*udc = container_of(dev, struct usb_udc, dev);
+ 
+@@ -1431,10 +1431,11 @@ static ssize_t usb_udc_srp_store(struct
+ 
+ 	return n;
+ }
+-static DEVICE_ATTR(srp, S_IWUSR, NULL, usb_udc_srp_store);
++static DEVICE_ATTR_WO(srp);
+ 
+-static ssize_t usb_udc_softconn_store(struct device *dev,
+-		struct device_attribute *attr, const char *buf, size_t n)
++static ssize_t soft_connect_store(struct device *dev,
++				  struct device_attribute *attr,
++				  const char *buf, size_t n)
+ {
+ 	struct usb_udc		*udc = container_of(dev, struct usb_udc, dev);
+ 
+@@ -1457,7 +1458,7 @@ static ssize_t usb_udc_softconn_store(st
+ 
+ 	return n;
+ }
+-static DEVICE_ATTR(soft_connect, S_IWUSR, NULL, usb_udc_softconn_store);
++static DEVICE_ATTR_WO(soft_connect);
+ 
+ static ssize_t state_show(struct device *dev, struct device_attribute *attr,
+ 			  char *buf)
+--- a/drivers/usb/host/ehci-sysfs.c
++++ b/drivers/usb/host/ehci-sysfs.c
+@@ -20,7 +20,7 @@
+ 
+ 
+ /* Display the ports dedicated to the companion controller */
+-static ssize_t show_companion(struct device *dev,
++static ssize_t companion_show(struct device *dev,
+ 			      struct device_attribute *attr,
+ 			      char *buf)
+ {
+@@ -47,7 +47,7 @@ static ssize_t show_companion(struct dev
+  * Syntax is "[-]portnum", where a leading '-' sign means
+  * return control of the port to the EHCI controller.
+  */
+-static ssize_t store_companion(struct device *dev,
++static ssize_t companion_store(struct device *dev,
+ 			       struct device_attribute *attr,
+ 			       const char *buf, size_t count)
+ {
+@@ -72,13 +72,13 @@ static ssize_t store_companion(struct de
+ 	set_owner(ehci, portnum, new_owner);
+ 	return count;
+ }
+-static DEVICE_ATTR(companion, 0644, show_companion, store_companion);
++static DEVICE_ATTR_RW(companion);
+ 
+ 
+ /*
+  * Display / Set uframe_periodic_max
+  */
+-static ssize_t show_uframe_periodic_max(struct device *dev,
++static ssize_t uframe_periodic_max_show(struct device *dev,
+ 					struct device_attribute *attr,
+ 					char *buf)
+ {
+@@ -91,7 +91,7 @@ static ssize_t show_uframe_periodic_max(
+ }
+ 
+ 
+-static ssize_t store_uframe_periodic_max(struct device *dev,
++static ssize_t uframe_periodic_max_store(struct device *dev,
+ 					struct device_attribute *attr,
+ 					const char *buf, size_t count)
+ {
+@@ -156,7 +156,7 @@ out_unlock:
+ 	spin_unlock_irqrestore (&ehci->lock, flags);
+ 	return ret;
+ }
+-static DEVICE_ATTR(uframe_periodic_max, 0644, show_uframe_periodic_max, store_uframe_periodic_max);
++static DEVICE_ATTR_RW(uframe_periodic_max);
+ 
+ 
+ static inline int create_sysfs_files(struct ehci_hcd *ehci)
+--- a/drivers/usb/host/fotg210-hcd.c
++++ b/drivers/usb/host/fotg210-hcd.c
+@@ -4709,7 +4709,7 @@ static void scan_isoc(struct fotg210_hcd
+ 
+ /* Display / Set uframe_periodic_max
+  */
+-static ssize_t show_uframe_periodic_max(struct device *dev,
++static ssize_t uframe_periodic_max_show(struct device *dev,
+ 		struct device_attribute *attr, char *buf)
+ {
+ 	struct fotg210_hcd *fotg210;
+@@ -4721,7 +4721,7 @@ static ssize_t show_uframe_periodic_max(
+ }
+ 
+ 
+-static ssize_t store_uframe_periodic_max(struct device *dev,
++static ssize_t uframe_periodic_max_store(struct device *dev,
+ 		struct device_attribute *attr, const char *buf, size_t count)
+ {
+ 	struct fotg210_hcd *fotg210;
+@@ -4787,9 +4787,7 @@ out_unlock:
+ 	spin_unlock_irqrestore(&fotg210->lock, flags);
+ 	return ret;
+ }
+-
+-static DEVICE_ATTR(uframe_periodic_max, 0644, show_uframe_periodic_max,
+-		   store_uframe_periodic_max);
++static DEVICE_ATTR_RW(uframe_periodic_max);
+ 
+ static inline int create_sysfs_files(struct fotg210_hcd *fotg210)
+ {
+--- a/drivers/usb/misc/cypress_cy7c63.c
++++ b/drivers/usb/misc/cypress_cy7c63.c
+@@ -147,17 +147,15 @@ error:
+ }
+ 
+ /* attribute callback handler (write) */
+-static ssize_t set_port0_handler(struct device *dev,
+-				 struct device_attribute *attr,
+-				 const char *buf, size_t count)
++static ssize_t port0_store(struct device *dev, struct device_attribute *attr,
++			   const char *buf, size_t count)
+ {
+ 	return write_port(dev, attr, buf, count, 0, CYPRESS_WRITE_PORT_ID0);
+ }
+ 
+ /* attribute callback handler (write) */
+-static ssize_t set_port1_handler(struct device *dev,
+-				 struct device_attribute *attr,
+-				 const char *buf, size_t count)
++static ssize_t port1_store(struct device *dev, struct device_attribute *attr,
++			   const char *buf, size_t count)
+ {
+ 	return write_port(dev, attr, buf, count, 1, CYPRESS_WRITE_PORT_ID1);
+ }
+@@ -181,22 +179,21 @@ static ssize_t read_port(struct device *
+ }
+ 
+ /* attribute callback handler (read) */
+-static ssize_t get_port0_handler(struct device *dev,
+-				 struct device_attribute *attr, char *buf)
++static ssize_t port0_show(struct device *dev, struct device_attribute *attr,
++			  char *buf)
+ {
+ 	return read_port(dev, attr, buf, 0, CYPRESS_READ_PORT_ID0);
+ }
+ 
+ /* attribute callback handler (read) */
+-static ssize_t get_port1_handler(struct device *dev,
+-				 struct device_attribute *attr, char *buf)
++static ssize_t port1_show(struct device *dev, struct device_attribute *attr,
++			  char *buf)
+ {
+ 	return read_port(dev, attr, buf, 1, CYPRESS_READ_PORT_ID1);
+ }
+ 
+-static DEVICE_ATTR(port0, S_IRUGO | S_IWUSR, get_port0_handler, set_port0_handler);
+-
+-static DEVICE_ATTR(port1, S_IRUGO | S_IWUSR, get_port1_handler, set_port1_handler);
++static DEVICE_ATTR_RW(port0);
++static DEVICE_ATTR_RW(port1);
+ 
+ 
+ static int cypress_probe(struct usb_interface *interface,
+--- a/drivers/usb/misc/cytherm.c
++++ b/drivers/usb/misc/cytherm.c
+@@ -83,7 +83,8 @@ static int vendor_command(struct usb_dev
+ #define BRIGHTNESS 0x2c     /* RAM location for brightness value */
+ #define BRIGHTNESS_SEM 0x2b /* RAM location for brightness semaphore */
+ 
+-static ssize_t show_brightness(struct device *dev, struct device_attribute *attr, char *buf)
++static ssize_t brightness_show(struct device *dev,
++			       struct device_attribute *attr, char *buf)
+ {
+ 	struct usb_interface *intf = to_usb_interface(dev);    
+ 	struct usb_cytherm *cytherm = usb_get_intfdata(intf);     
+@@ -91,8 +92,9 @@ static ssize_t show_brightness(struct de
+ 	return sprintf(buf, "%i", cytherm->brightness);
+ }
+ 
+-static ssize_t set_brightness(struct device *dev, struct device_attribute *attr, const char *buf,
+-			      size_t count)
++static ssize_t brightness_store(struct device *dev,
++				struct device_attribute *attr, const char *buf,
++				size_t count)
+ {
+ 	struct usb_interface *intf = to_usb_interface(dev);
+ 	struct usb_cytherm *cytherm = usb_get_intfdata(intf);
+@@ -126,15 +128,14 @@ static ssize_t set_brightness(struct dev
+    
+ 	return count;
+ }
+-
+-static DEVICE_ATTR(brightness, S_IRUGO | S_IWUSR | S_IWGRP, 
+-		   show_brightness, set_brightness);
++static DEVICE_ATTR_RW(brightness);
+ 
+ 
+ #define TEMP 0x33 /* RAM location for temperature */
+ #define SIGN 0x34 /* RAM location for temperature sign */
+ 
+-static ssize_t show_temp(struct device *dev, struct device_attribute *attr, char *buf)
++static ssize_t temp_show(struct device *dev, struct device_attribute *attr,
++			 char *buf)
+ {
+ 
+ 	struct usb_interface *intf = to_usb_interface(dev);
+@@ -166,19 +167,13 @@ static ssize_t show_temp(struct device *
+ 	return sprintf(buf, "%c%i.%i", sign ? '-' : '+', temp >> 1,
+ 		       5*(temp - ((temp >> 1) << 1)));
+ }
+-
+-
+-static ssize_t set_temp(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
+-{
+-	return count;
+-}
+-
+-static DEVICE_ATTR(temp, S_IRUGO, show_temp, set_temp);
++static DEVICE_ATTR_RO(temp);
+ 
+ 
+ #define BUTTON 0x7a
+ 
+-static ssize_t show_button(struct device *dev, struct device_attribute *attr, char *buf)
++static ssize_t button_show(struct device *dev, struct device_attribute *attr,
++			   char *buf)
+ {
+ 
+ 	struct usb_interface *intf = to_usb_interface(dev);
+@@ -205,17 +200,11 @@ static ssize_t show_button(struct device
+ 	else
+ 		return sprintf(buf, "0");
+ }
++static DEVICE_ATTR_RO(button);
+ 
+ 
+-static ssize_t set_button(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
+-{
+-	return count;
+-}
+-
+-static DEVICE_ATTR(button, S_IRUGO, show_button, set_button);
+-
+-
+-static ssize_t show_port0(struct device *dev, struct device_attribute *attr, char *buf)
++static ssize_t port0_show(struct device *dev, struct device_attribute *attr,
++			  char *buf)
+ {
+ 	struct usb_interface *intf = to_usb_interface(dev);
+ 	struct usb_cytherm *cytherm = usb_get_intfdata(intf);
+@@ -239,7 +228,8 @@ static ssize_t show_port0(struct device
+ }
+ 
+ 
+-static ssize_t set_port0(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
++static ssize_t port0_store(struct device *dev, struct device_attribute *attr,
++			   const char *buf, size_t count)
+ {
+ 	struct usb_interface *intf = to_usb_interface(dev);
+ 	struct usb_cytherm *cytherm = usb_get_intfdata(intf);
+@@ -268,10 +258,10 @@ static ssize_t set_port0(struct device *
+ 
+ 	return count;
+ }
++static DEVICE_ATTR_RW(port0);
+ 
+-static DEVICE_ATTR(port0, S_IRUGO | S_IWUSR | S_IWGRP, show_port0, set_port0);
+-
+-static ssize_t show_port1(struct device *dev, struct device_attribute *attr, char *buf)
++static ssize_t port1_show(struct device *dev, struct device_attribute *attr,
++			  char *buf)
+ {
+ 	struct usb_interface *intf = to_usb_interface(dev);
+ 	struct usb_cytherm *cytherm = usb_get_intfdata(intf);
+@@ -295,7 +285,8 @@ static ssize_t show_port1(struct device
+ }
+ 
+ 
+-static ssize_t set_port1(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
++static ssize_t port1_store(struct device *dev, struct device_attribute *attr,
++			   const char *buf, size_t count)
+ {
+ 	struct usb_interface *intf = to_usb_interface(dev);
+ 	struct usb_cytherm *cytherm = usb_get_intfdata(intf);
+@@ -324,8 +315,7 @@ static ssize_t set_port1(struct device *
+ 
+ 	return count;
+ }
+-
+-static DEVICE_ATTR(port1, S_IRUGO | S_IWUSR | S_IWGRP, show_port1, set_port1);
++static DEVICE_ATTR_RW(port1);
+ 
+ 
+ 
+--- a/drivers/usb/misc/trancevibrator.c
++++ b/drivers/usb/misc/trancevibrator.c
+@@ -45,7 +45,7 @@ struct trancevibrator {
+ 	unsigned int speed;
+ };
+ 
+-static ssize_t show_speed(struct device *dev, struct device_attribute *attr,
++static ssize_t speed_show(struct device *dev, struct device_attribute *attr,
+ 			  char *buf)
+ {
+ 	struct usb_interface *intf = to_usb_interface(dev);
+@@ -54,8 +54,8 @@ static ssize_t show_speed(struct device
+ 	return sprintf(buf, "%d\n", tv->speed);
+ }
+ 
+-static ssize_t set_speed(struct device *dev, struct device_attribute *attr,
+-			 const char *buf, size_t count)
++static ssize_t speed_store(struct device *dev, struct device_attribute *attr,
++			   const char *buf, size_t count)
+ {
+ 	struct usb_interface *intf = to_usb_interface(dev);
+ 	struct trancevibrator *tv = usb_get_intfdata(intf);
+@@ -84,8 +84,7 @@ static ssize_t set_speed(struct device *
+ 	}
+ 	return count;
+ }
+-
+-static DEVICE_ATTR(speed, S_IRUGO | S_IWUSR, show_speed, set_speed);
++static DEVICE_ATTR_RW(speed);
+ 
+ static int tv_probe(struct usb_interface *interface,
+ 		    const struct usb_device_id *id)
+--- a/drivers/usb/misc/usbsevseg.c
++++ b/drivers/usb/misc/usbsevseg.c
+@@ -169,7 +169,7 @@ static void update_display_visual(struct
+ }
+ 
+ #define MYDEV_ATTR_SIMPLE_UNSIGNED(name, update_fcn)		\
+-static ssize_t show_attr_##name(struct device *dev, 		\
++static ssize_t name##_show(struct device *dev,			\
+ 	struct device_attribute *attr, char *buf) 		\
+ {								\
+ 	struct usb_interface *intf = to_usb_interface(dev);	\
+@@ -178,7 +178,7 @@ static ssize_t show_attr_##name(struct d
+ 	return sprintf(buf, "%u\n", mydev->name);		\
+ }								\
+ 								\
+-static ssize_t set_attr_##name(struct device *dev, 		\
++static ssize_t name##_store(struct device *dev,			\
+ 	struct device_attribute *attr, const char *buf, size_t count) \
+ {								\
+ 	struct usb_interface *intf = to_usb_interface(dev);	\
+@@ -189,10 +189,10 @@ static ssize_t set_attr_##name(struct de
+ 								\
+ 	return count;						\
+ }								\
+-static DEVICE_ATTR(name, S_IRUGO | S_IWUSR, show_attr_##name, set_attr_##name);
++static DEVICE_ATTR_RW(name);
+ 
+-static ssize_t show_attr_text(struct device *dev,
+-	struct device_attribute *attr, char *buf)
++static ssize_t text_show(struct device *dev, struct device_attribute *attr,
++			 char *buf)
+ {
+ 	struct usb_interface *intf = to_usb_interface(dev);
+ 	struct usb_sevsegdev *mydev = usb_get_intfdata(intf);
+@@ -200,8 +200,8 @@ static ssize_t show_attr_text(struct dev
+ 	return snprintf(buf, mydev->textlength, "%s\n", mydev->text);
+ }
+ 
+-static ssize_t set_attr_text(struct device *dev,
+-	struct device_attribute *attr, const char *buf, size_t count)
++static ssize_t text_store(struct device *dev, struct device_attribute *attr,
++			  const char *buf, size_t count)
+ {
+ 	struct usb_interface *intf = to_usb_interface(dev);
+ 	struct usb_sevsegdev *mydev = usb_get_intfdata(intf);
+@@ -219,11 +219,10 @@ static ssize_t set_attr_text(struct devi
+ 	update_display_visual(mydev, GFP_KERNEL);
+ 	return count;
+ }
++static DEVICE_ATTR_RW(text);
+ 
+-static DEVICE_ATTR(text, S_IRUGO | S_IWUSR, show_attr_text, set_attr_text);
+-
+-static ssize_t show_attr_decimals(struct device *dev,
+-	struct device_attribute *attr, char *buf)
++static ssize_t decimals_show(struct device *dev, struct device_attribute *attr,
++			     char *buf)
+ {
+ 	struct usb_interface *intf = to_usb_interface(dev);
+ 	struct usb_sevsegdev *mydev = usb_get_intfdata(intf);
+@@ -244,8 +243,8 @@ static ssize_t show_attr_decimals(struct
+ 	return sizeof(mydev->decimals) + 1;
+ }
+ 
+-static ssize_t set_attr_decimals(struct device *dev,
+-	struct device_attribute *attr, const char *buf, size_t count)
++static ssize_t decimals_store(struct device *dev, struct device_attribute *attr,
++			      const char *buf, size_t count)
+ {
+ 	struct usb_interface *intf = to_usb_interface(dev);
+ 	struct usb_sevsegdev *mydev = usb_get_intfdata(intf);
+@@ -268,11 +267,10 @@ static ssize_t set_attr_decimals(struct
+ 
+ 	return count;
+ }
++static DEVICE_ATTR_RW(decimals);
+ 
+-static DEVICE_ATTR(decimals, S_IRUGO | S_IWUSR, show_attr_decimals, set_attr_decimals);
+-
+-static ssize_t show_attr_textmode(struct device *dev,
+-	struct device_attribute *attr, char *buf)
++static ssize_t textmode_show(struct device *dev, struct device_attribute *attr,
++			     char *buf)
+ {
+ 	struct usb_interface *intf = to_usb_interface(dev);
+ 	struct usb_sevsegdev *mydev = usb_get_intfdata(intf);
+@@ -297,8 +295,8 @@ static ssize_t show_attr_textmode(struct
+ 	return strlen(buf);
+ }
+ 
+-static ssize_t set_attr_textmode(struct device *dev,
+-	struct device_attribute *attr, const char *buf, size_t count)
++static ssize_t textmode_store(struct device *dev, struct device_attribute *attr,
++			      const char *buf, size_t count)
+ {
+ 	struct usb_interface *intf = to_usb_interface(dev);
+ 	struct usb_sevsegdev *mydev = usb_get_intfdata(intf);
+@@ -312,9 +310,7 @@ static ssize_t set_attr_textmode(struct
+ 	update_display_visual(mydev, GFP_KERNEL);
+ 	return count;
+ }
+-
+-static DEVICE_ATTR(textmode, S_IRUGO | S_IWUSR, show_attr_textmode, set_attr_textmode);
+-
++static DEVICE_ATTR_RW(textmode);
+ 
+ MYDEV_ATTR_SIMPLE_UNSIGNED(powered, update_display_powered);
+ MYDEV_ATTR_SIMPLE_UNSIGNED(mode_msb, update_display_mode);
+--- a/drivers/usb/serial/ftdi_sio.c
++++ b/drivers/usb/serial/ftdi_sio.c
+@@ -1692,7 +1692,7 @@ static DEVICE_ATTR_RW(latency_timer);
+ 
+ /* Write an event character directly to the FTDI register.  The ASCII
+    value is in the low 8 bits, with the enable bit in the 9th bit. */
+-static ssize_t store_event_char(struct device *dev,
++static ssize_t event_char_store(struct device *dev,
+ 	struct device_attribute *attr, const char *valbuf, size_t count)
+ {
+ 	struct usb_serial_port *port = to_usb_serial_port(dev);
+@@ -1719,7 +1719,7 @@ static ssize_t store_event_char(struct d
+ 
+ 	return count;
+ }
+-static DEVICE_ATTR(event_char, S_IWUSR, NULL, store_event_char);
++static DEVICE_ATTR_WO(event_char);
+ 
+ static int create_sysfs_attrs(struct usb_serial_port *port)
+ {
+--- a/drivers/usb/storage/sierra_ms.c
++++ b/drivers/usb/storage/sierra_ms.c
+@@ -89,8 +89,8 @@ static void debug_swoc(const struct devi
+ }
+ 
+ 
+-static ssize_t show_truinst(struct device *dev, struct device_attribute *attr,
+-			char *buf)
++static ssize_t truinst_show(struct device *dev, struct device_attribute *attr,
++			    char *buf)
+ {
+ 	struct swoc_info *swocInfo;
+ 	struct usb_interface *intf = to_usb_interface(dev);
+@@ -121,7 +121,7 @@ static ssize_t show_truinst(struct devic
+ 	}
+ 	return result;
+ }
+-static DEVICE_ATTR(truinst, S_IRUGO, show_truinst, NULL);
++static DEVICE_ATTR_RO(truinst);
+ 
+ int sierra_ms_init(struct us_data *us)
+ {
+--- a/drivers/usb/usbip/stub_dev.c
++++ b/drivers/usb/usbip/stub_dev.c
+@@ -53,8 +53,9 @@ static DEVICE_ATTR_RO(usbip_status);
+  * is used to transfer usbip requests by kernel threads. -1 is a magic number
+  * by which usbip connection is finished.
+  */
+-static ssize_t store_sockfd(struct device *dev, struct device_attribute *attr,
+-			    const char *buf, size_t count)
++static ssize_t usbip_sockfd_store(struct device *dev,
++				  struct device_attribute *attr,
++				  const char *buf, size_t count)
+ {
+ 	struct stub_device *sdev = dev_get_drvdata(dev);
+ 	int sockfd = 0;
+@@ -117,7 +118,7 @@ err:
+ 	spin_unlock_irq(&sdev->ud.lock);
+ 	return -EINVAL;
+ }
+-static DEVICE_ATTR(usbip_sockfd, S_IWUSR, NULL, store_sockfd);
++static DEVICE_ATTR_WO(usbip_sockfd);
+ 
+ static int stub_add_files(struct device *dev)
+ {
+--- a/drivers/usb/usbip/vhci_sysfs.c
++++ b/drivers/usb/usbip/vhci_sysfs.c
+@@ -226,7 +226,7 @@ static int valid_port(__u32 pdev_nr, __u
+ 	return 1;
+ }
+ 
+-static ssize_t store_detach(struct device *dev, struct device_attribute *attr,
++static ssize_t detach_store(struct device *dev, struct device_attribute *attr,
+ 			    const char *buf, size_t count)
+ {
+ 	__u32 port = 0, pdev_nr = 0, rhport = 0;
+@@ -264,7 +264,7 @@ static ssize_t store_detach(struct devic
+ 
+ 	return count;
+ }
+-static DEVICE_ATTR(detach, S_IWUSR, NULL, store_detach);
++static DEVICE_ATTR_WO(detach);
+ 
+ static int valid_args(__u32 pdev_nr, __u32 rhport, enum usb_device_speed speed)
+ {
+@@ -300,7 +300,7 @@ static int valid_args(__u32 pdev_nr, __u
+  *
+  * write() returns 0 on success, else negative errno.
+  */
+-static ssize_t store_attach(struct device *dev, struct device_attribute *attr,
++static ssize_t attach_store(struct device *dev, struct device_attribute *attr,
+ 			    const char *buf, size_t count)
+ {
+ 	struct socket *socket;
+@@ -390,7 +390,7 @@ static ssize_t store_attach(struct devic
+ 
+ 	return count;
+ }
+-static DEVICE_ATTR(attach, S_IWUSR, NULL, store_attach);
++static DEVICE_ATTR_WO(attach);
+ 
+ #define MAX_STATUS_NAME 16
+ 
+--- a/drivers/usb/usbip/vudc_sysfs.c
++++ b/drivers/usb/usbip/vudc_sysfs.c
+@@ -102,8 +102,9 @@ unlock:
+ }
+ static BIN_ATTR_RO(dev_desc, sizeof(struct usb_device_descriptor));
+ 
+-static ssize_t store_sockfd(struct device *dev, struct device_attribute *attr,
+-		     const char *in, size_t count)
++static ssize_t usbip_sockfd_store(struct device *dev,
++				  struct device_attribute *attr,
++				  const char *in, size_t count)
+ {
+ 	struct vudc *udc = (struct vudc *) dev_get_drvdata(dev);
+ 	int rv;
+@@ -192,7 +193,7 @@ unlock:
+ 
+ 	return ret;
+ }
+-static DEVICE_ATTR(usbip_sockfd, S_IWUSR, NULL, store_sockfd);
++static DEVICE_ATTR_WO(usbip_sockfd);
+ 
+ static ssize_t usbip_status_show(struct device *dev,
+ 			       struct device_attribute *attr, char *out)
+--- a/drivers/usb/wusbcore/cbaf.c
++++ b/drivers/usb/wusbcore/cbaf.c
+@@ -310,9 +310,8 @@ static int cbaf_cdid_get(struct cbaf *cb
+ 	return 0;
+ }
+ 
+-static ssize_t cbaf_wusb_chid_show(struct device *dev,
+-					struct device_attribute *attr,
+-					char *buf)
++static ssize_t wusb_chid_show(struct device *dev, struct device_attribute *attr,
++			      char *buf)
+ {
+ 	struct usb_interface *iface = to_usb_interface(dev);
+ 	struct cbaf *cbaf = usb_get_intfdata(iface);
+@@ -322,9 +321,9 @@ static ssize_t cbaf_wusb_chid_show(struc
+ 	return scnprintf(buf, PAGE_SIZE, "%s\n", pr_chid);
+ }
+ 
+-static ssize_t cbaf_wusb_chid_store(struct device *dev,
+-					 struct device_attribute *attr,
+-					 const char *buf, size_t size)
++static ssize_t wusb_chid_store(struct device *dev,
++			       struct device_attribute *attr,
++			       const char *buf, size_t size)
+ {
+ 	ssize_t result;
+ 	struct usb_interface *iface = to_usb_interface(dev);
+@@ -355,11 +354,10 @@ static ssize_t cbaf_wusb_chid_store(stru
+ 		return result;
+ 	return size;
+ }
+-static DEVICE_ATTR(wusb_chid, 0600, cbaf_wusb_chid_show, cbaf_wusb_chid_store);
++static DEVICE_ATTR_RW(wusb_chid);
+ 
+-static ssize_t cbaf_wusb_host_name_show(struct device *dev,
+-					struct device_attribute *attr,
+-					char *buf)
++static ssize_t wusb_host_name_show(struct device *dev,
++				   struct device_attribute *attr, char *buf)
+ {
+ 	struct usb_interface *iface = to_usb_interface(dev);
+ 	struct cbaf *cbaf = usb_get_intfdata(iface);
+@@ -367,9 +365,9 @@ static ssize_t cbaf_wusb_host_name_show(
+ 	return scnprintf(buf, PAGE_SIZE, "%s\n", cbaf->host_name);
+ }
+ 
+-static ssize_t cbaf_wusb_host_name_store(struct device *dev,
+-					 struct device_attribute *attr,
+-					 const char *buf, size_t size)
++static ssize_t wusb_host_name_store(struct device *dev,
++				    struct device_attribute *attr,
++				    const char *buf, size_t size)
+ {
+ 	ssize_t result;
+ 	struct usb_interface *iface = to_usb_interface(dev);
+@@ -381,12 +379,11 @@ static ssize_t cbaf_wusb_host_name_store
+ 
+ 	return size;
+ }
+-static DEVICE_ATTR(wusb_host_name, 0600, cbaf_wusb_host_name_show,
+-					 cbaf_wusb_host_name_store);
++static DEVICE_ATTR_RW(wusb_host_name);
+ 
+-static ssize_t cbaf_wusb_host_band_groups_show(struct device *dev,
+-					       struct device_attribute *attr,
+-					       char *buf)
++static ssize_t wusb_host_band_groups_show(struct device *dev,
++					  struct device_attribute *attr,
++					  char *buf)
+ {
+ 	struct usb_interface *iface = to_usb_interface(dev);
+ 	struct cbaf *cbaf = usb_get_intfdata(iface);
+@@ -394,9 +391,9 @@ static ssize_t cbaf_wusb_host_band_group
+ 	return scnprintf(buf, PAGE_SIZE, "0x%04x\n", cbaf->host_band_groups);
+ }
+ 
+-static ssize_t cbaf_wusb_host_band_groups_store(struct device *dev,
+-						struct device_attribute *attr,
+-						const char *buf, size_t size)
++static ssize_t wusb_host_band_groups_store(struct device *dev,
++					   struct device_attribute *attr,
++					   const char *buf, size_t size)
+ {
+ 	ssize_t result;
+ 	struct usb_interface *iface = to_usb_interface(dev);
+@@ -411,10 +408,7 @@ static ssize_t cbaf_wusb_host_band_group
+ 
+ 	return size;
+ }
+-
+-static DEVICE_ATTR(wusb_host_band_groups, 0600,
+-		   cbaf_wusb_host_band_groups_show,
+-		   cbaf_wusb_host_band_groups_store);
++static DEVICE_ATTR_RW(wusb_host_band_groups);
+ 
+ static const struct wusb_cbaf_device_info cbaf_device_info_defaults = {
+ 	.Length_hdr               = WUSB_AR_Length,
+@@ -424,8 +418,8 @@ static const struct wusb_cbaf_device_inf
+ 	.DeviceFriendlyName_hdr   = WUSB_AR_DeviceFriendlyName,
+ };
+ 
+-static ssize_t cbaf_wusb_cdid_show(struct device *dev,
+-				   struct device_attribute *attr, char *buf)
++static ssize_t wusb_cdid_show(struct device *dev, struct device_attribute *attr,
++			      char *buf)
+ {
+ 	struct usb_interface *iface = to_usb_interface(dev);
+ 	struct cbaf *cbaf = usb_get_intfdata(iface);
+@@ -435,9 +429,9 @@ static ssize_t cbaf_wusb_cdid_show(struc
+ 	return scnprintf(buf, PAGE_SIZE, "%s\n", pr_cdid);
+ }
+ 
+-static ssize_t cbaf_wusb_cdid_store(struct device *dev,
+-				struct device_attribute *attr,
+-				const char *buf, size_t size)
++static ssize_t wusb_cdid_store(struct device *dev,
++			       struct device_attribute *attr, const char *buf,
++			       size_t size)
+ {
+ 	ssize_t result;
+ 	struct usb_interface *iface = to_usb_interface(dev);
+@@ -464,32 +458,28 @@ static ssize_t cbaf_wusb_cdid_store(stru
+ 
+ 	return size;
+ }
+-static DEVICE_ATTR(wusb_cdid, 0600, cbaf_wusb_cdid_show, cbaf_wusb_cdid_store);
++static DEVICE_ATTR_RW(wusb_cdid);
+ 
+-static ssize_t cbaf_wusb_device_band_groups_show(struct device *dev,
+-						 struct device_attribute *attr,
+-						 char *buf)
++static ssize_t wusb_device_band_groups_show(struct device *dev,
++					    struct device_attribute *attr,
++					    char *buf)
+ {
+ 	struct usb_interface *iface = to_usb_interface(dev);
+ 	struct cbaf *cbaf = usb_get_intfdata(iface);
+ 
+ 	return scnprintf(buf, PAGE_SIZE, "0x%04x\n", cbaf->device_band_groups);
+ }
++static DEVICE_ATTR_RO(wusb_device_band_groups);
+ 
+-static DEVICE_ATTR(wusb_device_band_groups, 0600,
+-		   cbaf_wusb_device_band_groups_show,
+-		   NULL);
+-
+-static ssize_t cbaf_wusb_device_name_show(struct device *dev,
+-					struct device_attribute *attr,
+-					char *buf)
++static ssize_t wusb_device_name_show(struct device *dev,
++				     struct device_attribute *attr, char *buf)
+ {
+ 	struct usb_interface *iface = to_usb_interface(dev);
+ 	struct cbaf *cbaf = usb_get_intfdata(iface);
+ 
+ 	return scnprintf(buf, PAGE_SIZE, "%s\n", cbaf->device_name);
+ }
+-static DEVICE_ATTR(wusb_device_name, 0600, cbaf_wusb_device_name_show, NULL);
++static DEVICE_ATTR_RO(wusb_device_name);
+ 
+ static const struct wusb_cbaf_cc_data cbaf_cc_data_defaults = {
+ 	.AssociationTypeId_hdr    = WUSB_AR_AssociationTypeId,
+@@ -543,9 +533,9 @@ static int cbaf_cc_upload(struct cbaf *c
+ 	return result;
+ }
+ 
+-static ssize_t cbaf_wusb_ck_store(struct device *dev,
+-				  struct device_attribute *attr,
+-				  const char *buf, size_t size)
++static ssize_t wusb_ck_store(struct device *dev,
++			     struct device_attribute *attr,
++			     const char *buf, size_t size)
+ {
+ 	ssize_t result;
+ 	struct usb_interface *iface = to_usb_interface(dev);
+@@ -573,7 +563,7 @@ static ssize_t cbaf_wusb_ck_store(struct
+ 
+ 	return size;
+ }
+-static DEVICE_ATTR(wusb_ck, 0600, NULL, cbaf_wusb_ck_store);
++static DEVICE_ATTR_WO(wusb_ck);
+ 
+ static struct attribute *cbaf_dev_attrs[] = {
+ 	&dev_attr_wusb_host_name.attr,
