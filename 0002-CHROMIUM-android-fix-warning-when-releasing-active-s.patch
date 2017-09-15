@@ -42,7 +42,7 @@ Signed-off-by: Jin Qian <jinqian@android.com>
 
 --- a/drivers/dma-buf/dma-fence.c
 +++ b/drivers/dma-buf/dma-fence.c
-@@ -334,8 +334,12 @@ dma_fence_remove_callback(struct dma_fen
+@@ -329,8 +329,12 @@ dma_fence_remove_callback(struct dma_fen
  	spin_lock_irqsave(fence->lock, flags);
  
  	ret = !list_empty(&cb->node);
@@ -58,7 +58,7 @@ Signed-off-by: Jin Qian <jinqian@android.com>
  
 --- a/include/linux/dma-fence.h
 +++ b/include/linux/dma-fence.h
-@@ -109,6 +109,7 @@ struct dma_fence_cb {
+@@ -111,6 +111,7 @@ struct dma_fence_cb {
   * @get_driver_name: returns the driver name.
   * @get_timeline_name: return the name of the context this fence belongs to.
   * @enable_signaling: enable software signaling of fence.
@@ -66,7 +66,7 @@ Signed-off-by: Jin Qian <jinqian@android.com>
   * @signaled: [optional] peek whether the fence is signaled, can be null.
   * @wait: custom wait implementation, or dma_fence_default_wait.
   * @release: [optional] called on destruction of fence, can be null
-@@ -168,6 +169,7 @@ struct dma_fence_ops {
+@@ -170,6 +171,7 @@ struct dma_fence_ops {
  	const char * (*get_driver_name)(struct dma_fence *fence);
  	const char * (*get_timeline_name)(struct dma_fence *fence);
  	bool (*enable_signaling)(struct dma_fence *fence);

@@ -24,7 +24,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/Documentation/printk-formats.txt
 +++ b/Documentation/printk-formats.txt
-@@ -84,6 +84,11 @@ For printing kernel pointers which shoul
+@@ -97,6 +97,11 @@ For printing kernel pointers which shoul
  users. The behaviour of ``%pK`` depends on the ``kptr_restrict sysctl`` - see
  Documentation/sysctl/kernel.txt for more details.
  
@@ -38,7 +38,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
 --- a/Documentation/sysctl/kernel.txt
 +++ b/Documentation/sysctl/kernel.txt
-@@ -392,6 +392,9 @@ values to unprivileged users is a concer
+@@ -393,6 +393,9 @@ values to unprivileged users is a concer
  When kptr_restrict is set to (2), kernel pointers printed using
  %pK will be replaced with 0's regardless of privileges.
  

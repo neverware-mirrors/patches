@@ -15,7 +15,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/Documentation/printk-formats.txt
 +++ b/Documentation/printk-formats.txt
-@@ -108,21 +108,23 @@ Physical addresses types ``phys_addr_t``
+@@ -121,21 +121,23 @@ Physical addresses types ``phys_addr_t``
  
  ::
  
