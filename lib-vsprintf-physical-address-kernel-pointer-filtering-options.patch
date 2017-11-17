@@ -16,7 +16,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/Documentation/sysctl/kernel.txt
 +++ b/Documentation/sysctl/kernel.txt
-@@ -394,7 +394,13 @@ When kptr_restrict is set to (2), kernel
+@@ -395,7 +395,13 @@ When kptr_restrict is set to (2), kernel
  %pK will be replaced with 0's regardless of privileges.
  
  When kptr_restrict is set to (3), kernel pointers printed using
@@ -41,7 +41,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  static int ten_thousand = 10000;
  #endif
  #ifdef CONFIG_PERF_EVENTS
-@@ -852,7 +851,7 @@ static struct ctl_table kern_table[] = {
+@@ -853,7 +852,7 @@ static struct ctl_table kern_table[] = {
  		.mode		= 0644,
  		.proc_handler	= proc_dointvec_minmax_sysadmin,
  		.extra1		= &zero,

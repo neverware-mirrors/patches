@@ -37,7 +37,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
 --- a/include/linux/kallsyms.h
 +++ b/include/linux/kallsyms.h
-@@ -122,7 +122,7 @@ static inline void print_symbol(const ch
+@@ -123,7 +123,7 @@ static inline void print_symbol(const ch
  
  static inline void print_ip_sym(unsigned long ip)
  {

@@ -40,7 +40,5 @@ drivers-uio-un-restrict-sysfs-pointers-for-uio.patch
 
 #
 
-d99.patch
-d01.patch
 qlcnic_sysfs.patch
 #

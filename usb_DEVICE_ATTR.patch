@@ -126,7 +126,7 @@
  		       const struct usb_device_id *id)
 --- a/drivers/usb/gadget/function/f_mass_storage.c
 +++ b/drivers/usb/gadget/function/f_mass_storage.c
-@@ -2559,9 +2559,8 @@ static ssize_t file_store(struct device
+@@ -2544,9 +2544,8 @@ static ssize_t file_store(struct device
  }
  
  static DEVICE_ATTR_RW(nofua);
@@ -140,7 +140,7 @@
  
 --- a/drivers/usb/gadget/udc/core.c
 +++ b/drivers/usb/gadget/udc/core.c
-@@ -1427,8 +1427,8 @@ EXPORT_SYMBOL_GPL(usb_gadget_unregister_
+@@ -1426,8 +1426,8 @@ EXPORT_SYMBOL_GPL(usb_gadget_unregister_
  
  /* ------------------------------------------------------------------------- */
  
@@ -151,7 +151,7 @@
  {
  	struct usb_udc		*udc = container_of(dev, struct usb_udc, dev);
  
-@@ -1437,10 +1437,11 @@ static ssize_t usb_udc_srp_store(struct
+@@ -1436,10 +1436,11 @@ static ssize_t usb_udc_srp_store(struct
  
  	return n;
  }
@@ -166,7 +166,7 @@
  {
  	struct usb_udc		*udc = container_of(dev, struct usb_udc, dev);
  
-@@ -1463,7 +1464,7 @@ static ssize_t usb_udc_softconn_store(st
+@@ -1462,7 +1463,7 @@ static ssize_t usb_udc_softconn_store(st
  
  	return n;
  }
@@ -586,7 +586,7 @@
  MYDEV_ATTR_SIMPLE_UNSIGNED(mode_msb, update_display_mode);
 --- a/drivers/usb/serial/ftdi_sio.c
 +++ b/drivers/usb/serial/ftdi_sio.c
-@@ -1692,7 +1692,7 @@ static DEVICE_ATTR_RW(latency_timer);
+@@ -1694,7 +1694,7 @@ static DEVICE_ATTR_RW(latency_timer);
  
  /* Write an event character directly to the FTDI register.  The ASCII
     value is in the low 8 bits, with the enable bit in the 9th bit. */
@@ -595,7 +595,7 @@
  	struct device_attribute *attr, const char *valbuf, size_t count)
  {
  	struct usb_serial_port *port = to_usb_serial_port(dev);
-@@ -1719,7 +1719,7 @@ static ssize_t store_event_char(struct d
+@@ -1721,7 +1721,7 @@ static ssize_t store_event_char(struct d
  
  	return count;
  }
@@ -606,7 +606,7 @@
  {
 --- a/drivers/usb/storage/sierra_ms.c
 +++ b/drivers/usb/storage/sierra_ms.c
-@@ -89,8 +89,8 @@ static void debug_swoc(const struct devi
+@@ -90,8 +90,8 @@ static void debug_swoc(const struct devi
  }
  
  
@@ -617,7 +617,7 @@
  {
  	struct swoc_info *swocInfo;
  	struct usb_interface *intf = to_usb_interface(dev);
-@@ -121,7 +121,7 @@ static ssize_t show_truinst(struct devic
+@@ -122,7 +122,7 @@ static ssize_t show_truinst(struct devic
  	}
  	return result;
  }
