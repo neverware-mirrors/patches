@@ -1,0 +1,40 @@
+From 4c9ffbfae59a0b4d6891022446d9ef7e1100adf7 Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Fri, 17 Nov 2017 15:08:33 +0100
+Subject: [PATCH 7/7] watchdog: pcwd_usb: remove unneeded DRIVER_LICENSE
+ #define
+
+There is no need to #define the license of the driver, just put it in
+the MODULE_LICENSE() line directly as a text string.
+
+This allows tools that check that the module license matches the source
+code license to work properly, as there is no need to unwind the
+unneeded dereference, especially when it is defined just a few lines
+above from where it is used.
+
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Reported-by: Philippe Ombredanne <pombredanne@nexb.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/watchdog/pcwd_usb.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+--- a/drivers/watchdog/pcwd_usb.c
++++ b/drivers/watchdog/pcwd_usb.c
+@@ -49,12 +49,11 @@
+ #define DRIVER_VERSION "1.02"
+ #define DRIVER_AUTHOR "Wim Van Sebroeck <wim@iguana.be>"
+ #define DRIVER_DESC "Berkshire USB-PC Watchdog driver"
+-#define DRIVER_LICENSE "GPL"
+ #define DRIVER_NAME "pcwd_usb"
+ 
+ MODULE_AUTHOR(DRIVER_AUTHOR);
+ MODULE_DESCRIPTION(DRIVER_DESC);
+-MODULE_LICENSE(DRIVER_LICENSE);
++MODULE_LICENSE("GPL");
+ 
+ #define WATCHDOG_HEARTBEAT 0	/* default heartbeat =
+ 						delay-time from dip-switches */
