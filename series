@@ -1,5 +1,6 @@
 #
 
+efi-move-some-sysfs-files-to-be-read-only-by-root.patch
 0001-gpu-gma500-remove-unneeded-DRIVER_LICENSE-define.patch
 0002-input-remove-unneeded-DRIVER_LICENSE-defines.patch
 0003-media-usbvision-remove-unneeded-DRIVER_LICENSE-defin.patch
