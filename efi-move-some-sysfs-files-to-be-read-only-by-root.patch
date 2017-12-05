@@ -2,19 +2,27 @@ From foo@baz Tue Dec  5 09:14:53 CET 2017
 Date: Tue, 05 Dec 2017 09:14:53 +0100
 To: Greg KH <gregkh@linuxfoundation.org>
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: efi: move some sysfs files to be read-only by root
+Subject: [PATCH] efi: move some sysfs files to be read-only by root
 
-Also add __ATTR_RO_MODE() to sysfs.h to make this easier.
+Thanks to the scripts/leaking_addresses.pl script, it was found that
+some EFI values should not be readable by non-root users.
 
+So make them root-only, and to do that, add a __ATTR_RO_MODE() macro to
+make this easier, and use it in other places at the same time.
+
+Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
+Tested-by: Dave Young <dyoung@redhat.com>
+Cc: Matt Fleming <matt@codeblueprint.co.uk>
+Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 
 ---
  drivers/firmware/efi/efi.c         |    3 +--
  drivers/firmware/efi/esrt.c        |   15 ++++++---------
  drivers/firmware/efi/runtime-map.c |   10 +++++-----
- include/linux/sysfs.h              |    5 +++++
- 4 files changed, 17 insertions(+), 16 deletions(-)
+ include/linux/sysfs.h              |    6 ++++++
+ 4 files changed, 18 insertions(+), 16 deletions(-)
 
 --- a/drivers/firmware/efi/efi.c
 +++ b/drivers/firmware/efi/efi.c
@@ -99,12 +107,13 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
   * These are default attributes that are added for every memmap entry.
 --- a/include/linux/sysfs.h
 +++ b/include/linux/sysfs.h
-@@ -117,6 +117,11 @@ struct attribute_group {
+@@ -117,6 +117,12 @@ struct attribute_group {
  	.show	= _name##_show,						\
  }
  
 +#define __ATTR_RO_MODE(_name, _mode) {					\
-+	.attr	= { .name = __stringify(_name), .mode = _mode },	\
++	.attr	= { .name = __stringify(_name),				\
++		    .mode = VERIFY_OCTAL_PERMISSIONS(_mode) },		\
 +	.show	= _name##_show,						\
 +}
 +
