@@ -1,0 +1,50 @@
+From e935aaac37b13bdf2bc623962a4e4636ab659292 Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Wed, 22 Nov 2017 18:31:27 +0100
+Subject: [PATCH 1/6] Input: rmi4: remove unneeded MODULE_VERSION() usage
+
+MODULE_VERSION is useless for in-kernel drivers, so just remove all
+usage of it in the rmi4 drivers.  Now that this is gone, the
+RMI_DRIVER_VERSION macro was also removed as it was pointless.
+
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/input/rmi4/rmi_bus.c    |    1 -
+ drivers/input/rmi4/rmi_driver.h |    2 --
+ drivers/input/rmi4/rmi_i2c.c    |    1 -
+ drivers/input/rmi4/rmi_spi.c    |    1 -
+ 4 files changed, 5 deletions(-)
+
+--- a/drivers/input/rmi4/rmi_bus.c
++++ b/drivers/input/rmi4/rmi_bus.c
+@@ -427,4 +427,3 @@ MODULE_AUTHOR("Christopher Heiny <cheiny
+ MODULE_AUTHOR("Andrew Duggan <aduggan@synaptics.com");
+ MODULE_DESCRIPTION("RMI bus");
+ MODULE_LICENSE("GPL");
+-MODULE_VERSION(RMI_DRIVER_VERSION);
+--- a/drivers/input/rmi4/rmi_driver.h
++++ b/drivers/input/rmi4/rmi_driver.h
+@@ -16,8 +16,6 @@
+ #include <linux/input.h>
+ #include "rmi_bus.h"
+ 
+-#define RMI_DRIVER_VERSION "2.0"
+-
+ #define SYNAPTICS_INPUT_DEVICE_NAME "Synaptics RMI4 Touch Sensor"
+ #define SYNAPTICS_VENDOR_ID 0x06cb
+ 
+--- a/drivers/input/rmi4/rmi_i2c.c
++++ b/drivers/input/rmi4/rmi_i2c.c
+@@ -391,4 +391,3 @@ MODULE_AUTHOR("Christopher Heiny <cheiny
+ MODULE_AUTHOR("Andrew Duggan <aduggan@synaptics.com>");
+ MODULE_DESCRIPTION("RMI I2C driver");
+ MODULE_LICENSE("GPL");
+-MODULE_VERSION(RMI_DRIVER_VERSION);
+--- a/drivers/input/rmi4/rmi_spi.c
++++ b/drivers/input/rmi4/rmi_spi.c
+@@ -528,4 +528,3 @@ MODULE_AUTHOR("Christopher Heiny <cheiny
+ MODULE_AUTHOR("Andrew Duggan <aduggan@synaptics.com>");
+ MODULE_DESCRIPTION("RMI SPI driver");
+ MODULE_LICENSE("GPL");
+-MODULE_VERSION(RMI_DRIVER_VERSION);

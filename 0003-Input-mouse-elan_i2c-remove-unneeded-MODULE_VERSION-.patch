@@ -1,0 +1,31 @@
+From a112171e14bfdaac46da06658edd6cb8905eadcc Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Wed, 22 Nov 2017 18:34:37 +0100
+Subject: [PATCH 3/6] Input: mouse: elan_i2c: remove unneeded MODULE_VERSION()
+ usage
+
+MODULE_VERSION is useless for in-kernel drivers, so just remove all
+usage of it in the elan_i2c mouse driver.  Now that this is gone, the
+ELAN_DRIVER_VERSION define was also removed as it was pointless.
+
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/input/mouse/elan_i2c_core.c |    2 --
+ 1 file changed, 2 deletions(-)
+
+--- a/drivers/input/mouse/elan_i2c_core.c
++++ b/drivers/input/mouse/elan_i2c_core.c
+@@ -42,7 +42,6 @@
+ #include "elan_i2c.h"
+ 
+ #define DRIVER_NAME		"elan_i2c"
+-#define ELAN_DRIVER_VERSION	"1.6.3"
+ #define ELAN_VENDOR_ID		0x04f3
+ #define ETP_MAX_PRESSURE	255
+ #define ETP_FWIDTH_REDUCE	90
+@@ -1294,4 +1293,3 @@ module_i2c_driver(elan_driver);
+ MODULE_AUTHOR("Duson Lin <dusonlin@emc.com.tw>");
+ MODULE_DESCRIPTION("Elan I2C/SMBus Touchpad driver");
+ MODULE_LICENSE("GPL");
+-MODULE_VERSION(ELAN_DRIVER_VERSION);
