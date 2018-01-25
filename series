@@ -1,5 +1,7 @@
 #
 
+usb-serial-pl2303-new-device-id-for-chilitag.patch
+acpi-sbshc-remove-raw-pointer-from-printk-message.patch
 0001-Input-rmi4-remove-unneeded-MODULE_VERSION-usage.patch
 0002-Input-keyboard-pmic8xxx-remove-unneeded-MODULE_VERSI.patch
 0003-Input-mouse-elan_i2c-remove-unneeded-MODULE_VERSION-.patch
