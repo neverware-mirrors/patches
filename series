@@ -1,18 +1,8 @@
 #
 
-usb-serial-pl2303-new-device-id-for-chilitag.patch
 acpi-sbshc-remove-raw-pointer-from-printk-message.patch
-0001-Input-rmi4-remove-unneeded-MODULE_VERSION-usage.patch
-0002-Input-keyboard-pmic8xxx-remove-unneeded-MODULE_VERSI.patch
-0003-Input-mouse-elan_i2c-remove-unneeded-MODULE_VERSION-.patch
-0004-Input-touchscreen-remove-unneeded-MODULE_VERSION-usa.patch
-0005-Input-misc-remove-unneeded-MODULE_VERSION-usage.patch
-0006-Input-remove-remaining-unneeded-MODULE_VERSION-usage.patch
-0001-gpu-gma500-remove-unneeded-DRIVER_LICENSE-define.patch
-0002-input-remove-unneeded-DRIVER_LICENSE-defines.patch
 0003-media-usbvision-remove-unneeded-DRIVER_LICENSE-defin.patch
 0005-ntb-remove-unneeded-DRIVER_LICENSE-defines.patch
-0006-scsi-csiostor-remove-unneeded-DRIVER_LICENSE-define.patch
 0007-watchdog-pcwd_usb-remove-unneeded-DRIVER_LICENSE-def.patch
 usb_DEVICE_ATTR.patch
 
