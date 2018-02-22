@@ -1,9 +1,5 @@
 #
 
-acpi-sbshc-remove-raw-pointer-from-printk-message.patch
-0003-media-usbvision-remove-unneeded-DRIVER_LICENSE-defin.patch
-0005-ntb-remove-unneeded-DRIVER_LICENSE-defines.patch
-0007-watchdog-pcwd_usb-remove-unneeded-DRIVER_LICENSE-def.patch
 usb_DEVICE_ATTR.patch
 
 
