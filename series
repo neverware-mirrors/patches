@@ -1,5 +1,6 @@
 #
 
+usb-serial-visor-handle-potential-invalid-device-configuration.patch
 usb_DEVICE_ATTR.patch
 
 
