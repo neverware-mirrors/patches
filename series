@@ -1,5 +1,8 @@
 #
 
+usb-debugfs-cleanup.patch
+usb-debugfs.patch
+nfc-pn533-don-t-send-usb-data-off-of-the-stack.patch
 usb-serial-visor-handle-potential-invalid-device-configuration.patch
 usb_DEVICE_ATTR.patch
 

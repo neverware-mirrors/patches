@@ -24,11 +24,13 @@ Johan, I incorporated your review comments of my original one-off patch
 here as well.
 
 
-diff --git a/drivers/usb/serial/visor.c b/drivers/usb/serial/visor.c
-index f5373ed2cd45..8ddbecc25d89 100644
+---
+ drivers/usb/serial/visor.c |   69 ++++++++++++++++++++++-----------------------
+ 1 file changed, 35 insertions(+), 34 deletions(-)
+
 --- a/drivers/usb/serial/visor.c
 +++ b/drivers/usb/serial/visor.c
-@@ -335,47 +335,48 @@ static int palm_os_3_probe(struct usb_serial *serial,
+@@ -335,47 +335,48 @@ static int palm_os_3_probe(struct usb_se
  		goto exit;
  	}
  
