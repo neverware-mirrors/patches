@@ -96,25 +96,25 @@
  }
  
 -static const struct device_attribute dev_attr_bridged_mode = {
--       .attr = {.name = "bridged_mode", .mode = (S_IRUGO | S_IWUSR)},
--       .show = qlcnic_show_bridged_mode,
--       .store = qlcnic_store_bridged_mode,
+-	.attr = { .name = "bridged_mode", .mode = 0644 },
+-	.show = qlcnic_show_bridged_mode,
+-	.store = qlcnic_store_bridged_mode,
 -};
 -
 -static const struct device_attribute dev_attr_diag_mode = {
--	.attr = {.name = "diag_mode", .mode = (S_IRUGO | S_IWUSR)},
+-	.attr = { .name = "diag_mode", .mode = 0644 },
 -	.show = qlcnic_show_diag_mode,
 -	.store = qlcnic_store_diag_mode,
 -};
 -
 -static const struct device_attribute dev_attr_beacon = {
--	.attr = {.name = "beacon", .mode = (S_IRUGO | S_IWUSR)},
+-	.attr = { .name = "beacon", .mode = 0644 },
 -	.show = qlcnic_show_beacon,
 -	.store = qlcnic_store_beacon,
 -};
 -
  static const struct bin_attribute bin_attr_crb = {
- 	.attr = {.name = "crb", .mode = (S_IRUGO | S_IWUSR)},
+ 	.attr = { .name = "crb", .mode = 0644 },
  	.size = 0,
 @@ -1317,6 +1300,24 @@ void qlcnic_unregister_hwmon_dev(struct
  }
