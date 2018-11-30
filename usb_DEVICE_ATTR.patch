@@ -1,11 +1,25 @@
+From foo@baz Fri Nov 30 11:15:46 CET 2018
+Date: Fri, 30 Nov 2018 11:15:46 +0100
+To: Greg KH <gregkh@linuxfoundation.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH] USB: get rid of DEVICE_ATTR() usage
+
+Drivers should be using DEVICE_ATTR_RO() and friends, not a "raw"
+DEVICE_ATTR().  Convert the remaining drivers/usb/ code to use a
+specific DEVICE_ATTR_* macro instead, making it easier to audit the
+correct mode on sysfs files and to make it harder to get wrong in the
+future.
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  drivers/usb/gadget/function/f_mass_storage.c |    5 -
+ drivers/usb/phy/phy-fsl-usb.c                |    6 -
  drivers/usb/wusbcore/cbaf.c                  |   82 +++++++++++----------------
- 2 files changed, 38 insertions(+), 49 deletions(-)
+ 3 files changed, 41 insertions(+), 52 deletions(-)
 
 --- a/drivers/usb/gadget/function/f_mass_storage.c
 +++ b/drivers/usb/gadget/function/f_mass_storage.c
-@@ -2545,9 +2545,8 @@ static ssize_t file_store(struct device
+@@ -2544,9 +2544,8 @@ static ssize_t file_store(struct device
  }
  
  static DEVICE_ATTR_RW(nofua);
@@ -17,6 +31,28 @@
  
  /****************************** FSG COMMON ******************************/
  
+--- a/drivers/usb/phy/phy-fsl-usb.c
++++ b/drivers/usb/phy/phy-fsl-usb.c
+@@ -960,8 +960,8 @@ int usb_otg_start(struct platform_device
+ /*
+  * state file in sysfs
+  */
+-static ssize_t show_fsl_usb2_otg_state(struct device *dev,
+-				   struct device_attribute *attr, char *buf)
++static ssize_t fsl_usb2_otg_state_show(struct device *dev,
++				       struct device_attribute *attr, char *buf)
+ {
+ 	struct otg_fsm *fsm = &fsl_otg_dev->fsm;
+ 	char *next = buf;
+@@ -1041,7 +1041,7 @@ static ssize_t show_fsl_usb2_otg_state(s
+ 	return PAGE_SIZE - size;
+ }
+ 
+-static DEVICE_ATTR(fsl_usb2_otg_state, S_IRUGO, show_fsl_usb2_otg_state, NULL);
++static DEVICE_ATTR_RO(fsl_usb2_otg_state);
+ 
+ 
+ /* Char driver interface to control some OTG input */
 --- a/drivers/usb/wusbcore/cbaf.c
 +++ b/drivers/usb/wusbcore/cbaf.c
 @@ -296,9 +296,8 @@ static int cbaf_cdid_get(struct cbaf *cb

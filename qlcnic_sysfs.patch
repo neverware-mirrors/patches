@@ -91,7 +91,7 @@
  
  static ssize_t qlcnic_sysfs_read_crb(struct file *filp, struct kobject *kobj,
  				     struct bin_attribute *attr, char *buf,
-@@ -1174,24 +1175,6 @@ static ssize_t qlcnic_83xx_sysfs_flash_w
+@@ -1176,24 +1177,6 @@ static ssize_t qlcnic_83xx_sysfs_flash_w
  	return size;
  }
  
@@ -116,7 +116,7 @@
  static const struct bin_attribute bin_attr_crb = {
  	.attr = { .name = "crb", .mode = 0644 },
  	.size = 0,
-@@ -1317,6 +1300,24 @@ void qlcnic_unregister_hwmon_dev(struct
+@@ -1319,6 +1302,24 @@ void qlcnic_unregister_hwmon_dev(struct
  }
  #endif
  
@@ -141,7 +141,7 @@
  void qlcnic_create_sysfs_entries(struct qlcnic_adapter *adapter)
  {
  	struct device *dev = &adapter->pdev->dev;
-@@ -1330,6 +1331,11 @@ void qlcnic_create_sysfs_entries(struct
+@@ -1332,6 +1333,11 @@ void qlcnic_create_sysfs_entries(struct
  void qlcnic_remove_sysfs_entries(struct qlcnic_adapter *adapter)
  {
  	struct device *dev = &adapter->pdev->dev;
