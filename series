@@ -1,5 +1,6 @@
 #
 
+usb-check-usb_get_extra_descriptor-for-proper-size.patch
 usb_DEVICE_ATTR.patch
 
 
