@@ -1,0 +1,68 @@
+From e82f2d8eab210dc7eb0dba2bd8e3c64ad485442b Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Wed, 30 May 2018 16:15:35 +0200
+Subject: [PATCH] arm64: no need to check return value of debugfs_create functions
+
+When calling debugfs functions, there is no need to ever check the
+return value.  The function can work or not, but the code logic should
+never do something different based on this.
+
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: Marc Zyngier <marc.zyngier@arm.com>
+Cc: Peng Donglin <dolinux.peng@gmail.com>
+Cc: <linux-arm-kernel@lists.infradead.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ arch/arm64/include/asm/ptdump.h |    9 +++------
+ arch/arm64/mm/dump.c            |    4 ++--
+ arch/arm64/mm/ptdump_debugfs.c  |    7 ++-----
+ 3 files changed, 7 insertions(+), 13 deletions(-)
+
+
+--- a/arch/arm64/include/asm/ptdump.h
++++ b/arch/arm64/include/asm/ptdump.h
+@@ -34,13 +34,10 @@ struct ptdump_info {
+ 
+ void ptdump_walk_pgd(struct seq_file *s, struct ptdump_info *info);
+ #ifdef CONFIG_ARM64_PTDUMP_DEBUGFS
+-int ptdump_debugfs_register(struct ptdump_info *info, const char *name);
++void ptdump_debugfs_register(struct ptdump_info *info, const char *name);
+ #else
+-static inline int ptdump_debugfs_register(struct ptdump_info *info,
+-					const char *name)
+-{
+-	return 0;
+-}
++static inline void ptdump_debugfs_register(struct ptdump_info *info,
++					   const char *name) { }
+ #endif
+ void ptdump_check_wx(void);
+ #endif /* CONFIG_ARM64_PTDUMP_CORE */
+--- a/arch/arm64/mm/dump.c
++++ b/arch/arm64/mm/dump.c
+@@ -407,7 +407,7 @@ void ptdump_check_wx(void)
+ static int ptdump_init(void)
+ {
+ 	ptdump_initialize();
+-	return ptdump_debugfs_register(&kernel_ptdump_info,
+-					"kernel_page_tables");
++	ptdump_debugfs_register(&kernel_ptdump_info, "kernel_page_tables");
++	return 0;
+ }
+ device_initcall(ptdump_init);
+--- a/arch/arm64/mm/ptdump_debugfs.c
++++ b/arch/arm64/mm/ptdump_debugfs.c
+@@ -12,10 +12,7 @@ static int ptdump_show(struct seq_file *
+ }
+ DEFINE_SHOW_ATTRIBUTE(ptdump);
+ 
+-int ptdump_debugfs_register(struct ptdump_info *info, const char *name)
++void ptdump_debugfs_register(struct ptdump_info *info, const char *name)
+ {
+-	struct dentry *pe;
+-	pe = debugfs_create_file(name, 0400, NULL, info, &ptdump_fops);
+-	return pe ? 0 : -ENOMEM;
+-
++	debugfs_create_file(name, 0400, NULL, info, &ptdump_fops);
+ }

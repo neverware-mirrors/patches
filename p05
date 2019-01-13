@@ -1,0 +1,113 @@
+From e82f2d8eab210dc7eb0dba2bd8e3c64ad485442b Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Wed, 30 May 2018 16:15:35 +0200
+Subject: [PATCH] s390: no need to check return value of debugfs_create functions
+
+When calling debugfs functions, there is no need to ever check the
+return value.  The function can work or not, but the code logic should
+never do something different based on this.
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ arch/s390/hypfs/hypfs_dbfs.c |    4 +---
+ arch/s390/include/asm/pci.h  |    1 -
+ arch/s390/kernel/debug.c     |    6 ------
+ arch/s390/kernel/kdebugfs.c  |    2 --
+ arch/s390/kernel/sysinfo.c   |    2 --
+ arch/s390/pci/pci_debug.c    |   13 +++----------
+ 6 files changed, 4 insertions(+), 24 deletions(-)
+
+--- a/arch/s390/hypfs/hypfs_dbfs.c
++++ b/arch/s390/hypfs/hypfs_dbfs.c
+@@ -82,8 +82,6 @@ int hypfs_dbfs_create_file(struct hypfs_
+ {
+ 	df->dentry = debugfs_create_file(df->name, 0400, dbfs_dir, df,
+ 					 &dbfs_ops);
+-	if (IS_ERR(df->dentry))
+-		return PTR_ERR(df->dentry);
+ 	mutex_init(&df->lock);
+ 	return 0;
+ }
+@@ -96,7 +94,7 @@ void hypfs_dbfs_remove_file(struct hypfs
+ int hypfs_dbfs_init(void)
+ {
+ 	dbfs_dir = debugfs_create_dir("s390_hypfs", NULL);
+-	return PTR_ERR_OR_ZERO(dbfs_dir);
++	return 0;
+ }
+ 
+ void hypfs_dbfs_exit(void)
+--- a/arch/s390/include/asm/pci.h
++++ b/arch/s390/include/asm/pci.h
+@@ -148,7 +148,6 @@ struct zpci_dev {
+ 	enum pci_bus_speed max_bus_speed;
+ 
+ 	struct dentry	*debugfs_dev;
+-	struct dentry	*debugfs_perf;
+ 
+ 	struct s390_domain *s390_domain; /* s390 IOMMU domain data */
+ };
+--- a/arch/s390/kernel/debug.c
++++ b/arch/s390/kernel/debug.c
+@@ -1056,12 +1056,6 @@ int debug_register_view(debug_info_t *id
+ 		mode &= ~(S_IWUSR | S_IWGRP | S_IWOTH);
+ 	pde = debugfs_create_file(view->name, mode, id->debugfs_root_entry,
+ 				  id, &debug_file_ops);
+-	if (!pde) {
+-		pr_err("Registering view %s/%s failed due to out of "
+-		       "memory\n", id->name, view->name);
+-		rc = -1;
+-		goto out;
+-	}
+ 	spin_lock_irqsave(&id->lock, flags);
+ 	for (i = 0; i < DEBUG_MAX_VIEWS; i++) {
+ 		if (!id->views[i])
+--- a/arch/s390/kernel/kdebugfs.c
++++ b/arch/s390/kernel/kdebugfs.c
+@@ -9,8 +9,6 @@ EXPORT_SYMBOL(arch_debugfs_dir);
+ static int __init arch_kdebugfs_init(void)
+ {
+ 	arch_debugfs_dir = debugfs_create_dir("s390", NULL);
+-	if (IS_ERR(arch_debugfs_dir))
+-		arch_debugfs_dir = NULL;
+ 	return 0;
+ }
+ postcore_initcall(arch_kdebugfs_init);
+--- a/arch/s390/kernel/sysinfo.c
++++ b/arch/s390/kernel/sysinfo.c
+@@ -545,8 +545,6 @@ static __init int stsi_init_debugfs(void
+ 	int lvl, i;
+ 
+ 	stsi_root = debugfs_create_dir("stsi", arch_debugfs_dir);
+-	if (IS_ERR_OR_NULL(stsi_root))
+-		return 0;
+ 	lvl = stsi(NULL, 0, 0, 0);
+ 	if (lvl > 0)
+ 		stsi_0_0_0 = lvl;
+--- a/arch/s390/pci/pci_debug.c
++++ b/arch/s390/pci/pci_debug.c
+@@ -172,21 +172,14 @@ static const struct file_operations debu
+ void zpci_debug_init_device(struct zpci_dev *zdev, const char *name)
+ {
+ 	zdev->debugfs_dev = debugfs_create_dir(name, debugfs_root);
+-	if (IS_ERR(zdev->debugfs_dev))
+-		zdev->debugfs_dev = NULL;
+ 
+-	zdev->debugfs_perf = debugfs_create_file("statistics",
+-				S_IFREG | S_IRUGO | S_IWUSR,
+-				zdev->debugfs_dev, zdev,
+-				&debugfs_pci_perf_fops);
+-	if (IS_ERR(zdev->debugfs_perf))
+-		zdev->debugfs_perf = NULL;
++	debugfs_create_file("statistics", S_IFREG | S_IRUGO | S_IWUSR,
++			    zdev->debugfs_dev, zdev, &debugfs_pci_perf_fops);
+ }
+ 
+ void zpci_debug_exit_device(struct zpci_dev *zdev)
+ {
+-	debugfs_remove(zdev->debugfs_perf);
+-	debugfs_remove(zdev->debugfs_dev);
++	debugfs_remove_recursive(zdev->debugfs_dev);
+ }
+ 
+ int __init zpci_debug_init(void)

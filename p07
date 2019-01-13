@@ -1,0 +1,146 @@
+From e82f2d8eab210dc7eb0dba2bd8e3c64ad485442b Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Wed, 30 May 2018 16:15:35 +0200
+Subject: [PATCH] x86: mce: no need to check return value of debugfs_create functions
+
+When calling debugfs functions, there is no need to ever check the
+return value.  The function can work or not, but the code logic should
+never do something different based on this.
+
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: <x86@kernel.org>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: Vishal Verma <vishal.l.verma@intel.com>
+Cc: Pu Wen <puwen@hygon.cn>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ arch/x86/kernel/cpu/mce/core.c     |   15 ++++-----------
+ arch/x86/kernel/cpu/mce/inject.c   |   34 +++++-----------------------------
+ arch/x86/kernel/cpu/mce/severity.c |   14 +++-----------
+ 3 files changed, 12 insertions(+), 51 deletions(-)
+
+--- a/arch/x86/kernel/cpu/mce/core.c
++++ b/arch/x86/kernel/cpu/mce/core.c
+@@ -2457,22 +2457,15 @@ static int fake_panic_set(void *data, u6
+ DEFINE_SIMPLE_ATTRIBUTE(fake_panic_fops, fake_panic_get,
+ 			fake_panic_set, "%llu\n");
+ 
+-static int __init mcheck_debugfs_init(void)
++static void __init mcheck_debugfs_init(void)
+ {
+-	struct dentry *dmce, *ffake_panic;
++	struct dentry *dmce;
+ 
+ 	dmce = mce_get_debugfs_dir();
+-	if (!dmce)
+-		return -ENOMEM;
+-	ffake_panic = debugfs_create_file("fake_panic", 0444, dmce, NULL,
+-					  &fake_panic_fops);
+-	if (!ffake_panic)
+-		return -ENOMEM;
+-
+-	return 0;
++	debugfs_create_file("fake_panic", 0444, dmce, NULL, &fake_panic_fops);
+ }
+ #else
+-static int __init mcheck_debugfs_init(void) { return -EINVAL; }
++static void __init mcheck_debugfs_init(void) { }
+ #endif
+ 
+ DEFINE_STATIC_KEY_FALSE(mcsafe_key);
+--- a/arch/x86/kernel/cpu/mce/inject.c
++++ b/arch/x86/kernel/cpu/mce/inject.c
+@@ -648,7 +648,6 @@ static const struct file_operations read
+ 
+ static struct dfs_node {
+ 	char *name;
+-	struct dentry *d;
+ 	const struct file_operations *fops;
+ 	umode_t perm;
+ } dfs_fls[] = {
+@@ -662,7 +661,7 @@ static struct dfs_node {
+ 	{ .name = "README",	.fops = &readme_fops, .perm = S_IRUSR | S_IRGRP | S_IROTH },
+ };
+ 
+-static int __init debugfs_init(void)
++static void __init debugfs_init(void)
+ {
+ 	unsigned int i;
+ 	u64 cap;
+@@ -671,30 +670,11 @@ static int __init debugfs_init(void)
+ 	n_banks = cap & MCG_BANKCNT_MASK;
+ 
+ 	dfs_inj = debugfs_create_dir("mce-inject", NULL);
+-	if (!dfs_inj)
+-		return -EINVAL;
+ 
+-	for (i = 0; i < ARRAY_SIZE(dfs_fls); i++) {
+-		dfs_fls[i].d = debugfs_create_file(dfs_fls[i].name,
+-						    dfs_fls[i].perm,
+-						    dfs_inj,
+-						    &i_mce,
+-						    dfs_fls[i].fops);
+-
+-		if (!dfs_fls[i].d)
+-			goto err_dfs_add;
+-	}
+-
+-	return 0;
+-
+-err_dfs_add:
+-	while (i-- > 0)
+-		debugfs_remove(dfs_fls[i].d);
++	for (i = 0; i < ARRAY_SIZE(dfs_fls); i++)
++		debugfs_create_file(dfs_fls[i].name, dfs_fls[i].perm, dfs_inj,
++				    &i_mce, dfs_fls[i].fops);
+ 
+-	debugfs_remove(dfs_inj);
+-	dfs_inj = NULL;
+-
+-	return -ENODEV;
+ }
+ 
+ static int __init inject_init(void)
+@@ -704,11 +684,7 @@ static int __init inject_init(void)
+ 	if (!alloc_cpumask_var(&mce_inject_cpumask, GFP_KERNEL))
+ 		return -ENOMEM;
+ 
+-	err = debugfs_init();
+-	if (err) {
+-		free_cpumask_var(mce_inject_cpumask);
+-		return err;
+-	}
++	debugfs_init();
+ 
+ 	register_nmi_handler(NMI_LOCAL, mce_raise_notify, 0, "mce_notify");
+ 	mce_register_injector_chain(&inject_nb);
+--- a/arch/x86/kernel/cpu/mce/severity.c
++++ b/arch/x86/kernel/cpu/mce/severity.c
+@@ -399,21 +399,13 @@ static const struct file_operations seve
+ 
+ static int __init severities_debugfs_init(void)
+ {
+-	struct dentry *dmce, *fsev;
++	struct dentry *dmce;
+ 
+ 	dmce = mce_get_debugfs_dir();
+-	if (!dmce)
+-		goto err_out;
+-
+-	fsev = debugfs_create_file("severities-coverage", 0444, dmce, NULL,
+-				   &severities_coverage_fops);
+-	if (!fsev)
+-		goto err_out;
+ 
++	debugfs_create_file("severities-coverage", 0444, dmce, NULL,
++			    &severities_coverage_fops);
+ 	return 0;
+-
+-err_out:
+-	return -ENOMEM;
+ }
+ late_initcall(severities_debugfs_init);
+ #endif /* CONFIG_DEBUG_FS */

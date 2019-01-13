@@ -1,0 +1,60 @@
+From 6d85d9b7aad36ba344f1d4ba950ffee4f25016d0 Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Fri, 4 Jan 2019 10:58:12 +0100
+Subject: [PATCH 2/3] Bluetooth: check the buffer size for some messages before
+ parsing
+
+The L2CAP_CONF_EFS and L2CAP_CONF_RFC messages can be sent from
+userspace so their structure sizes need to be checked before parsing
+them.
+
+Based on a patch from Ran Menscher.
+
+Reported-by: Ran Menscher <ran.menscher@karambasecurity.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ net/bluetooth/l2cap_core.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
+
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -3361,7 +3361,8 @@ static int l2cap_parse_conf_req(struct l
+ 			break;
+ 
+ 		case L2CAP_CONF_RFC:
+-			if (olen == sizeof(rfc))
++			if ((olen == sizeof(rfc)) &&
++			    (endptr - ptr >= L2CAP_CONF_OPT_SIZE + sizeof(rfc)))
+ 				memcpy(&rfc, (void *) val, olen);
+ 			break;
+ 
+@@ -3371,7 +3372,8 @@ static int l2cap_parse_conf_req(struct l
+ 			break;
+ 
+ 		case L2CAP_CONF_EFS:
+-			if (olen == sizeof(efs)) {
++			if ((olen == sizeof(efs)) &&
++			    (endptr - ptr >= L2CAP_CONF_OPT_SIZE + sizeof(efs))) {
+ 				remote_efs = 1;
+ 				memcpy(&efs, (void *) val, olen);
+ 			}
+@@ -3576,7 +3578,8 @@ static int l2cap_parse_conf_rsp(struct l
+ 			break;
+ 
+ 		case L2CAP_CONF_RFC:
+-			if (olen == sizeof(rfc))
++			if ((olen == sizeof(rfc)) &&
++			    (endptr - ptr >= L2CAP_CONF_OPT_SIZE + sizeof(rfc)))
+ 				memcpy(&rfc, (void *)val, olen);
+ 
+ 			if (test_bit(CONF_STATE2_DEVICE, &chan->conf_state) &&
+@@ -3596,7 +3599,8 @@ static int l2cap_parse_conf_rsp(struct l
+ 			break;
+ 
+ 		case L2CAP_CONF_EFS:
+-			if (olen == sizeof(efs)) {
++			if ((olen == sizeof(efs)) &&
++			    (endptr - ptr >= L2CAP_CONF_OPT_SIZE + sizeof(efs))) {
+ 				memcpy(&efs, (void *)val, olen);
+ 
+ 				if (chan->local_stype != L2CAP_SERV_NOTRAFIC &&

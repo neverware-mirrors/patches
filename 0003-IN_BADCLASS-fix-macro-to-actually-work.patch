@@ -1,0 +1,32 @@
+From 96df48c8dd927cb3628d0364a5371ca7f5812c02 Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Thu, 10 Jan 2019 21:19:44 +0100
+Subject: [PATCH 3/3] IN_BADCLASS: fix macro to actually work
+
+Commit 65cab850f0ee ("net: Allow class-e address assignment via ifconfig
+ioctl") modified the IN_BADCLASS macro a bit, but unfortunatly one too
+many '(' characters were added to the line, making any code that used
+it, not build properly.
+
+Also, the macro now compares an unsigned with a signed value, which
+isn't ok, so fix that up by making both types match properly.
+
+Reported-by: Christopher Ferris <cferris@google.com>
+Fixes: 65cab850f0ee ("net: Allow class-e address assignment via ifconfig ioctl")
+Cc: Dave Taht <dave.taht@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ include/uapi/linux/in.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/include/uapi/linux/in.h
++++ b/include/uapi/linux/in.h
+@@ -268,7 +268,7 @@ struct sockaddr_in {
+ #define	IN_MULTICAST(a)		IN_CLASSD(a)
+ #define	IN_MULTICAST_NET	0xe0000000
+ 
+-#define	IN_BADCLASS(a)		((((long int) (a) ) == 0xffffffff)
++#define	IN_BADCLASS(a)		(((long int) (a) ) == (long int)0xffffffff)
+ #define	IN_EXPERIMENTAL(a)	IN_BADCLASS((a))
+ 
+ #define	IN_CLASSE(a)		((((long int) (a)) & 0xf0000000) == 0xf0000000)

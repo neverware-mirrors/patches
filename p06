@@ -1,0 +1,125 @@
+From e82f2d8eab210dc7eb0dba2bd8e3c64ad485442b Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Wed, 30 May 2018 16:15:35 +0200
+Subject: [PATCH] sh: no need to check return value of debugfs_create functions
+
+When calling debugfs functions, there is no need to ever check the
+return value.  The function can work or not, but the code logic should
+never do something different based on this.
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ arch/sh/kernel/kdebugfs.c  |    3 ---
+ arch/sh/mm/asids-debugfs.c |   11 +++--------
+ arch/sh/mm/cache-debugfs.c |   20 ++++----------------
+ arch/sh/mm/pmb.c           |    9 ++-------
+ arch/sh/mm/tlb-debugfs.c   |   20 ++++----------------
+ 5 files changed, 13 insertions(+), 50 deletions(-)
+
+--- a/arch/sh/kernel/kdebugfs.c
++++ b/arch/sh/kernel/kdebugfs.c
+@@ -9,9 +9,6 @@ EXPORT_SYMBOL(arch_debugfs_dir);
+ static int __init arch_kdebugfs_init(void)
+ {
+ 	arch_debugfs_dir = debugfs_create_dir("sh", NULL);
+-	if (!arch_debugfs_dir)
+-		return -ENOMEM;
+-
+ 	return 0;
+ }
+ arch_initcall(arch_kdebugfs_init);
+--- a/arch/sh/mm/asids-debugfs.c
++++ b/arch/sh/mm/asids-debugfs.c
+@@ -63,13 +63,8 @@ static const struct file_operations asid
+ 
+ static int __init asids_debugfs_init(void)
+ {
+-	struct dentry *asids_dentry;
+-
+-	asids_dentry = debugfs_create_file("asids", S_IRUSR, arch_debugfs_dir,
+-					   NULL, &asids_debugfs_fops);
+-	if (!asids_dentry)
+-		return -ENOMEM;
+-
+-	return PTR_ERR_OR_ZERO(asids_dentry);
++	debugfs_create_file("asids", S_IRUSR, arch_debugfs_dir, NULL,
++			    &asids_debugfs_fops);
++	return 0;
+ }
+ device_initcall(asids_debugfs_init);
+--- a/arch/sh/mm/cache-debugfs.c
++++ b/arch/sh/mm/cache-debugfs.c
+@@ -109,22 +109,10 @@ static const struct file_operations cach
+ 
+ static int __init cache_debugfs_init(void)
+ {
+-	struct dentry *dcache_dentry, *icache_dentry;
+-
+-	dcache_dentry = debugfs_create_file("dcache", S_IRUSR, arch_debugfs_dir,
+-					    (unsigned int *)CACHE_TYPE_DCACHE,
+-					    &cache_debugfs_fops);
+-	if (!dcache_dentry)
+-		return -ENOMEM;
+-
+-	icache_dentry = debugfs_create_file("icache", S_IRUSR, arch_debugfs_dir,
+-					    (unsigned int *)CACHE_TYPE_ICACHE,
+-					    &cache_debugfs_fops);
+-	if (!icache_dentry) {
+-		debugfs_remove(dcache_dentry);
+-		return -ENOMEM;
+-	}
+-
++	debugfs_create_file("dcache", S_IRUSR, arch_debugfs_dir,
++			    (void *)CACHE_TYPE_DCACHE, &cache_debugfs_fops);
++	debugfs_create_file("icache", S_IRUSR, arch_debugfs_dir,
++			    (void *)CACHE_TYPE_ICACHE, &cache_debugfs_fops);
+ 	return 0;
+ }
+ module_init(cache_debugfs_init);
+--- a/arch/sh/mm/pmb.c
++++ b/arch/sh/mm/pmb.c
+@@ -861,13 +861,8 @@ static const struct file_operations pmb_
+ 
+ static int __init pmb_debugfs_init(void)
+ {
+-	struct dentry *dentry;
+-
+-	dentry = debugfs_create_file("pmb", S_IFREG | S_IRUGO,
+-				     arch_debugfs_dir, NULL, &pmb_debugfs_fops);
+-	if (!dentry)
+-		return -ENOMEM;
+-
++	debugfs_create_file("pmb", S_IFREG | S_IRUGO, arch_debugfs_dir, NULL,
++			    &pmb_debugfs_fops);
+ 	return 0;
+ }
+ subsys_initcall(pmb_debugfs_init);
+--- a/arch/sh/mm/tlb-debugfs.c
++++ b/arch/sh/mm/tlb-debugfs.c
+@@ -149,22 +149,10 @@ static const struct file_operations tlb_
+ 
+ static int __init tlb_debugfs_init(void)
+ {
+-	struct dentry *itlb, *utlb;
+-
+-	itlb = debugfs_create_file("itlb", S_IRUSR, arch_debugfs_dir,
+-				   (unsigned int *)TLB_TYPE_ITLB,
+-				   &tlb_debugfs_fops);
+-	if (unlikely(!itlb))
+-		return -ENOMEM;
+-
+-	utlb = debugfs_create_file("utlb", S_IRUSR, arch_debugfs_dir,
+-				   (unsigned int *)TLB_TYPE_UTLB,
+-				   &tlb_debugfs_fops);
+-	if (unlikely(!utlb)) {
+-		debugfs_remove(itlb);
+-		return -ENOMEM;
+-	}
+-
++	debugfs_create_file("itlb", S_IRUSR, arch_debugfs_dir,
++			    (void *)TLB_TYPE_ITLB, &tlb_debugfs_fops);
++	debugfs_create_file("utlb", S_IRUSR, arch_debugfs_dir,
++			    (void *)TLB_TYPE_UTLB, &tlb_debugfs_fops);
+ 	return 0;
+ }
+ module_init(tlb_debugfs_init);

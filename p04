@@ -1,0 +1,598 @@
+From e82f2d8eab210dc7eb0dba2bd8e3c64ad485442b Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Wed, 30 May 2018 16:15:35 +0200
+Subject: [PATCH] powerpc: no need to check return value of debugfs_create functions
+
+When calling debugfs functions, there is no need to ever check the
+return value.  The function can work or not, but the code logic should
+never do something different based on this.
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ arch/powerpc/include/asm/kvm_host.h          |    3 --
+ arch/powerpc/kernel/fadump.c                 |    9 +-----
+ arch/powerpc/kernel/setup-common.c           |    3 --
+ arch/powerpc/kernel/traps.c                  |   27 ++++---------------
+ arch/powerpc/kvm/book3s_64_mmu_hv.c          |    5 +--
+ arch/powerpc/kvm/book3s_64_mmu_radix.c       |    5 +--
+ arch/powerpc/kvm/book3s_hv.c                 |    9 +-----
+ arch/powerpc/kvm/timing.c                    |   11 +-------
+ arch/powerpc/mm/dump_hashpagetable.c         |    7 +----
+ arch/powerpc/mm/dump_linuxpagetables.c       |    8 ++---
+ arch/powerpc/mm/hash_utils_64.c              |    7 +----
+ arch/powerpc/platforms/4xx/ocm.c             |   14 +---------
+ arch/powerpc/platforms/cell/axon_msi.c       |    6 ----
+ arch/powerpc/platforms/powernv/memtrace.c    |    7 -----
+ arch/powerpc/platforms/powernv/opal-imc.c    |   28 +++++---------------
+ arch/powerpc/platforms/powernv/pci-ioda.c    |    5 ---
+ arch/powerpc/platforms/powernv/vas-debug.c   |   37 ++-------------------------
+ arch/powerpc/platforms/pseries/dtl.c         |   36 +++-----------------------
+ arch/powerpc/platforms/pseries/hvCall_inst.c |   12 ++------
+ arch/powerpc/sysdev/scom.c                   |    8 -----
+ 20 files changed, 45 insertions(+), 202 deletions(-)
+
+--- a/arch/powerpc/include/asm/kvm_host.h
++++ b/arch/powerpc/include/asm/kvm_host.h
+@@ -293,8 +293,6 @@ struct kvm_arch {
+ 	pgd_t *pgtable;
+ 	u64 process_table;
+ 	struct dentry *debugfs_dir;
+-	struct dentry *htab_dentry;
+-	struct dentry *radix_dentry;
+ 	struct kvm_resize_hpt *resize_hpt; /* protected by kvm->lock */
+ #endif /* CONFIG_KVM_BOOK3S_HV_POSSIBLE */
+ #ifdef CONFIG_KVM_BOOK3S_PR_POSSIBLE
+@@ -806,7 +804,6 @@ struct kvm_vcpu_arch {
+ 	struct kvmhv_tb_accumulator cede_time;	/* time napping inside guest */
+ 
+ 	struct dentry *debugfs_dir;
+-	struct dentry *debugfs_timings;
+ #endif /* CONFIG_KVM_BOOK3S_HV_EXIT_TIMING */
+ };
+ 
+--- a/arch/powerpc/kernel/fadump.c
++++ b/arch/powerpc/kernel/fadump.c
+@@ -1649,7 +1649,6 @@ DEFINE_SHOW_ATTRIBUTE(fadump_region);
+ 
+ static void fadump_init_files(void)
+ {
+-	struct dentry *debugfs_file;
+ 	int rc = 0;
+ 
+ 	rc = sysfs_create_file(kernel_kobj, &fadump_attr.attr);
+@@ -1662,12 +1661,8 @@ static void fadump_init_files(void)
+ 		printk(KERN_ERR "fadump: unable to create sysfs file"
+ 			" fadump_registered (%d)\n", rc);
+ 
+-	debugfs_file = debugfs_create_file("fadump_region", 0444,
+-					powerpc_debugfs_root, NULL,
+-					&fadump_region_fops);
+-	if (!debugfs_file)
+-		printk(KERN_ERR "fadump: unable to create debugfs file"
+-				" fadump_region\n");
++	debugfs_create_file("fadump_region", 0444, powerpc_debugfs_root, NULL,
++			    &fadump_region_fops);
+ 
+ 	if (fw_dump.dump_active) {
+ 		rc = sysfs_create_file(kernel_kobj, &fadump_release_attr.attr);
+--- a/arch/powerpc/kernel/setup-common.c
++++ b/arch/powerpc/kernel/setup-common.c
+@@ -776,8 +776,7 @@ EXPORT_SYMBOL(powerpc_debugfs_root);
+ static int powerpc_debugfs_init(void)
+ {
+ 	powerpc_debugfs_root = debugfs_create_dir("powerpc", NULL);
+-
+-	return powerpc_debugfs_root == NULL;
++	return 0;
+ }
+ arch_initcall(powerpc_debugfs_init);
+ #endif
+--- a/arch/powerpc/kernel/traps.c
++++ b/arch/powerpc/kernel/traps.c
+@@ -2173,35 +2173,20 @@ void ppc_warn_emulated_print(const char
+ 
+ static int __init ppc_warn_emulated_init(void)
+ {
+-	struct dentry *dir, *d;
++	struct dentry *dir;
+ 	unsigned int i;
+ 	struct ppc_emulated_entry *entries = (void *)&ppc_emulated;
+ 
+-	if (!powerpc_debugfs_root)
+-		return -ENODEV;
+-
+ 	dir = debugfs_create_dir("emulated_instructions",
+ 				 powerpc_debugfs_root);
+-	if (!dir)
+-		return -ENOMEM;
+ 
+-	d = debugfs_create_u32("do_warn", 0644, dir,
+-			       &ppc_warn_emulated);
+-	if (!d)
+-		goto fail;
+-
+-	for (i = 0; i < sizeof(ppc_emulated)/sizeof(*entries); i++) {
+-		d = debugfs_create_u32(entries[i].name, 0644, dir,
+-				       (u32 *)&entries[i].val.counter);
+-		if (!d)
+-			goto fail;
+-	}
++	debugfs_create_u32("do_warn", 0644, dir, &ppc_warn_emulated);
+ 
+-	return 0;
++	for (i = 0; i < sizeof(ppc_emulated)/sizeof(*entries); i++)
++		debugfs_create_u32(entries[i].name, 0644, dir,
++				   (u32 *)&entries[i].val.counter);
+ 
+-fail:
+-	debugfs_remove_recursive(dir);
+-	return -ENOMEM;
++	return 0;
+ }
+ 
+ device_initcall(ppc_warn_emulated_init);
+--- a/arch/powerpc/kvm/book3s_64_mmu_hv.c
++++ b/arch/powerpc/kvm/book3s_64_mmu_hv.c
+@@ -2142,9 +2142,8 @@ static const struct file_operations debu
+ 
+ void kvmppc_mmu_debugfs_init(struct kvm *kvm)
+ {
+-	kvm->arch.htab_dentry = debugfs_create_file("htab", 0400,
+-						    kvm->arch.debugfs_dir, kvm,
+-						    &debugfs_htab_fops);
++	debugfs_create_file("htab", 0400, kvm->arch.debugfs_dir, kvm,
++			    &debugfs_htab_fops);
+ }
+ 
+ void kvmppc_mmu_book3s_hv_init(struct kvm_vcpu *vcpu)
+--- a/arch/powerpc/kvm/book3s_64_mmu_radix.c
++++ b/arch/powerpc/kvm/book3s_64_mmu_radix.c
+@@ -1348,9 +1348,8 @@ static const struct file_operations debu
+ 
+ void kvmhv_radix_debugfs_init(struct kvm *kvm)
+ {
+-	kvm->arch.radix_dentry = debugfs_create_file("radix", 0400,
+-						     kvm->arch.debugfs_dir, kvm,
+-						     &debugfs_radix_fops);
++	debugfs_create_file("radix", 0400, kvm->arch.debugfs_dir, kvm,
++			    &debugfs_radix_fops);
+ }
+ 
+ int kvmppc_radix_init(void)
+--- a/arch/powerpc/kvm/book3s_hv.c
++++ b/arch/powerpc/kvm/book3s_hv.c
+@@ -2144,14 +2144,9 @@ static void debugfs_vcpu_init(struct kvm
+ 	struct kvm *kvm = vcpu->kvm;
+ 
+ 	snprintf(buf, sizeof(buf), "vcpu%u", id);
+-	if (IS_ERR_OR_NULL(kvm->arch.debugfs_dir))
+-		return;
+ 	vcpu->arch.debugfs_dir = debugfs_create_dir(buf, kvm->arch.debugfs_dir);
+-	if (IS_ERR_OR_NULL(vcpu->arch.debugfs_dir))
+-		return;
+-	vcpu->arch.debugfs_timings =
+-		debugfs_create_file("timings", 0444, vcpu->arch.debugfs_dir,
+-				    vcpu, &debugfs_timings_ops);
++	debugfs_create_file("timings", 0444, vcpu->arch.debugfs_dir, vcpu,
++			    &debugfs_timings_ops);
+ }
+ 
+ #else /* CONFIG_KVM_BOOK3S_HV_EXIT_TIMING */
+--- a/arch/powerpc/kvm/timing.c
++++ b/arch/powerpc/kvm/timing.c
+@@ -218,19 +218,12 @@ static const struct file_operations kvmp
+ void kvmppc_create_vcpu_debugfs(struct kvm_vcpu *vcpu, unsigned int id)
+ {
+ 	static char dbg_fname[50];
+-	struct dentry *debugfs_file;
+ 
+ 	snprintf(dbg_fname, sizeof(dbg_fname), "vm%u_vcpu%u_timing",
+ 		 current->pid, id);
+-	debugfs_file = debugfs_create_file(dbg_fname, 0666,
+-					kvm_debugfs_dir, vcpu,
+-					&kvmppc_exit_timing_fops);
++	debugfs_create_file(dbg_fname, 0666, kvm_debugfs_dir, vcpu,
++			    &kvmppc_exit_timing_fops);
+ 
+-	if (!debugfs_file) {
+-		printk(KERN_ERR"%s: error creating debugfs file %s\n",
+-			__func__, dbg_fname);
+-		return;
+-	}
+ 
+ 	vcpu->arch.debugfs_exit_timing = debugfs_file;
+ }
+--- a/arch/powerpc/mm/dump_hashpagetable.c
++++ b/arch/powerpc/mm/dump_hashpagetable.c
+@@ -537,13 +537,10 @@ static const struct file_operations ptdu
+ 
+ static int ptdump_init(void)
+ {
+-	struct dentry *debugfs_file;
+-
+ 	if (!radix_enabled()) {
+ 		populate_markers();
+-		debugfs_file = debugfs_create_file("kernel_hash_pagetable",
+-				0400, NULL, NULL, &ptdump_fops);
+-		return debugfs_file ? 0 : -ENOMEM;
++		debugfs_create_file("kernel_hash_pagetable", 0400, NULL, NULL,
++				    &ptdump_fops);
+ 	}
+ 	return 0;
+ }
+--- a/arch/powerpc/mm/dump_linuxpagetables.c
++++ b/arch/powerpc/mm/dump_linuxpagetables.c
+@@ -362,12 +362,10 @@ static void build_pgtable_complete_mask(
+ 
+ static int ptdump_init(void)
+ {
+-	struct dentry *debugfs_file;
+-
+ 	populate_markers();
+ 	build_pgtable_complete_mask();
+-	debugfs_file = debugfs_create_file("kernel_page_tables", 0400, NULL,
+-			NULL, &ptdump_fops);
+-	return debugfs_file ? 0 : -ENOMEM;
++	debugfs_create_file("kernel_page_tables", 0400, NULL, NULL,
++			    &ptdump_fops);
++	return 0;
+ }
+ device_initcall(ptdump_init);
+--- a/arch/powerpc/mm/hash_utils_64.c
++++ b/arch/powerpc/mm/hash_utils_64.c
+@@ -1893,11 +1893,8 @@ DEFINE_SIMPLE_ATTRIBUTE(fops_hpt_order,
+ 
+ static int __init hash64_debugfs(void)
+ {
+-	if (!debugfs_create_file("hpt_order", 0600, powerpc_debugfs_root,
+-				 NULL, &fops_hpt_order)) {
+-		pr_err("lpar: unable to create hpt_order debugsfs file\n");
+-	}
+-
++	debugfs_create_file("hpt_order", 0600, powerpc_debugfs_root, NULL,
++			    &fops_hpt_order);
+ 	return 0;
+ }
+ machine_device_initcall(pseries, hash64_debugfs);
+--- a/arch/powerpc/platforms/4xx/ocm.c
++++ b/arch/powerpc/platforms/4xx/ocm.c
+@@ -280,22 +280,12 @@ static const struct file_operations ocm_
+ 	.release = single_release,
+ };
+ 
+-static int ocm_debugfs_init(void)
++static void ocm_debugfs_init(void)
+ {
+ 	struct dentry *junk;
+ 
+ 	junk = debugfs_create_dir("ppc4xx_ocm", 0);
+-	if (!junk) {
+-		printk(KERN_ALERT "debugfs ppc4xx ocm: failed to create dir\n");
+-		return -1;
+-	}
+-
+-	if (debugfs_create_file("info", 0644, junk, NULL, &ocm_debugfs_fops)) {
+-		printk(KERN_ALERT "debugfs ppc4xx ocm: failed to create file\n");
+-		return -1;
+-	}
+-
+-	return 0;
++	debugfs_create_file("info", 0644, junk, NULL, &ocm_debugfs_fops);
+ }
+ 
+ void *ppc4xx_ocm_alloc(phys_addr_t *phys, int size, int align,
+--- a/arch/powerpc/platforms/cell/axon_msi.c
++++ b/arch/powerpc/platforms/cell/axon_msi.c
+@@ -484,10 +484,6 @@ void axon_msi_debug_setup(struct device_
+ 
+ 	snprintf(name, sizeof(name), "msic_%d", of_node_to_nid(dn));
+ 
+-	if (!debugfs_create_file(name, 0600, powerpc_debugfs_root,
+-				 msic, &fops_msic)) {
+-		pr_devel("axon_msi: debugfs_create_file failed!\n");
+-		return;
+-	}
++	debugfs_create_file(name, 0600, powerpc_debugfs_root, msic, &fops_msic);
+ }
+ #endif /* DEBUG */
+--- a/arch/powerpc/platforms/powernv/memtrace.c
++++ b/arch/powerpc/platforms/powernv/memtrace.c
+@@ -190,11 +190,6 @@ static int memtrace_init_debugfs(void)
+ 
+ 		snprintf(ent->name, 16, "%08x", ent->nid);
+ 		dir = debugfs_create_dir(ent->name, memtrace_debugfs_dir);
+-		if (!dir) {
+-			pr_err("Failed to create debugfs directory for node %d\n",
+-				ent->nid);
+-			return -1;
+-		}
+ 
+ 		ent->dir = dir;
+ 		debugfs_create_file("trace", 0400, dir, ent, &memtrace_fops);
+@@ -318,8 +313,6 @@ static int memtrace_init(void)
+ {
+ 	memtrace_debugfs_dir = debugfs_create_dir("memtrace",
+ 						  powerpc_debugfs_root);
+-	if (!memtrace_debugfs_dir)
+-		return -1;
+ 
+ 	debugfs_create_file("enable", 0600, memtrace_debugfs_dir,
+ 			    NULL, &memtrace_init_fops);
+--- a/arch/powerpc/platforms/powernv/opal-imc.c
++++ b/arch/powerpc/platforms/powernv/opal-imc.c
+@@ -39,11 +39,10 @@ static int imc_mem_set(void *data, u64 v
+ }
+ DEFINE_DEBUGFS_ATTRIBUTE(fops_imc_x64, imc_mem_get, imc_mem_set, "0x%016llx\n");
+ 
+-static struct dentry *imc_debugfs_create_x64(const char *name, umode_t mode,
+-					     struct dentry *parent, u64  *value)
++static void imc_debugfs_create_x64(const char *name, umode_t mode,
++				   struct dentry *parent, u64  *value)
+ {
+-	return debugfs_create_file_unsafe(name, mode, parent,
+-					  value, &fops_imc_x64);
++	debugfs_create_file_unsafe(name, mode, parent, value, &fops_imc_x64);
+ }
+ 
+ /*
+@@ -63,13 +62,6 @@ static void export_imc_mode_and_cmd(stru
+ 
+ 	imc_debugfs_parent = debugfs_create_dir("imc", powerpc_debugfs_root);
+ 
+-	/*
+-	 * Return here, either because 'imc' directory already exists,
+-	 * Or failed to create a new one.
+-	 */
+-	if (!imc_debugfs_parent)
+-		return;
+-
+ 	if (of_property_read_u32(node, "cb_offset", &cb_offset))
+ 		cb_offset = IMC_CNTL_BLK_OFFSET;
+ 
+@@ -77,21 +69,15 @@ static void export_imc_mode_and_cmd(stru
+ 		loc = (u64)(pmu_ptr->mem_info[chip].vbase) + cb_offset;
+ 		imc_mode_addr = (u64 *)(loc + IMC_CNTL_BLK_MODE_OFFSET);
+ 		sprintf(mode, "imc_mode_%d", nid);
+-		if (!imc_debugfs_create_x64(mode, 0600, imc_debugfs_parent,
+-					    imc_mode_addr))
+-			goto err;
++		imc_debugfs_create_x64(mode, 0600, imc_debugfs_parent,
++				       imc_mode_addr);
+ 
+ 		imc_cmd_addr = (u64 *)(loc + IMC_CNTL_BLK_CMD_OFFSET);
+ 		sprintf(cmd, "imc_cmd_%d", nid);
+-		if (!imc_debugfs_create_x64(cmd, 0600, imc_debugfs_parent,
+-					    imc_cmd_addr))
+-			goto err;
++		imc_debugfs_create_x64(cmd, 0600, imc_debugfs_parent,
++				       imc_cmd_addr);
+ 		chip++;
+ 	}
+-	return;
+-
+-err:
+-	debugfs_remove_recursive(imc_debugfs_parent);
+ }
+ 
+ /*
+--- a/arch/powerpc/platforms/powernv/pci-ioda.c
++++ b/arch/powerpc/platforms/powernv/pci-ioda.c
+@@ -3167,11 +3167,6 @@ static void pnv_pci_ioda_create_dbgfs(vo
+ 
+ 		sprintf(name, "PCI%04x", hose->global_number);
+ 		phb->dbgfs = debugfs_create_dir(name, powerpc_debugfs_root);
+-		if (!phb->dbgfs) {
+-			pr_warn("%s: Error on creating debugfs on PHB#%x\n",
+-				__func__, hose->global_number);
+-			continue;
+-		}
+ 
+ 		debugfs_create_file("dump_diag_regs", 0200, phb->dbgfs, hose,
+ 				    &pnv_pci_diag_data_fops);
+--- a/arch/powerpc/platforms/powernv/vas-debug.c
++++ b/arch/powerpc/platforms/powernv/vas-debug.c
+@@ -119,7 +119,7 @@ void vas_window_free_dbgdir(struct vas_w
+ 
+ void vas_window_init_dbgdir(struct vas_window *window)
+ {
+-	struct dentry *f, *d;
++	struct dentry *d;
+ 
+ 	if (!window->vinst->dbgdir)
+ 		return;
+@@ -131,28 +131,10 @@ void vas_window_init_dbgdir(struct vas_w
+ 	snprintf(window->dbgname, 16, "w%d", window->winid);
+ 
+ 	d = debugfs_create_dir(window->dbgname, window->vinst->dbgdir);
+-	if (IS_ERR(d))
+-		goto free_name;
+-
+ 	window->dbgdir = d;
+ 
+-	f = debugfs_create_file("info", 0444, d, window, &info_fops);
+-	if (IS_ERR(f))
+-		goto remove_dir;
+-
+-	f = debugfs_create_file("hvwc", 0444, d, window, &hvwc_fops);
+-	if (IS_ERR(f))
+-		goto remove_dir;
+-
+-	return;
+-
+-remove_dir:
+-	debugfs_remove_recursive(window->dbgdir);
+-	window->dbgdir = NULL;
+-
+-free_name:
+-	kfree(window->dbgname);
+-	window->dbgname = NULL;
++	debugfs_create_file("info", 0444, d, window, &info_fops);
++	debugfs_create_file("hvwc", 0444, d, window, &hvwc_fops);
+ }
+ 
+ void vas_instance_init_dbgdir(struct vas_instance *vinst)
+@@ -160,8 +142,6 @@ void vas_instance_init_dbgdir(struct vas
+ 	struct dentry *d;
+ 
+ 	vas_init_dbgdir();
+-	if (!vas_debugfs)
+-		return;
+ 
+ 	vinst->dbgname = kzalloc(16, GFP_KERNEL);
+ 	if (!vinst->dbgname)
+@@ -170,16 +150,7 @@ void vas_instance_init_dbgdir(struct vas
+ 	snprintf(vinst->dbgname, 16, "v%d", vinst->vas_id);
+ 
+ 	d = debugfs_create_dir(vinst->dbgname, vas_debugfs);
+-	if (IS_ERR(d))
+-		goto free_name;
+-
+ 	vinst->dbgdir = d;
+-	return;
+-
+-free_name:
+-	kfree(vinst->dbgname);
+-	vinst->dbgname = NULL;
+-	vinst->dbgdir = NULL;
+ }
+ 
+ /*
+@@ -195,6 +166,4 @@ void vas_init_dbgdir(void)
+ 
+ 	first_time = false;
+ 	vas_debugfs = debugfs_create_dir("vas", NULL);
+-	if (IS_ERR(vas_debugfs))
+-		vas_debugfs = NULL;
+ }
+--- a/arch/powerpc/platforms/pseries/dtl.c
++++ b/arch/powerpc/platforms/pseries/dtl.c
+@@ -32,7 +32,6 @@
+ 
+ struct dtl {
+ 	struct dtl_entry	*buf;
+-	struct dentry		*file;
+ 	int			cpu;
+ 	int			buf_entries;
+ 	u64			last_idx;
+@@ -332,22 +331,16 @@ static const struct file_operations dtl_
+ 
+ static struct dentry *dtl_dir;
+ 
+-static int dtl_setup_file(struct dtl *dtl)
++static void dtl_setup_file(struct dtl *dtl)
+ {
+ 	char name[10];
+ 
+ 	sprintf(name, "cpu-%d", dtl->cpu);
+-
+-	dtl->file = debugfs_create_file(name, 0400, dtl_dir, dtl, &dtl_fops);
+-	if (!dtl->file)
+-		return -ENOMEM;
+-
+-	return 0;
++	debugfs_create_file(name, 0400, dtl_dir, dtl, &dtl_fops);
+ }
+ 
+ static int dtl_init(void)
+ {
+-	struct dentry *event_mask_file, *buf_entries_file;
+ 	int rc, i;
+ 
+ 	if (!firmware_has_feature(FW_FEATURE_SPLPAR))
+@@ -357,21 +350,9 @@ static int dtl_init(void)
+ 
+ 	rc = -ENOMEM;
+ 	dtl_dir = debugfs_create_dir("dtl", powerpc_debugfs_root);
+-	if (!dtl_dir) {
+-		printk(KERN_WARNING "%s: can't create dtl root dir\n",
+-				__func__);
+-		goto err;
+-	}
+ 
+-	event_mask_file = debugfs_create_x8("dtl_event_mask", 0600,
+-				dtl_dir, &dtl_event_mask);
+-	buf_entries_file = debugfs_create_u32("dtl_buf_entries", 0400,
+-				dtl_dir, &dtl_buf_entries);
+-
+-	if (!event_mask_file || !buf_entries_file) {
+-		printk(KERN_WARNING "%s: can't create dtl files\n", __func__);
+-		goto err_remove_dir;
+-	}
++	debugfs_create_x8("dtl_event_mask", 0600, dtl_dir, &dtl_event_mask);
++	debugfs_create_u32("dtl_buf_entries", 0400, dtl_dir, &dtl_buf_entries);
+ 
+ 	/* set up the per-cpu log structures */
+ 	for_each_possible_cpu(i) {
+@@ -379,16 +360,9 @@ static int dtl_init(void)
+ 		spin_lock_init(&dtl->lock);
+ 		dtl->cpu = i;
+ 
+-		rc = dtl_setup_file(dtl);
+-		if (rc)
+-			goto err_remove_dir;
++		dtl_setup_file(dtl);
+ 	}
+ 
+ 	return 0;
+-
+-err_remove_dir:
+-	debugfs_remove_recursive(dtl_dir);
+-err:
+-	return rc;
+ }
+ machine_arch_initcall(pseries, dtl_init);
+--- a/arch/powerpc/platforms/pseries/hvCall_inst.c
++++ b/arch/powerpc/platforms/pseries/hvCall_inst.c
+@@ -142,7 +142,6 @@ static void probe_hcall_exit(void *ignor
+ static int __init hcall_inst_init(void)
+ {
+ 	struct dentry *hcall_root;
+-	struct dentry *hcall_file;
+ 	char cpu_name_buf[CPU_NAME_BUF_SIZE];
+ 	int cpu;
+ 
+@@ -158,17 +157,12 @@ static int __init hcall_inst_init(void)
+ 	}
+ 
+ 	hcall_root = debugfs_create_dir(HCALL_ROOT_DIR, NULL);
+-	if (!hcall_root)
+-		return -ENOMEM;
+ 
+ 	for_each_possible_cpu(cpu) {
+ 		snprintf(cpu_name_buf, CPU_NAME_BUF_SIZE, "cpu%d", cpu);
+-		hcall_file = debugfs_create_file(cpu_name_buf, 0444,
+-						 hcall_root,
+-						 per_cpu(hcall_stats, cpu),
+-						 &hcall_inst_seq_fops);
+-		if (!hcall_file)
+-			return -ENOMEM;
++		debugfs_create_file(cpu_name_buf, 0444, hcall_root,
++				    per_cpu(hcall_stats, cpu),
++				    &hcall_inst_seq_fops);
+ 	}
+ 
+ 	return 0;
+--- a/arch/powerpc/sysdev/scom.c
++++ b/arch/powerpc/sysdev/scom.c
+@@ -198,12 +198,6 @@ static int scom_debug_init_one(struct de
+ 	ent->path.size = strlen((char *)ent->path.data);
+ 
+ 	dir = debugfs_create_dir(ent->name, root);
+-	if (!dir) {
+-		of_node_put(dn);
+-		kfree(ent->path.data);
+-		kfree(ent);
+-		return -1;
+-	}
+ 
+ 	debugfs_create_blob("devspec", 0400, dir, &ent->path);
+ 	debugfs_create_file("access", 0600, dir, ent, &scom_debug_fops);
+@@ -218,8 +212,6 @@ static int scom_debug_init(void)
+ 	int i, rc;
+ 
+ 	root = debugfs_create_dir("scom", powerpc_debugfs_root);
+-	if (!root)
+-		return -1;
+ 
+ 	i = rc = 0;
+ 	for_each_node_with_property(dn, "scom-controller") {
