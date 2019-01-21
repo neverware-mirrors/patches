@@ -1,0 +1,50 @@
+From 23443c60aeff81e10c788ab8e07bbe83189a2a33 Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Thu, 17 Jan 2019 09:16:00 +0100
+Subject: [PATCH 04/11] USB: host: whci: rename Kbuild file
+
+We have been using Makefile for well over a decade now, use that name
+instead of Kbuild.
+
+Also, while moving the file, add the proper SPDX identifier at the top
+of it.
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/host/whci/Kbuild   |   12 ------------
+ drivers/usb/host/whci/Makefile |   14 ++++++++++++++
+ 2 files changed, 14 insertions(+), 12 deletions(-)
+ rename drivers/usb/host/whci/{Kbuild => Makefile} (79%)
+
+--- a/drivers/usb/host/whci/Kbuild
++++ /dev/null
+@@ -1,12 +0,0 @@
+-obj-$(CONFIG_USB_WHCI_HCD) += whci-hcd.o
+-
+-whci-hcd-y := \
+-	asl.o	\
+-	debug.o \
+-	hcd.o	\
+-	hw.o	\
+-	init.o	\
+-	int.o	\
+-	pzl.o	\
+-	qset.o	\
+-	wusb.o
+--- /dev/null
++++ b/drivers/usb/host/whci/Makefile
+@@ -0,0 +1,14 @@
++# SPDX-License-Identifier: GPL-2.0
++
++obj-$(CONFIG_USB_WHCI_HCD) += whci-hcd.o
++
++whci-hcd-y := \
++	asl.o	\
++	debug.o \
++	hcd.o	\
++	hw.o	\
++	init.o	\
++	int.o	\
++	pzl.o	\
++	qset.o	\
++	wusb.o

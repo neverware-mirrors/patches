@@ -3,7 +3,13 @@
 spdxcheck-print-out-files-without-any-spdx-lines.patch
 0001-Bluetooth-check-message-types-in-l2cap_get_conf_opt.patch
 0002-Bluetooth-check-the-buffer-size-for-some-messages-be.patch
-0003-IN_BADCLASS-fix-macro-to-actually-work.patch
+0003-USB-serial-keyspan_usa-add-proper-SPDX-lines-for-.h-.patch
+0004-USB-host-whci-rename-Kbuild-file.patch
+0005-USB-usbip-delete-README-file.patch
+0006-USB-remove-README-file.patch
+0007-USB-add-missing-SPDX-lines-to-Kconfig-and-Makefiles.patch
+0008-tty-Handle-problem-if-line-discipline-does-not-have-.patch
+0009-tty-ldisc-add-sysctl-to-prevent-autoloading-of-ldisc.patch
 p00
 p01
 p02
