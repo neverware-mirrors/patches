@@ -41,7 +41,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  #endif /* CONFIG_ARM64_PTDUMP_CORE */
 --- a/arch/arm64/mm/dump.c
 +++ b/arch/arm64/mm/dump.c
-@@ -407,7 +407,7 @@ void ptdump_check_wx(void)
+@@ -406,7 +406,7 @@ void ptdump_check_wx(void)
  static int ptdump_init(void)
  {
  	ptdump_initialize();

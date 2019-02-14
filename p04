@@ -377,7 +377,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  /*
 --- a/arch/powerpc/platforms/powernv/pci-ioda.c
 +++ b/arch/powerpc/platforms/powernv/pci-ioda.c
-@@ -3167,11 +3167,6 @@ static void pnv_pci_ioda_create_dbgfs(vo
+@@ -3168,11 +3168,6 @@ static void pnv_pci_ioda_create_dbgfs(vo
  
  		sprintf(name, "PCI%04x", hose->global_number);
  		phb->dbgfs = debugfs_create_dir(name, powerpc_debugfs_root);

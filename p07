@@ -24,7 +24,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/arch/x86/kernel/cpu/mce/core.c
 +++ b/arch/x86/kernel/cpu/mce/core.c
-@@ -2457,22 +2457,15 @@ static int fake_panic_set(void *data, u6
+@@ -2458,22 +2458,15 @@ static int fake_panic_set(void *data, u6
  DEFINE_SIMPLE_ATTRIBUTE(fake_panic_fops, fake_panic_get,
  			fake_panic_set, "%llu\n");
  
