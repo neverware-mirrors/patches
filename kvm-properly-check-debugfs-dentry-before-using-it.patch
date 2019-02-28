@@ -1,0 +1,38 @@
+From foo@baz Thu Feb 28 16:02:54 CET 2019
+Date: Thu, 28 Feb 2019 16:02:54 +0100
+To: Greg KH <gregkh@linuxfoundation.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH] kvm: properly check debugfs dentry before using it
+
+debugfs can now report an error code if something went wrong instead of
+just NULL.  So if the return value is to be used as a "real" dentry, it
+needs to be checked if it is an error before dereferencing it.
+
+This is now happening because of ff9fb72bc077 ("debugfs: return error
+values, not NULL").  syzbot has found a way to trigger multiple debugfs
+files attempting to be created, which fails, and then the error code
+gets passed to dentry_path_raw() which obviously does not like it.
+
+Reported-by: Eric Biggers <ebiggers@kernel.org>
+Reported-and-tested-by: syzbot+7857962b4d45e602b8ad@syzkaller.appspotmail.com
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: "Radim Krčmář" <rkrcmar@redhat.com>
+Cc: kvm@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+
+---
+ virt/kvm/kvm_main.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -4044,7 +4044,7 @@ static void kvm_uevent_notify_change(uns
+ 	}
+ 	add_uevent_var(env, "PID=%d", kvm->userspace_pid);
+ 
+-	if (kvm->debugfs_dentry) {
++	if (!IS_ERR_OR_NULL(kvm->debugfs_dentry)) {
+ 		char *tmp, *p = kmalloc(PATH_MAX, GFP_KERNEL);
+ 
+ 		if (p) {

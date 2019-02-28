@@ -1,6 +1,6 @@
 #
 
-rpc-properly-check-debugfs-dentry-before-using-it.patch
+kvm-properly-check-debugfs-dentry-before-using-it.patch
 0003-toneport-fixes.patch
 stable-kernel-rules.rst-add-link-to-networking-patch-queue.patch
 spdxcheck-print-out-files-without-any-spdx-lines.patch
