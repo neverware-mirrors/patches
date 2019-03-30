@@ -1,5 +1,6 @@
 #
 
+iwlwifi-properly-check-debugfs-dentry-before-using-it.patch
 usb-usb.h-tweak-struct-urb-to-remove-wasted-space.patch
 usb-cp210x-add-new-device-id.patch
 0003-toneport-fixes.patch
