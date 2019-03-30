@@ -15,12 +15,10 @@ gets passed to dentry_path_raw() which obviously does not like it.
 
 Reported-by: Eric Biggers <ebiggers@kernel.org>
 Reported-and-tested-by: syzbot+7857962b4d45e602b8ad@syzkaller.appspotmail.com
-Cc: Paolo Bonzini <pbonzini@redhat.com>
 Cc: "Radim Krčmář" <rkrcmar@redhat.com>
 Cc: kvm@vger.kernel.org
+Acked-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-
 ---
  virt/kvm/kvm_main.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)

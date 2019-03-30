@@ -1,5 +1,7 @@
 #
 
+usb-usb.h-tweak-struct-urb-to-remove-wasted-space.patch
+usb-cp210x-add-new-device-id.patch
 kvm-properly-check-debugfs-dentry-before-using-it.patch
 0003-toneport-fixes.patch
 stable-kernel-rules.rst-add-link-to-networking-patch-queue.patch
