@@ -41,7 +41,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
 --- a/arch/x86/xen/p2m.c
 +++ b/arch/x86/xen/p2m.c
-@@ -810,9 +810,6 @@ static int __init xen_p2m_debugfs(void)
+@@ -817,9 +817,6 @@ static int __init xen_p2m_debugfs(void)
  {
  	struct dentry *d_xen = xen_init_debugfs();
  

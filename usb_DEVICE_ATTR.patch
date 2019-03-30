@@ -67,8 +67,8 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  {
  	struct usb_interface *iface = to_usb_interface(dev);
  	struct cbaf *cbaf = usb_get_intfdata(iface);
-@@ -308,9 +307,9 @@ static ssize_t cbaf_wusb_chid_show(struc
- 	return scnprintf(buf, PAGE_SIZE, "%s\n", pr_chid);
+@@ -306,9 +305,9 @@ static ssize_t cbaf_wusb_chid_show(struc
+ 	return sprintf(buf, "%16ph\n", cbaf->chid.data);
  }
  
 -static ssize_t cbaf_wusb_chid_store(struct device *dev,
@@ -80,7 +80,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  {
  	ssize_t result;
  	struct usb_interface *iface = to_usb_interface(dev);
-@@ -341,11 +340,10 @@ static ssize_t cbaf_wusb_chid_store(stru
+@@ -339,11 +338,10 @@ static ssize_t cbaf_wusb_chid_store(stru
  		return result;
  	return size;
  }
@@ -95,7 +95,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  {
  	struct usb_interface *iface = to_usb_interface(dev);
  	struct cbaf *cbaf = usb_get_intfdata(iface);
-@@ -353,9 +351,9 @@ static ssize_t cbaf_wusb_host_name_show(
+@@ -351,9 +349,9 @@ static ssize_t cbaf_wusb_host_name_show(
  	return scnprintf(buf, PAGE_SIZE, "%s\n", cbaf->host_name);
  }
  
@@ -108,7 +108,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  {
  	ssize_t result;
  	struct usb_interface *iface = to_usb_interface(dev);
-@@ -367,12 +365,11 @@ static ssize_t cbaf_wusb_host_name_store
+@@ -365,12 +363,11 @@ static ssize_t cbaf_wusb_host_name_store
  
  	return size;
  }
@@ -125,7 +125,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  {
  	struct usb_interface *iface = to_usb_interface(dev);
  	struct cbaf *cbaf = usb_get_intfdata(iface);
-@@ -380,9 +377,9 @@ static ssize_t cbaf_wusb_host_band_group
+@@ -378,9 +375,9 @@ static ssize_t cbaf_wusb_host_band_group
  	return scnprintf(buf, PAGE_SIZE, "0x%04x\n", cbaf->host_band_groups);
  }
  
@@ -138,7 +138,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  {
  	ssize_t result;
  	struct usb_interface *iface = to_usb_interface(dev);
-@@ -397,10 +394,7 @@ static ssize_t cbaf_wusb_host_band_group
+@@ -395,10 +392,7 @@ static ssize_t cbaf_wusb_host_band_group
  
  	return size;
  }
@@ -150,7 +150,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  static const struct wusb_cbaf_device_info cbaf_device_info_defaults = {
  	.Length_hdr               = WUSB_AR_Length,
-@@ -410,8 +404,8 @@ static const struct wusb_cbaf_device_inf
+@@ -408,8 +402,8 @@ static const struct wusb_cbaf_device_inf
  	.DeviceFriendlyName_hdr   = WUSB_AR_DeviceFriendlyName,
  };
  
@@ -161,8 +161,8 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  {
  	struct usb_interface *iface = to_usb_interface(dev);
  	struct cbaf *cbaf = usb_get_intfdata(iface);
-@@ -421,9 +415,9 @@ static ssize_t cbaf_wusb_cdid_show(struc
- 	return scnprintf(buf, PAGE_SIZE, "%s\n", pr_cdid);
+@@ -417,9 +411,9 @@ static ssize_t cbaf_wusb_cdid_show(struc
+ 	return sprintf(buf, "%16ph\n", cbaf->cdid.data);
  }
  
 -static ssize_t cbaf_wusb_cdid_store(struct device *dev,
@@ -174,7 +174,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  {
  	ssize_t result;
  	struct usb_interface *iface = to_usb_interface(dev);
-@@ -450,32 +444,28 @@ static ssize_t cbaf_wusb_cdid_store(stru
+@@ -446,32 +440,28 @@ static ssize_t cbaf_wusb_cdid_store(stru
  
  	return size;
  }
@@ -215,7 +215,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  static const struct wusb_cbaf_cc_data cbaf_cc_data_defaults = {
  	.AssociationTypeId_hdr    = WUSB_AR_AssociationTypeId,
-@@ -529,9 +519,9 @@ static int cbaf_cc_upload(struct cbaf *c
+@@ -522,9 +512,9 @@ static int cbaf_cc_upload(struct cbaf *c
  	return result;
  }
  
@@ -228,7 +228,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  {
  	ssize_t result;
  	struct usb_interface *iface = to_usb_interface(dev);
-@@ -559,7 +549,7 @@ static ssize_t cbaf_wusb_ck_store(struct
+@@ -552,7 +542,7 @@ static ssize_t cbaf_wusb_ck_store(struct
  
  	return size;
  }

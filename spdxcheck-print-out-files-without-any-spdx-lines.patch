@@ -14,7 +14,7 @@ Just a hack to make it easy to see what still needs to be converted.
 
 --- a/scripts/spdxcheck.py
 +++ b/scripts/spdxcheck.py
-@@ -204,7 +204,10 @@ def scan_git_tree(tree):
+@@ -210,7 +210,10 @@ def scan_git_tree(tree):
          if not os.path.isfile(el.path):
              continue
          with open(el.path, 'rb') as fd:

@@ -24,7 +24,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/arch/x86/kernel/cpu/mce/core.c
 +++ b/arch/x86/kernel/cpu/mce/core.c
-@@ -2458,22 +2458,15 @@ static int fake_panic_set(void *data, u6
+@@ -2428,22 +2428,15 @@ static int fake_panic_set(void *data, u6
  DEFINE_SIMPLE_ATTRIBUTE(fake_panic_fops, fake_panic_get,
  			fake_panic_set, "%llu\n");
  
@@ -119,7 +119,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	mce_register_injector_chain(&inject_nb);
 --- a/arch/x86/kernel/cpu/mce/severity.c
 +++ b/arch/x86/kernel/cpu/mce/severity.c
-@@ -399,21 +399,13 @@ static const struct file_operations seve
+@@ -404,21 +404,13 @@ static const struct file_operations seve
  
  static int __init severities_debugfs_init(void)
  {
