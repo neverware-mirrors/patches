@@ -1,0 +1,268 @@
+From df04ddde6d9577c3cf230e725f36ae2480908040 Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Thu, 24 Jan 2019 17:43:52 +0100
+Subject: [PATCH 09/15] tty: n_r3964: for messages, use a real kernel list
+
+The message list associated with a client was a hand-rolled linked list
+structure, so use a "normal" kernel list structure instead.  This makes
+the code smaller and simpler to understand.
+
+In doing so, fix up a number of locking mistakes where the proper lock
+was not being held for every time the client message list was being
+accessed.
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/tty/n_r3964.c | 132 ++++++++++++++++++++----------------------
+ 1 file changed, 62 insertions(+), 70 deletions(-)
+
+diff --git a/drivers/tty/n_r3964.c b/drivers/tty/n_r3964.c
+index a79c8d485030..cf2a3dc3a870 100644
+--- a/drivers/tty/n_r3964.c
++++ b/drivers/tty/n_r3964.c
+@@ -101,7 +101,6 @@ enum {
+ 
+ /* All open file-handles are 'clients' and are stored in a linked list: */
+ 
+-struct r3964_message;
+ struct rx_block_header;
+ struct tx_block_header;
+ 
+@@ -112,8 +111,7 @@ struct r3964_client_info {
+ 
+ 	struct r3964_client_info *next;
+ 
+-	struct r3964_message *first_msg;
+-	struct r3964_message *last_msg;
++	struct list_head msgs;
+ 	struct rx_block_header *next_block_to_read;
+ 	int msg_count;
+ };
+@@ -124,7 +122,7 @@ struct r3964_message {
+ 	  int arg;
+ 	  int error_code;
+ 	  struct rx_block_header *block;
+-	  struct r3964_message *next;
++	  struct list_head node;
+ };
+ 
+ /* Header of received block in rx_buf: */
+@@ -200,8 +198,7 @@ static int read_telegram(struct r3964_info *pInfo, struct pid *pid,
+ 		unsigned char __user * buf);
+ static void add_msg(struct r3964_client_info *pClient, int msg_id, int arg,
+ 		int error_code, struct rx_block_header *pBlock);
+-static struct r3964_message *remove_msg(struct r3964_info *pInfo,
+-		struct r3964_client_info *pClient);
++static struct r3964_message *remove_msg(struct r3964_client_info *client);
+ static void remove_client_block(struct r3964_client_info *pClient);
+ 
+ static int r3964_open(struct tty_struct *tty);
+@@ -788,7 +785,7 @@ static int enable_signals(struct r3964_info *pInfo, struct pid *pid, int arg)
+ 					 pid_nr(pid));
+ 				*ppClient = pClient->next;
+ 				while (pClient->msg_count) {
+-					pMsg = remove_msg(pInfo, pClient);
++					pMsg = remove_msg(pClient);
+ 					if (pMsg) {
+ 						kfree(pMsg);
+ 						TRACE_M("enable_signals - msg "
+@@ -823,8 +820,7 @@ static int enable_signals(struct r3964_info *pInfo, struct pid *pid, int arg)
+ 			pClient->sig_flags = arg;
+ 			pClient->pid = get_pid(pid);
+ 			pClient->next = pInfo->firstClient;
+-			pClient->first_msg = NULL;
+-			pClient->last_msg = NULL;
++			INIT_LIST_HEAD(&pClient->msgs);
+ 			pClient->next_block_to_read = NULL;
+ 			pClient->msg_count = 0;
+ 			pInfo->firstClient = pClient;
+@@ -864,85 +860,83 @@ static int read_telegram(struct r3964_info *pInfo, struct pid *pid,
+ 	return -EINVAL;
+ }
+ 
+-static void add_msg(struct r3964_client_info *pClient, int msg_id, int arg,
+-		int error_code, struct rx_block_header *pBlock)
++static void __add_msg(struct r3964_client_info *pClient, int msg_id, int arg,
++		      int error_code, struct rx_block_header *pBlock)
++	__must_hold(&pClient->lock)
+ {
+ 	struct r3964_message *pMsg;
+-	unsigned long flags;
+ 
+-	if (pClient->msg_count < R3964_MAX_MSG_COUNT - 1) {
+-queue_the_message:
++	pMsg = kmalloc(sizeof(*pMsg), GFP_ATOMIC);
++	if (pMsg == NULL)
++		return;
+ 
+-		pMsg = kmalloc(sizeof(*pMsg), GFP_ATOMIC);
+-		TRACE_M("add_msg - kmalloc %p", pMsg);
+-		if (pMsg == NULL) {
+-			return;
+-		}
++	pMsg->msg_id = msg_id;
++	pMsg->arg = arg;
++	pMsg->error_code = error_code;
++	pMsg->block = pBlock;
++	INIT_LIST_HEAD(&pMsg->node);
+ 
+-		spin_lock_irqsave(&pClient->lock, flags);
++	list_add_tail(&pMsg->node, &pClient->msgs);
++	pClient->msg_count++;
+ 
+-		pMsg->msg_id = msg_id;
+-		pMsg->arg = arg;
+-		pMsg->error_code = error_code;
+-		pMsg->block = pBlock;
+-		pMsg->next = NULL;
+-
+-		if (pClient->last_msg == NULL) {
+-			pClient->first_msg = pClient->last_msg = pMsg;
+-		} else {
+-			pClient->last_msg->next = pMsg;
+-			pClient->last_msg = pMsg;
+-		}
++	if (pBlock != NULL)
++		kref_get(&pBlock->kref);
++}
+ 
+-		pClient->msg_count++;
++static void add_msg(struct r3964_client_info *pClient, int msg_id, int arg,
++		int error_code, struct rx_block_header *pBlock)
++{
++	struct r3964_message *pMsg;
++	unsigned long flags;
+ 
+-		if (pBlock != NULL)
+-			kref_get(&pBlock->kref);
++	spin_lock_irqsave(&pClient->lock, flags);
+ 
+-		spin_unlock_irqrestore(&pClient->lock, flags);
++	if (pClient->msg_count < R3964_MAX_MSG_COUNT - 1) {
++		__add_msg(pClient, msg_id, arg, error_code, pBlock);
+ 	} else {
+-		if ((pClient->last_msg->msg_id == R3964_MSG_ACK)
+-		    && (pClient->last_msg->error_code == R3964_OVERFLOW)) {
+-			pClient->last_msg->arg++;
+-			TRACE_PE("add_msg - inc prev OVERFLOW-msg");
++		if (!list_empty(&pClient->msgs)) {
++			pMsg = list_last_entry(&pClient->msgs,
++					       struct r3964_message, node);
++			if ((pMsg->msg_id == R3964_MSG_ACK) &&
++			    (pMsg->error_code == R3964_OVERFLOW)) {
++				pMsg->arg++;
++				TRACE_PE("add_msg - inc prev OVERFLOW-msg");
++			}
+ 		} else {
+-			msg_id = R3964_MSG_ACK;
+-			arg = 0;
+-			error_code = R3964_OVERFLOW;
+-			pBlock = NULL;
++			__add_msg(pClient, R3964_MSG_ACK, 0, R3964_OVERFLOW,
++				  pBlock);
+ 			TRACE_PE("add_msg - queue OVERFLOW-msg");
+-			goto queue_the_message;
+ 		}
+ 	}
++	spin_unlock_irqrestore(&pClient->lock, flags);
++
+ 	/* Send SIGIO signal to client process: */
+ 	if (pClient->sig_flags & R3964_USE_SIGIO) {
+ 		kill_pid(pClient->pid, SIGIO, 1);
+ 	}
+ }
+ 
+-static struct r3964_message *remove_msg(struct r3964_info *pInfo,
+-					struct r3964_client_info *pClient)
++static struct r3964_message *remove_msg(struct r3964_client_info *client)
+ {
+-	struct r3964_message *pMsg = NULL;
++	struct r3964_message *msg = NULL;
+ 	unsigned long flags;
+ 
+-	if (pClient->first_msg) {
+-		spin_lock_irqsave(&pClient->lock, flags);
++	spin_lock_irqsave(&client->lock, flags);
++	if (list_empty(&client->msgs)) {
++		spin_unlock_irqrestore(&client->lock, flags);
++		return NULL;
++	}
+ 
+-		pMsg = pClient->first_msg;
+-		pClient->first_msg = pMsg->next;
+-		if (pClient->first_msg == NULL) {
+-			pClient->last_msg = NULL;
+-		}
++	msg = list_first_entry(&client->msgs, struct r3964_message, node);
++	list_del(&msg->node);
+ 
+-		pClient->msg_count--;
+-		if (pMsg->block) {
+-			remove_client_block(pClient);
+-			pClient->next_block_to_read = pMsg->block;
+-		}
+-		spin_unlock_irqrestore(&pClient->lock, flags);
++	client->msg_count--;
++	if (msg->block) {
++		remove_client_block(client);
++		client->next_block_to_read = msg->block;
+ 	}
+-	return pMsg;
++	spin_unlock_irqrestore(&client->lock, flags);
++	return msg;
+ }
+ 
+ static void remove_client_block(struct r3964_client_info *client)
+@@ -1041,7 +1035,7 @@ static void r3964_close(struct tty_struct *tty)
+ 	while (pClient) {
+ 		pNext = pClient->next;
+ 		while (pClient->msg_count) {
+-			pMsg = remove_msg(pInfo, pClient);
++			pMsg = remove_msg(pClient);
+ 			if (pMsg) {
+ 				kfree(pMsg);
+ 				TRACE_M("r3964_close - msg kfree %p", pMsg);
+@@ -1091,7 +1085,7 @@ static ssize_t r3964_read(struct tty_struct *tty, struct file *file,
+ 
+ 	pClient = findClient(pInfo, task_pid(current));
+ 	if (pClient) {
+-		pMsg = remove_msg(pInfo, pClient);
++		pMsg = remove_msg(pClient);
+ 		if (pMsg == NULL) {
+ 			/* no messages available. */
+ 			if (tty_io_nonblock(tty, file)) {
+@@ -1100,7 +1094,7 @@ static ssize_t r3964_read(struct tty_struct *tty, struct file *file,
+ 			}
+ 			/* block until there is a message: */
+ 			wait_event_interruptible(tty->read_wait,
+-					(pMsg = remove_msg(pInfo, pClient)));
++					(pMsg = remove_msg(pClient)));
+ 		}
+ 
+ 		/* If we still haven't got a message, we must have been signalled */
+@@ -1267,7 +1261,6 @@ static __poll_t r3964_poll(struct tty_struct *tty, struct file *file,
+ {
+ 	struct r3964_info *pInfo = tty->disc_data;
+ 	struct r3964_client_info *pClient;
+-	struct r3964_message *pMsg = NULL;
+ 	unsigned long flags;
+ 	__poll_t result = EPOLLOUT;
+ 
+@@ -1276,11 +1269,10 @@ static __poll_t r3964_poll(struct tty_struct *tty, struct file *file,
+ 	pClient = findClient(pInfo, task_pid(current));
+ 	if (pClient) {
+ 		poll_wait(file, &tty->read_wait, wait);
+-		spin_lock_irqsave(&pInfo->lock, flags);
+-		pMsg = pClient->first_msg;
+-		spin_unlock_irqrestore(&pInfo->lock, flags);
+-		if (pMsg)
++		spin_lock_irqsave(&pClient->lock, flags);
++		if (!list_empty(&pClient->msgs))
+ 			result |= EPOLLIN | EPOLLRDNORM;
++		spin_unlock_irqrestore(&pClient->lock, flags);
+ 	} else {
+ 		result = EPOLLNVAL | EPOLLERR;
+ 	}
+-- 
+2.21.0
+

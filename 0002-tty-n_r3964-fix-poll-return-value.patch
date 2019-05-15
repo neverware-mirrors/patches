@@ -1,0 +1,30 @@
+From f93faa310cf3da0d54ee2232a76729b2063cc551 Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Fri, 25 Jan 2019 15:13:58 +0100
+Subject: [PATCH 02/15] tty: n_r3964: fix poll return value
+
+-EINVAL is not a valid __poll_t return value for when an error happens.
+Instead, set return EPOLLNVAL | EPOLLERR to tell userspace that what it
+wanted to have happen did not.
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/tty/n_r3964.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/tty/n_r3964.c b/drivers/tty/n_r3964.c
+index 664b201b9abc..b4a205f9f8ac 100644
+--- a/drivers/tty/n_r3964.c
++++ b/drivers/tty/n_r3964.c
+@@ -1286,7 +1286,7 @@ static __poll_t r3964_poll(struct tty_struct *tty, struct file *file,
+ 		if (pMsg)
+ 			result |= EPOLLIN | EPOLLRDNORM;
+ 	} else {
+-		result = -EINVAL;
++		result = EPOLLNVAL | EPOLLERR;
+ 	}
+ 	return result;
+ }
+-- 
+2.21.0
+

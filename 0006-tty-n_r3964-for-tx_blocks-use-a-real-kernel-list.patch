@@ -1,0 +1,187 @@
+From 55124901b0e4b05999669830cf6e0b240f8cb2fd Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Thu, 24 Jan 2019 13:35:36 +0100
+Subject: [PATCH 06/15] tty: n_r3964: for tx_blocks, use a real kernel list
+
+The tx blocks have a hand-rolled linked list structure, use a "normal"
+kernel list structure instead, making the code smaller and easier to
+understand and verify that it really does what we think it should be
+doing.
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/tty/n_r3964.c | 85 +++++++++++++------------------------------
+ 1 file changed, 26 insertions(+), 59 deletions(-)
+
+diff --git a/drivers/tty/n_r3964.c b/drivers/tty/n_r3964.c
+index 487aa6a38f7d..4a9750adcc56 100644
+--- a/drivers/tty/n_r3964.c
++++ b/drivers/tty/n_r3964.c
+@@ -140,7 +140,7 @@ struct rx_block_header {
+ struct tx_block_header {
+ 	unsigned int length;	/* length in chars without header */
+ 	unsigned char *data;
+-	struct tx_block_header *next;
++	struct list_head node;
+ 	struct r3964_client_info *owner;
+ };
+ 
+@@ -171,8 +171,7 @@ struct r3964_info {
+ 
+ 	struct rx_block_header *rx_first;
+ 	struct rx_block_header *rx_last;
+-	struct tx_block_header *tx_first;
+-	struct tx_block_header *tx_last;
++	struct list_head tx_blocks;
+ 	unsigned int tx_position;
+         unsigned int rx_position;
+ 	unsigned char last_rx;
+@@ -316,42 +315,25 @@ static void add_tx_queue(struct r3964_info *pInfo,
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&pInfo->lock, flags);
+-
+-	pHeader->next = NULL;
+-
+-	if (pInfo->tx_last == NULL) {
+-		pInfo->tx_first = pInfo->tx_last = pHeader;
+-	} else {
+-		pInfo->tx_last->next = pHeader;
+-		pInfo->tx_last = pHeader;
+-	}
+-
++	list_add_tail(&pHeader->node, &pInfo->tx_blocks);
+ 	spin_unlock_irqrestore(&pInfo->lock, flags);
+-
+-	TRACE_Q("add_tx_queue %p, length %d, tx_first = %p",
+-		pHeader, pHeader->length, pInfo->tx_first);
+ }
+ 
+ static void remove_from_tx_queue(struct r3964_info *pInfo, int error_code)
+ {
+ 	struct tx_block_header *pHeader;
+ 	unsigned long flags;
+-#ifdef DEBUG_QUEUE
+-	struct tx_block_header *pDump;
+-#endif
+ 
+-	pHeader = pInfo->tx_first;
+-
+-	if (pHeader == NULL)
++	spin_lock_irqsave(&pInfo->lock, flags);
++	if (list_empty(&pInfo->tx_blocks)) {
++		spin_unlock_irqrestore(&pInfo->lock, flags);
+ 		return;
++	}
+ 
+-#ifdef DEBUG_QUEUE
+-	printk("r3964: remove_from_tx_queue: %p, length %u - ",
+-		pHeader, pHeader->length);
+-	for (pDump = pHeader; pDump; pDump = pDump->next)
+-		printk("%p ", pDump);
+-	printk("\n");
+-#endif
++	pHeader = list_first_entry(&pInfo->tx_blocks, struct tx_block_header,
++				   node);
++	list_del(&pHeader->node);
++	spin_unlock_irqrestore(&pInfo->lock, flags);
+ 
+ 	if (pHeader->owner) {
+ 		if (error_code) {
+@@ -364,20 +346,7 @@ static void remove_from_tx_queue(struct r3964_info *pInfo, int error_code)
+ 		wake_up_interruptible(&pInfo->tty->read_wait);
+ 	}
+ 
+-	spin_lock_irqsave(&pInfo->lock, flags);
+-
+-	pInfo->tx_first = pHeader->next;
+-	if (pInfo->tx_first == NULL) {
+-		pInfo->tx_last = NULL;
+-	}
+-
+-	spin_unlock_irqrestore(&pInfo->lock, flags);
+-
+ 	kfree(pHeader);
+-	TRACE_M("remove_from_tx_queue - kfree %p", pHeader);
+-
+-	TRACE_Q("remove_from_tx_queue: tx_first = %p, tx_last = %p",
+-		pInfo->tx_first, pInfo->tx_last);
+ }
+ 
+ static void add_rx_queue(struct r3964_info *pInfo,
+@@ -476,7 +445,7 @@ static void trigger_transmit(struct r3964_info *pInfo)
+ 
+ 	spin_lock_irqsave(&pInfo->lock, flags);
+ 
+-	if ((pInfo->state == R3964_IDLE) && (pInfo->tx_first != NULL)) {
++	if ((pInfo->state == R3964_IDLE) && (!list_empty(&pInfo->tx_blocks))) {
+ 		pInfo->state = R3964_TX_REQUEST;
+ 		pInfo->nRetry = 0;
+ 		pInfo->flags &= ~R3964_ERROR;
+@@ -522,17 +491,19 @@ static void retry_transmit(struct r3964_info *pInfo)
+ static void transmit_block(struct r3964_info *pInfo)
+ {
+ 	struct tty_struct *tty = pInfo->tty;
+-	struct tx_block_header *pBlock = pInfo->tx_first;
+-	int room = 0;
++	struct tx_block_header *pBlock;
++	int room;
+ 
+-	if (tty == NULL || pBlock == NULL) {
++	if (!tty)
+ 		return;
+-	}
+ 
+-	room = tty_write_room(tty);
++	if (list_empty(&pInfo->tx_blocks))
++		return;
++
++	pBlock = list_first_entry(&pInfo->tx_blocks, struct tx_block_header,
++				  node);
+ 
+-	TRACE_PS("transmit_block %p, room %d, length %d",
+-		 pBlock, room, pBlock->length);
++	room = tty_write_room(tty);
+ 
+ 	while (pInfo->tx_position < pBlock->length) {
+ 		if (room < 2)
+@@ -1077,7 +1048,7 @@ static int r3964_open(struct tty_struct *tty)
+ 	pInfo->tty = tty;
+ 	pInfo->priority = R3964_MASTER;
+ 	pInfo->rx_first = pInfo->rx_last = NULL;
+-	pInfo->tx_first = pInfo->tx_last = NULL;
++	INIT_LIST_HEAD(&pInfo->tx_blocks);
+ 	pInfo->rx_position = 0;
+ 	pInfo->tx_position = 0;
+ 	pInfo->last_rx = 0;
+@@ -1100,7 +1071,7 @@ static void r3964_close(struct tty_struct *tty)
+ 	struct r3964_info *pInfo = tty->disc_data;
+ 	struct r3964_client_info *pClient, *pNext;
+ 	struct r3964_message *pMsg;
+-	struct tx_block_header *pHeader, *pNextHeader;
++	struct tx_block_header *pHeader, *tmp;
+ 	unsigned long flags;
+ 
+ 	TRACE_L("close");
+@@ -1129,15 +1100,11 @@ static void r3964_close(struct tty_struct *tty)
+ 	}
+ 	/* Remove jobs from tx_queue: */
+ 	spin_lock_irqsave(&pInfo->lock, flags);
+-	pHeader = pInfo->tx_first;
+-	pInfo->tx_first = pInfo->tx_last = NULL;
+-	spin_unlock_irqrestore(&pInfo->lock, flags);
+-
+-	while (pHeader) {
+-		pNextHeader = pHeader->next;
++	list_for_each_entry_safe(pHeader, tmp, &pInfo->tx_blocks, node) {
++		list_del(&pHeader->node);
+ 		kfree(pHeader);
+-		pHeader = pNextHeader;
+ 	}
++	spin_unlock_irqrestore(&pInfo->lock, flags);
+ 
+ 	/* Free buffers: */
+ 	kfree(pInfo->rx_buf);
+-- 
+2.21.0
+

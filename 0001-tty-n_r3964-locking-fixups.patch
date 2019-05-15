@@ -1,0 +1,212 @@
+From 51d25226b066ddeff053d36a74af38e53472520b Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Wed, 23 Jan 2019 11:00:42 +0100
+Subject: [PATCH 01/15] tty: n_r3964: locking fixups
+
+The n_r3964 line discipline has an "interesting" concept of locking.  The
+list of client's are not always properly accessed under a lock, which
+can cause problems with some multi-threaded systems.
+
+To resolve this, do two different things:
+  - serialize ioctl and read accesses.
+    Right now ioctls can mess with the structures that a read call wants
+    to also touch, so serialze them to make it simpler.  Note, this
+    _might_ break some userspace applications, as one thread could be
+    waiting in a read while another one wanted to make an ioctl call.
+    In reality, the ioctls mess with things so much that any outstanding
+    read might be really confused, so this is not a good thing for
+    userspace to be doing anyway.
+  - properly protect the client list
+    The list of clients could be accessed by different threads at the
+    same time without any locking.  Well, there was some attempt at
+    locking, but the main access, findClient(), was not locked at all.
+    Also fix this up in a few other places.
+
+This line discipline needs a major overhaul.  It was written at a time
+there was not any SMP machines, and it shows.  Rewriting some of the
+object handling logic will allow the read/ioctl serialization to be
+removed again.
+
+Reported-by: Jann Horn <jannh@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/tty/n_r3964.c   | 54 +++++++++++++++++++++++++++++++----------
+ include/linux/n_r3964.h |  2 +-
+ 2 files changed, 42 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/tty/n_r3964.c b/drivers/tty/n_r3964.c
+index f75696f0ee2d..664b201b9abc 100644
+--- a/drivers/tty/n_r3964.c
++++ b/drivers/tty/n_r3964.c
+@@ -484,6 +484,7 @@ static void on_receive_block(struct r3964_info *pInfo)
+ 	unsigned int length;
+ 	struct r3964_client_info *pClient;
+ 	struct r3964_block_header *pBlock;
++	unsigned long flags;
+ 
+ 	length = pInfo->rx_position;
+ 
+@@ -541,12 +542,14 @@ static void on_receive_block(struct r3964_info *pInfo)
+ 	add_rx_queue(pInfo, pBlock);
+ 
+ 	/* notify attached client processes: */
++	spin_lock_irqsave(&pInfo->lock, flags);
+ 	for (pClient = pInfo->firstClient; pClient; pClient = pClient->next) {
+ 		if (pClient->sig_flags & R3964_SIG_DATA) {
+ 			add_msg(pClient, R3964_MSG_DATA, length, R3964_OK,
+ 				pBlock);
+ 		}
+ 	}
++	spin_unlock_irqrestore(&pInfo->lock, flags);
+ 	wake_up_interruptible(&pInfo->tty->read_wait);
+ 
+ 	pInfo->state = R3964_IDLE;
+@@ -743,13 +746,17 @@ static struct r3964_client_info *findClient(struct r3964_info *pInfo,
+ 		struct pid *pid)
+ {
+ 	struct r3964_client_info *pClient;
++	unsigned long flags;
+ 
++	spin_lock_irqsave(&pInfo->lock, flags);
+ 	for (pClient = pInfo->firstClient; pClient; pClient = pClient->next) {
+ 		if (pClient->pid == pid) {
+-			return pClient;
++			goto exit;
+ 		}
+ 	}
+-	return NULL;
++exit:
++	spin_unlock_irqrestore(&pInfo->lock, flags);
++	return pClient;
+ }
+ 
+ static int enable_signals(struct r3964_info *pInfo, struct pid *pid, int arg)
+@@ -757,8 +764,11 @@ static int enable_signals(struct r3964_info *pInfo, struct pid *pid, int arg)
+ 	struct r3964_client_info *pClient;
+ 	struct r3964_client_info **ppClient;
+ 	struct r3964_message *pMsg;
++	unsigned long flags;
+ 
+ 	if ((arg & R3964_SIG_ALL) == 0) {
++		spin_lock_irqsave(&pInfo->lock, flags);
++
+ 		/* Remove client from client list */
+ 		for (ppClient = &pInfo->firstClient; *ppClient;
+ 		     ppClient = &(*ppClient)->next) {
+@@ -779,9 +789,11 @@ static int enable_signals(struct r3964_info *pInfo, struct pid *pid, int arg)
+ 				put_pid(pClient->pid);
+ 				kfree(pClient);
+ 				TRACE_M("enable_signals - kfree %p", pClient);
++				spin_unlock_irqrestore(&pInfo->lock, flags);
+ 				return 0;
+ 			}
+ 		}
++		spin_unlock_irqrestore(&pInfo->lock, flags);
+ 		return -EINVAL;
+ 	} else {
+ 		pClient = findClient(pInfo, pid);
+@@ -796,6 +808,7 @@ static int enable_signals(struct r3964_info *pInfo, struct pid *pid, int arg)
+ 			if (pClient == NULL)
+ 				return -ENOMEM;
+ 
++			spin_lock_irqsave(&pInfo->lock, flags);
+ 			TRACE_PS("add client %d to client list", pid_nr(pid));
+ 			spin_lock_init(&pClient->lock);
+ 			pClient->sig_flags = arg;
+@@ -806,6 +819,7 @@ static int enable_signals(struct r3964_info *pInfo, struct pid *pid, int arg)
+ 			pClient->next_block_to_read = NULL;
+ 			pClient->msg_count = 0;
+ 			pInfo->firstClient = pClient;
++			spin_unlock_irqrestore(&pInfo->lock, flags);
+ 		}
+ 	}
+ 
+@@ -850,8 +864,7 @@ static void add_msg(struct r3964_client_info *pClient, int msg_id, int arg,
+ 	if (pClient->msg_count < R3964_MAX_MSG_COUNT - 1) {
+ queue_the_message:
+ 
+-		pMsg = kmalloc(sizeof(struct r3964_message),
+-				error_code ? GFP_ATOMIC : GFP_KERNEL);
++		pMsg = kmalloc(sizeof(*pMsg), GFP_ATOMIC);
+ 		TRACE_M("add_msg - kmalloc %p", pMsg);
+ 		if (pMsg == NULL) {
+ 			return;
+@@ -1069,9 +1082,7 @@ static ssize_t r3964_read(struct tty_struct *tty, struct file *file,
+ 
+ 	TRACE_L("read()");
+ 
+-	/*
+-	 *	Internal serialization of reads.
+-	 */
++	/* Internal serialization of reads and ioctls. */
+ 	if (file->f_flags & O_NONBLOCK) {
+ 		if (!mutex_trylock(&pInfo->read_lock))
+ 			return -EAGAIN;
+@@ -1193,28 +1204,45 @@ static int r3964_ioctl(struct tty_struct *tty, struct file *file,
+ 		unsigned int cmd, unsigned long arg)
+ {
+ 	struct r3964_info *pInfo = tty->disc_data;
++	int retval = 0;
++
+ 	if (pInfo == NULL)
+ 		return -EINVAL;
++	/* Internal serialization of reads and ioctls */
++	if (file->f_flags & O_NONBLOCK) {
++		if (!mutex_trylock(&pInfo->read_lock))
++			return -EAGAIN;
++	} else {
++		if (mutex_lock_interruptible(&pInfo->read_lock))
++			return -ERESTARTSYS;
++	}
++
+ 	switch (cmd) {
+ 	case R3964_ENABLE_SIGNALS:
+-		return enable_signals(pInfo, task_pid(current), arg);
++		retval = enable_signals(pInfo, task_pid(current), arg);
++		break;
+ 	case R3964_SETPRIORITY:
+ 		if (arg < R3964_MASTER || arg > R3964_SLAVE)
+ 			return -EINVAL;
+ 		pInfo->priority = arg & 0xff;
+-		return 0;
++		break;
+ 	case R3964_USE_BCC:
+ 		if (arg)
+ 			pInfo->flags |= R3964_BCC;
+ 		else
+ 			pInfo->flags &= ~R3964_BCC;
+-		return 0;
++		break;
+ 	case R3964_READ_TELEGRAM:
+-		return read_telegram(pInfo, task_pid(current),
+-				(unsigned char __user *)arg);
++		retval = read_telegram(pInfo, task_pid(current),
++				       (unsigned char __user *)arg);
++		break;
+ 	default:
+-		return -ENOIOCTLCMD;
++		retval = -ENOIOCTLCMD;
++		break;
+ 	}
++
++	mutex_unlock(&pInfo->read_lock);
++	return retval;
+ }
+ 
+ #ifdef CONFIG_COMPAT
+diff --git a/include/linux/n_r3964.h b/include/linux/n_r3964.h
+index 90a803aa42e8..9cc0020930ad 100644
+--- a/include/linux/n_r3964.h
++++ b/include/linux/n_r3964.h
+@@ -162,7 +162,7 @@ struct r3964_info {
+ 	unsigned char bcc;
+         unsigned int  blocks_in_rx_queue;
+ 
+-	struct mutex read_lock;		/* serialize r3964_read */
++	struct mutex read_lock;		/* serialize read and ioctl */
+ 
+ 	struct r3964_client_info *firstClient;
+ 	unsigned int state;
+-- 
+2.21.0
+

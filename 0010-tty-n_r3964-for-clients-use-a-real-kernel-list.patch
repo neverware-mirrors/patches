@@ -1,0 +1,148 @@
+From 336b06e9db65482b6146e112670cff7e4e52c7ef Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Fri, 25 Jan 2019 09:35:45 +0100
+Subject: [PATCH 10/15] tty: n_r3964: for clients, use a real kernel list
+
+The "info" structure had a hand-rolled linked list of all of the clients
+associated with it.  Convert that over to a kernel list structure,
+making the logic a lot simpler and easier to understand.
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/tty/n_r3964.c | 31 ++++++++++++-------------------
+ 1 file changed, 12 insertions(+), 19 deletions(-)
+
+diff --git a/drivers/tty/n_r3964.c b/drivers/tty/n_r3964.c
+index cf2a3dc3a870..f752eec92448 100644
+--- a/drivers/tty/n_r3964.c
++++ b/drivers/tty/n_r3964.c
+@@ -109,8 +109,7 @@ struct r3964_client_info {
+ 	struct pid *pid;
+ 	unsigned int sig_flags;
+ 
+-	struct r3964_client_info *next;
+-
++	struct list_head node;
+ 	struct list_head msgs;
+ 	struct rx_block_header *next_block_to_read;
+ 	int msg_count;
+@@ -178,7 +177,7 @@ struct r3964_info {
+ 
+ 	struct mutex read_lock;		/* serialize read and ioctl */
+ 
+-	struct r3964_client_info *firstClient;
++	struct list_head clients;
+ 	unsigned int state;
+ 	unsigned int flags;
+ 
+@@ -549,7 +548,7 @@ static void on_receive_block(struct r3964_info *pInfo)
+ 
+ 	/* notify attached client processes: */
+ 	spin_lock_irqsave(&pInfo->lock, flags);
+-	for (pClient = pInfo->firstClient; pClient; pClient = pClient->next) {
++	list_for_each_entry(pClient, &pInfo->clients, node) {
+ 		if (pClient->sig_flags & R3964_SIG_DATA) {
+ 			add_msg(pClient, R3964_MSG_DATA, length, R3964_OK,
+ 				pBlock);
+@@ -755,11 +754,12 @@ static struct r3964_client_info *findClient(struct r3964_info *pInfo,
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&pInfo->lock, flags);
+-	for (pClient = pInfo->firstClient; pClient; pClient = pClient->next) {
++	list_for_each_entry(pClient, &pInfo->clients, node) {
+ 		if (pClient->pid == pid) {
+ 			goto exit;
+ 		}
+ 	}
++	pClient = NULL;
+ exit:
+ 	spin_unlock_irqrestore(&pInfo->lock, flags);
+ 	return pClient;
+@@ -768,7 +768,6 @@ static struct r3964_client_info *findClient(struct r3964_info *pInfo,
+ static int enable_signals(struct r3964_info *pInfo, struct pid *pid, int arg)
+ {
+ 	struct r3964_client_info *pClient;
+-	struct r3964_client_info **ppClient;
+ 	struct r3964_message *pMsg;
+ 	unsigned long flags;
+ 
+@@ -776,14 +775,10 @@ static int enable_signals(struct r3964_info *pInfo, struct pid *pid, int arg)
+ 		spin_lock_irqsave(&pInfo->lock, flags);
+ 
+ 		/* Remove client from client list */
+-		for (ppClient = &pInfo->firstClient; *ppClient;
+-		     ppClient = &(*ppClient)->next) {
+-			pClient = *ppClient;
+-
++		list_for_each_entry(pClient, &pInfo->clients, node) {
+ 			if (pClient->pid == pid) {
+ 				TRACE_PS("removing client %d from client list",
+ 					 pid_nr(pid));
+-				*ppClient = pClient->next;
+ 				while (pClient->msg_count) {
+ 					pMsg = remove_msg(pClient);
+ 					if (pMsg) {
+@@ -793,6 +788,7 @@ static int enable_signals(struct r3964_info *pInfo, struct pid *pid, int arg)
+ 					}
+ 				}
+ 				put_pid(pClient->pid);
++				list_del(&pClient->node);
+ 				kfree(pClient);
+ 				TRACE_M("enable_signals - kfree %p", pClient);
+ 				spin_unlock_irqrestore(&pInfo->lock, flags);
+@@ -819,11 +815,10 @@ static int enable_signals(struct r3964_info *pInfo, struct pid *pid, int arg)
+ 			spin_lock_init(&pClient->lock);
+ 			pClient->sig_flags = arg;
+ 			pClient->pid = get_pid(pid);
+-			pClient->next = pInfo->firstClient;
+ 			INIT_LIST_HEAD(&pClient->msgs);
+ 			pClient->next_block_to_read = NULL;
+ 			pClient->msg_count = 0;
+-			pInfo->firstClient = pClient;
++			list_add(&pClient->node, &pInfo->clients);
+ 			spin_unlock_irqrestore(&pInfo->lock, flags);
+ 		}
+ 	}
+@@ -1001,7 +996,7 @@ static int r3964_open(struct tty_struct *tty)
+ 	pInfo->tx_position = 0;
+ 	pInfo->last_rx = 0;
+ 	pInfo->blocks_in_rx_queue = 0;
+-	pInfo->firstClient = NULL;
++	INIT_LIST_HEAD(&pInfo->clients);
+ 	pInfo->state = R3964_IDLE;
+ 	pInfo->flags = R3964_DEBUG;
+ 	pInfo->nRetry = 0;
+@@ -1017,7 +1012,7 @@ static int r3964_open(struct tty_struct *tty)
+ static void r3964_close(struct tty_struct *tty)
+ {
+ 	struct r3964_info *pInfo = tty->disc_data;
+-	struct r3964_client_info *pClient, *pNext;
++	struct r3964_client_info *pClient, *tmp_client;
+ 	struct r3964_message *pMsg;
+ 	struct tx_block_header *pHeader, *tmp;
+ 	unsigned long flags;
+@@ -1031,9 +1026,7 @@ static void r3964_close(struct tty_struct *tty)
+ 	del_timer_sync(&pInfo->tmr);
+ 
+ 	/* Remove client-structs and message queues: */
+-	pClient = pInfo->firstClient;
+-	while (pClient) {
+-		pNext = pClient->next;
++	list_for_each_entry_safe(pClient, tmp_client, &pInfo->clients, node) {
+ 		while (pClient->msg_count) {
+ 			pMsg = remove_msg(pClient);
+ 			if (pMsg) {
+@@ -1042,9 +1035,9 @@ static void r3964_close(struct tty_struct *tty)
+ 			}
+ 		}
+ 		put_pid(pClient->pid);
++		list_del(&pClient->node);
+ 		kfree(pClient);
+ 		TRACE_M("r3964_close - client kfree %p", pClient);
+-		pClient = pNext;
+ 	}
+ 	/* Remove jobs from tx_queue: */
+ 	spin_lock_irqsave(&pInfo->lock, flags);
+-- 
+2.21.0
+

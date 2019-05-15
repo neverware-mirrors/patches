@@ -49,7 +49,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
 --- a/arch/powerpc/kernel/fadump.c
 +++ b/arch/powerpc/kernel/fadump.c
-@@ -1649,7 +1649,6 @@ DEFINE_SHOW_ATTRIBUTE(fadump_region);
+@@ -1650,7 +1650,6 @@ DEFINE_SHOW_ATTRIBUTE(fadump_region);
  
  static void fadump_init_files(void)
  {
@@ -57,7 +57,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	int rc = 0;
  
  	rc = sysfs_create_file(kernel_kobj, &fadump_attr.attr);
-@@ -1662,12 +1661,8 @@ static void fadump_init_files(void)
+@@ -1663,12 +1662,8 @@ static void fadump_init_files(void)
  		printk(KERN_ERR "fadump: unable to create sysfs file"
  			" fadump_registered (%d)\n", rc);
  
@@ -74,7 +74,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		rc = sysfs_create_file(kernel_kobj, &fadump_release_attr.attr);
 --- a/arch/powerpc/kernel/setup-common.c
 +++ b/arch/powerpc/kernel/setup-common.c
-@@ -779,8 +779,7 @@ EXPORT_SYMBOL(powerpc_debugfs_root);
+@@ -771,8 +771,7 @@ EXPORT_SYMBOL(powerpc_debugfs_root);
  static int powerpc_debugfs_init(void)
  {
  	powerpc_debugfs_root = debugfs_create_dir("powerpc", NULL);
@@ -86,7 +86,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  #endif
 --- a/arch/powerpc/kernel/traps.c
 +++ b/arch/powerpc/kernel/traps.c
-@@ -2257,35 +2257,20 @@ void ppc_warn_emulated_print(const char
+@@ -2265,35 +2265,20 @@ void ppc_warn_emulated_print(const char
  
  static int __init ppc_warn_emulated_init(void)
  {
@@ -158,7 +158,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  int kvmppc_radix_init(void)
 --- a/arch/powerpc/kvm/book3s_hv.c
 +++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -2160,14 +2160,9 @@ static void debugfs_vcpu_init(struct kvm
+@@ -2161,14 +2161,9 @@ static void debugfs_vcpu_init(struct kvm
  	struct kvm *kvm = vcpu->kvm;
  
  	snprintf(buf, sizeof(buf), "vcpu%u", id);
@@ -322,7 +322,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  /*
 --- a/arch/powerpc/platforms/powernv/pci-ioda.c
 +++ b/arch/powerpc/platforms/powernv/pci-ioda.c
-@@ -3107,11 +3107,6 @@ static void pnv_pci_ioda_create_dbgfs(vo
+@@ -3108,11 +3108,6 @@ static void pnv_pci_ioda_create_dbgfs(vo
  
  		sprintf(name, "PCI%04x", hose->global_number);
  		phb->dbgfs = debugfs_create_dir(name, powerpc_debugfs_root);

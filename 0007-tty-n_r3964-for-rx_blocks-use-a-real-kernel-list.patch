@@ -1,0 +1,141 @@
+From c711e9d95e2fbc99dc88c0797f58194ade169258 Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Thu, 24 Jan 2019 16:04:54 +0100
+Subject: [PATCH 07/15] tty: n_r3964: for rx_blocks, use a real kernel list
+
+The rx blocks have a hand-rolled linked list structure, use a "normal"
+kernel list structure instead, making the code smaller and easier to
+understand and verify that it really does what we think it should be
+doing.
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/tty/n_r3964.c | 67 +++++++++----------------------------------
+ 1 file changed, 13 insertions(+), 54 deletions(-)
+
+diff --git a/drivers/tty/n_r3964.c b/drivers/tty/n_r3964.c
+index 4a9750adcc56..8275fb905aeb 100644
+--- a/drivers/tty/n_r3964.c
++++ b/drivers/tty/n_r3964.c
+@@ -132,8 +132,7 @@ struct rx_block_header {
+ 	unsigned char *data;	/* usually data is located immediately
+ 				 * behind this struct */
+ 	unsigned int locks;	/* only used in rx_buffer */
+-
+-	struct rx_block_header *next;
++	struct list_head node;
+ };
+ 
+ /* Header of received block in tx_buf: */
+@@ -169,8 +168,7 @@ struct r3964_info {
+ 	unsigned char *rx_buf;            /* ring buffer */
+ 	unsigned char *tx_buf;
+ 
+-	struct rx_block_header *rx_first;
+-	struct rx_block_header *rx_last;
++	struct list_head rx_blocks;
+ 	struct list_head tx_blocks;
+ 	unsigned int tx_position;
+         unsigned int rx_position;
+@@ -355,71 +353,32 @@ static void add_rx_queue(struct r3964_info *pInfo,
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&pInfo->lock, flags);
+-
+-	pHeader->next = NULL;
+-
+-	if (pInfo->rx_last == NULL) {
+-		pInfo->rx_first = pInfo->rx_last = pHeader;
+-	} else {
+-		pInfo->rx_last->next = pHeader;
+-		pInfo->rx_last = pHeader;
+-	}
+-	pInfo->blocks_in_rx_queue++;
+-
++	list_add_tail(&pHeader->node, &pInfo->rx_blocks);
+ 	spin_unlock_irqrestore(&pInfo->lock, flags);
+-
+-	TRACE_Q("add_rx_queue: %p, length = %d, rx_first = %p, count = %d",
+-		pHeader, pHeader->length,
+-		pInfo->rx_first, pInfo->blocks_in_rx_queue);
+ }
+ 
+ static void remove_from_rx_queue(struct r3964_info *pInfo,
+ 				 struct rx_block_header *pHeader)
+ {
++	struct rx_block_header *pFind, *tmp;
+ 	unsigned long flags;
+-	struct rx_block_header *pFind;
+ 
+ 	if (pHeader == NULL)
+ 		return;
+ 
+-	TRACE_Q("remove_from_rx_queue: rx_first = %p, rx_last = %p, count = %d",
+-		pInfo->rx_first, pInfo->rx_last, pInfo->blocks_in_rx_queue);
+-	TRACE_Q("remove_from_rx_queue: %p, length %u",
+-		pHeader, pHeader->length);
+-
+ 	spin_lock_irqsave(&pInfo->lock, flags);
+-
+-	if (pInfo->rx_first == pHeader) {
+-		/* Remove the first block in the linked list: */
+-		pInfo->rx_first = pHeader->next;
+-
+-		if (pInfo->rx_first == NULL) {
+-			pInfo->rx_last = NULL;
+-		}
+-		pInfo->blocks_in_rx_queue--;
+-	} else {
+-		/* Find block to remove: */
+-		for (pFind = pInfo->rx_first; pFind; pFind = pFind->next) {
+-			if (pFind->next == pHeader) {
+-				/* Got it. */
+-				pFind->next = pHeader->next;
+-				pInfo->blocks_in_rx_queue--;
+-				if (pFind->next == NULL) {
+-					/* Oh, removed the last one! */
+-					pInfo->rx_last = pFind;
+-				}
+-				break;
+-			}
++	list_for_each_entry_safe(pFind, tmp, &pInfo->rx_blocks, node) {
++		if (pFind == pHeader) {
++			/* Got it. */
++			list_del(&pFind->node);
++			pInfo->blocks_in_rx_queue--;
++			goto exit;
+ 		}
+ 	}
+-
++exit:
+ 	spin_unlock_irqrestore(&pInfo->lock, flags);
+ 
+ 	kfree(pHeader);
+-	TRACE_M("remove_from_rx_queue - kfree %p", pHeader);
+-
+-	TRACE_Q("remove_from_rx_queue: rx_first = %p, rx_last = %p, count = %d",
+-		pInfo->rx_first, pInfo->rx_last, pInfo->blocks_in_rx_queue);
+ }
+ 
+ static void put_char(struct r3964_info *pInfo, unsigned char ch)
+@@ -582,7 +541,7 @@ static void on_receive_block(struct r3964_info *pInfo)
+ 	pBlock->length = length;
+ 	pBlock->data = ((unsigned char *)pBlock) + sizeof(*pBlock);
+ 	pBlock->locks = 0;
+-	pBlock->next = NULL;
++	INIT_LIST_HEAD(&pBlock->node);
+ 
+ 	memcpy(pBlock->data, pInfo->rx_buf, length);
+ 
+@@ -1047,7 +1006,7 @@ static int r3964_open(struct tty_struct *tty)
+ 	mutex_init(&pInfo->read_lock);
+ 	pInfo->tty = tty;
+ 	pInfo->priority = R3964_MASTER;
+-	pInfo->rx_first = pInfo->rx_last = NULL;
++	INIT_LIST_HEAD(&pInfo->rx_blocks);
+ 	INIT_LIST_HEAD(&pInfo->tx_blocks);
+ 	pInfo->rx_position = 0;
+ 	pInfo->tx_position = 0;
+-- 
+2.21.0
+

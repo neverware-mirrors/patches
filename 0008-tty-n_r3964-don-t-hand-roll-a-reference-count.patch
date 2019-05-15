@@ -1,0 +1,160 @@
+From 6e885d94ba582aec3e689d94b3b2deb3570a5e06 Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Thu, 24 Jan 2019 16:44:28 +0100
+Subject: [PATCH 08/15] tty: n_r3964: don't hand-roll a reference count
+
+rx_block_header had a "locks" variable that was trying to be a reference
+count on the header.  When it would drop to zero, the memory would be
+freed.  Convert this to be a kref instead to handle the housekeeping for
+doing reference counting properly.
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/tty/n_r3964.c | 61 ++++++++++++++++++++-----------------------
+ 1 file changed, 28 insertions(+), 33 deletions(-)
+
+diff --git a/drivers/tty/n_r3964.c b/drivers/tty/n_r3964.c
+index 8275fb905aeb..a79c8d485030 100644
+--- a/drivers/tty/n_r3964.c
++++ b/drivers/tty/n_r3964.c
+@@ -26,6 +26,7 @@
+ #include <linux/param.h>
+ #include <linux/poll.h>
+ #include <linux/init.h>
++#include <linux/kref.h>
+ #include <linux/uaccess.h>
+ #include <uapi/linux/n_r3964.h>
+ 
+@@ -131,8 +132,9 @@ struct rx_block_header {
+ 	unsigned int length;	/* length in chars without header */
+ 	unsigned char *data;	/* usually data is located immediately
+ 				 * behind this struct */
+-	unsigned int locks;	/* only used in rx_buffer */
+ 	struct list_head node;
++	struct kref kref;
++	struct r3964_info *info;
+ };
+ 
+ /* Header of received block in tx_buf: */
+@@ -200,8 +202,7 @@ static void add_msg(struct r3964_client_info *pClient, int msg_id, int arg,
+ 		int error_code, struct rx_block_header *pBlock);
+ static struct r3964_message *remove_msg(struct r3964_info *pInfo,
+ 		struct r3964_client_info *pClient);
+-static void remove_client_block(struct r3964_info *pInfo,
+-		struct r3964_client_info *pClient);
++static void remove_client_block(struct r3964_client_info *pClient);
+ 
+ static int r3964_open(struct tty_struct *tty);
+ static void r3964_close(struct tty_struct *tty);
+@@ -357,28 +358,28 @@ static void add_rx_queue(struct r3964_info *pInfo,
+ 	spin_unlock_irqrestore(&pInfo->lock, flags);
+ }
+ 
+-static void remove_from_rx_queue(struct r3964_info *pInfo,
+-				 struct rx_block_header *pHeader)
++static void remove_from_rx_queue(struct kref *kref)
+ {
+-	struct rx_block_header *pFind, *tmp;
++	struct rx_block_header *header, *find;
++	struct r3964_info *info;
+ 	unsigned long flags;
+ 
+-	if (pHeader == NULL)
+-		return;
++	header = container_of(kref, struct rx_block_header, kref);
++	info = header->info;
+ 
+-	spin_lock_irqsave(&pInfo->lock, flags);
+-	list_for_each_entry_safe(pFind, tmp, &pInfo->rx_blocks, node) {
+-		if (pFind == pHeader) {
++	spin_lock_irqsave(&info->lock, flags);
++	list_for_each_entry(find, &info->rx_blocks, node) {
++		if (find == header) {
+ 			/* Got it. */
+-			list_del(&pFind->node);
+-			pInfo->blocks_in_rx_queue--;
++			list_del(&find->node);
++			info->blocks_in_rx_queue--;
+ 			goto exit;
+ 		}
+ 	}
+ exit:
+-	spin_unlock_irqrestore(&pInfo->lock, flags);
++	spin_unlock_irqrestore(&info->lock, flags);
+ 
+-	kfree(pHeader);
++	kfree(header);
+ }
+ 
+ static void put_char(struct r3964_info *pInfo, unsigned char ch)
+@@ -540,7 +541,8 @@ static void on_receive_block(struct r3964_info *pInfo)
+ 
+ 	pBlock->length = length;
+ 	pBlock->data = ((unsigned char *)pBlock) + sizeof(*pBlock);
+-	pBlock->locks = 0;
++	pBlock->info = pInfo;
++	kref_init(&pBlock->kref);
+ 	INIT_LIST_HEAD(&pBlock->node);
+ 
+ 	memcpy(pBlock->data, pInfo->rx_buf, length);
+@@ -855,7 +857,7 @@ static int read_telegram(struct r3964_info *pInfo, struct pid *pid,
+ 		if (copy_to_user(buf, block->data, block->length))
+ 			return -EFAULT;
+ 
+-		remove_client_block(pInfo, pClient);
++		remove_client_block(pClient);
+ 		return block->length;
+ 	}
+ 
+@@ -894,9 +896,9 @@ static void add_msg(struct r3964_client_info *pClient, int msg_id, int arg,
+ 
+ 		pClient->msg_count++;
+ 
+-		if (pBlock != NULL) {
+-			pBlock->locks++;
+-		}
++		if (pBlock != NULL)
++			kref_get(&pBlock->kref);
++
+ 		spin_unlock_irqrestore(&pClient->lock, flags);
+ 	} else {
+ 		if ((pClient->last_msg->msg_id == R3964_MSG_ACK)
+@@ -935,7 +937,7 @@ static struct r3964_message *remove_msg(struct r3964_info *pInfo,
+ 
+ 		pClient->msg_count--;
+ 		if (pMsg->block) {
+-			remove_client_block(pInfo, pClient);
++			remove_client_block(pClient);
+ 			pClient->next_block_to_read = pMsg->block;
+ 		}
+ 		spin_unlock_irqrestore(&pClient->lock, flags);
+@@ -943,21 +945,14 @@ static struct r3964_message *remove_msg(struct r3964_info *pInfo,
+ 	return pMsg;
+ }
+ 
+-static void remove_client_block(struct r3964_info *pInfo,
+-				struct r3964_client_info *pClient)
++static void remove_client_block(struct r3964_client_info *client)
+ {
+ 	struct rx_block_header *block;
+ 
+-	TRACE_PS("remove_client_block PID %d", pid_nr(pClient->pid));
+-
+-	block = pClient->next_block_to_read;
+-	if (block) {
+-		block->locks--;
+-		if (block->locks == 0) {
+-			remove_from_rx_queue(pInfo, block);
+-		}
+-	}
+-	pClient->next_block_to_read = NULL;
++	block = client->next_block_to_read;
++	if (block)
++		kref_put(&block->kref, remove_from_rx_queue);
++	client->next_block_to_read = NULL;
+ }
+ 
+ /*************************************************************
+-- 
+2.21.0
+

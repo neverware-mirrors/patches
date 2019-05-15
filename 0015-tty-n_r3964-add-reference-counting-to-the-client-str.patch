@@ -1,0 +1,250 @@
+From da04c3926a73304489a320796045814ac48f2e37 Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Fri, 1 Feb 2019 10:44:55 +0100
+Subject: [PATCH 15/15] tty: n_r3964: add reference counting to the client
+ structure
+
+The client structure pointer is thrown around a lot, and trying to keep
+track of who has, and does not have, a valid pointer is almost
+impossible to audit properly, especially when looking up client
+structures from the lists.  So add a kref to the structure so that it
+will be automatically reference counted and no one can access a stale
+pointer and memory will be freed when everything is finished.
+
+This should resolve the problem with the client structure pointer beging
+able to be accessed when it was removed by someone else at the same
+time.
+
+Reported-by: Jann Horn <jannh@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/tty/n_r3964.c | 82 +++++++++++++++++++++++++++++++++----------
+ 1 file changed, 64 insertions(+), 18 deletions(-)
+
+diff --git a/drivers/tty/n_r3964.c b/drivers/tty/n_r3964.c
+index aef0befd068d..37d03ef8e75d 100644
+--- a/drivers/tty/n_r3964.c
++++ b/drivers/tty/n_r3964.c
+@@ -106,6 +106,7 @@ struct tx_block_header;
+ 
+ struct r3964_client_info {
+ 	spinlock_t lock;
++	struct kref kref;
+ 	struct pid *pid;
+ 	unsigned int sig_flags;
+ 
+@@ -298,6 +299,30 @@ static int __init r3964_init(void)
+ module_init(r3964_init);
+ module_exit(r3964_exit);
+ 
++static struct r3964_client_info *client_get(struct r3964_client_info *client)
++{
++	if (client)
++		kref_get(&client->kref);
++	return client;
++}
++
++static void client_free(struct kref *kref)
++{
++	struct r3964_client_info *client;
++
++	client = container_of(kref, struct r3964_client_info, kref);
++
++	put_pid(client->pid);
++	list_del(&client->node);
++	kfree(client);
++}
++
++static void client_put(struct r3964_client_info *client)
++{
++	if (client)
++		kref_put(&client->kref, client_free);
++}
++
+ /*************************************************************
+  * Protocol implementation routines
+  *************************************************************/
+@@ -339,6 +364,7 @@ static void remove_from_tx_queue(struct r3964_info *pInfo, int error_code)
+ 		wake_up_interruptible(&pInfo->tty->read_wait);
+ 	}
+ 
++	client_put(pHeader->owner);
+ 	kfree(pHeader);
+ }
+ 
+@@ -550,6 +576,7 @@ static void on_receive_block(struct r3964_info *pInfo)
+ 		unsigned long client_flags;
+ 		unsigned int sig_flags;
+ 
++		client_get(pClient);
+ 		spin_lock_irqsave(&pClient->lock, client_flags);
+ 		sig_flags = pClient->sig_flags;
+ 		spin_unlock_irqrestore(&pClient->lock, client_flags);
+@@ -558,6 +585,7 @@ static void on_receive_block(struct r3964_info *pInfo)
+ 			add_msg(pClient, R3964_MSG_DATA, length, R3964_OK,
+ 				pBlock);
+ 		}
++		client_put(pClient);
+ 	}
+ 	spin_unlock_irqrestore(&pInfo->lock, flags);
+ 	wake_up_interruptible(&pInfo->tty->read_wait);
+@@ -752,25 +780,40 @@ static void on_timeout(struct timer_list *t)
+ 	}
+ }
+ 
++/*
++ * The reference count of the pointer returned will be incremented
++ * (if it is not NULL) so client_put() must be called on it when the
++ * caller is finished with it.
++ */
+ static struct r3964_client_info *findClient(struct r3964_info *pInfo,
+ 		struct pid *pid)
+ {
+ 	struct r3964_client_info *pClient;
+-	unsigned long flags;
++	unsigned long client_flags;
++	unsigned long info_flags;
+ 
+-	spin_lock_irqsave(&pInfo->lock, flags);
++	spin_lock_irqsave(&pInfo->lock, info_flags);
+ 	list_for_each_entry(pClient, &pInfo->clients, node) {
++		client_get(pClient);
++		spin_lock_irqsave(&pClient->lock, client_flags);
+ 		if (pClient->pid == pid) {
++			spin_unlock_irqrestore(&pClient->lock, client_flags);
+ 			goto exit;
+ 		}
++		spin_unlock_irqrestore(&pClient->lock, client_flags);
++		client_put(pClient);
+ 	}
+ 	pClient = NULL;
+ exit:
+-	spin_unlock_irqrestore(&pInfo->lock, flags);
++	spin_unlock_irqrestore(&pInfo->lock, info_flags);
+ 	return pClient;
+ }
+ 
+-/* Find a client that refers to the pid of the current task */
++/*
++ * Find a client that refers to the pid of the current task
++ * The reference count of the pointer will be incremented so
++ * client_put() must be called when the caller is finished with it
++ */
+ static struct r3964_client_info *find_client_current(struct r3964_info *info)
+ {
+ 	struct r3964_client_info *client;
+@@ -793,6 +836,7 @@ static int enable_signals(struct r3964_info *pInfo, struct pid *pid, int arg)
+ 
+ 		/* Remove client from client list */
+ 		list_for_each_entry(pClient, &pInfo->clients, node) {
++			client_get(pClient);
+ 			if (pClient->pid == pid) {
+ 				TRACE_PS("removing client %d from client list",
+ 					 pid_nr(pid));
+@@ -804,13 +848,13 @@ static int enable_signals(struct r3964_info *pInfo, struct pid *pid, int arg)
+ 							"kfree %p", pMsg);
+ 					}
+ 				}
+-				put_pid(pClient->pid);
+-				list_del(&pClient->node);
+-				kfree(pClient);
+-				TRACE_M("enable_signals - kfree %p", pClient);
++				/* Second put will free the structure */
++				client_put(pClient);
++				client_put(pClient);
+ 				spin_unlock_irqrestore(&pInfo->lock, flags);
+ 				return 0;
+ 			}
++			client_put(pClient);
+ 		}
+ 		spin_unlock_irqrestore(&pInfo->lock, flags);
+ 		return -EINVAL;
+@@ -823,6 +867,7 @@ static int enable_signals(struct r3964_info *pInfo, struct pid *pid, int arg)
+ 			spin_lock_irqsave(&pClient->lock, client_flags);
+ 			pClient->sig_flags = arg;
+ 			spin_unlock_irqrestore(&pClient->lock, client_flags);
++			client_put(pClient);
+ 		} else {
+ 			/* add client to client list */
+ 			pClient = kmalloc(sizeof(struct r3964_client_info),
+@@ -834,6 +879,7 @@ static int enable_signals(struct r3964_info *pInfo, struct pid *pid, int arg)
+ 			spin_lock_irqsave(&pInfo->lock, flags);
+ 			TRACE_PS("add client %d to client list", pid_nr(pid));
+ 			spin_lock_init(&pClient->lock);
++			kref_init(&pClient->kref);
+ 			pClient->sig_flags = arg;
+ 			pClient->pid = get_pid(pid);
+ 			INIT_LIST_HEAD(&pClient->msgs);
+@@ -887,6 +933,7 @@ static int read_telegram(struct r3964_info *pInfo, struct pid *pid,
+ 
+ 	if (copy_to_user(buf, data, length)) {
+ 		kfree(data);
++		client_put(pClient);
+ 		return -EFAULT;
+ 	}
+ 	kfree(data);
+@@ -906,6 +953,7 @@ static int read_telegram(struct r3964_info *pInfo, struct pid *pid,
+ 
+ exit:
+ 	spin_unlock_irqrestore(&pClient->lock, flags);
++	client_put(pClient);
+ 	return retval;
+ }
+ 
+@@ -1091,10 +1139,7 @@ static void r3964_close(struct tty_struct *tty)
+ 				TRACE_M("r3964_close - msg kfree %p", pMsg);
+ 			}
+ 		}
+-		put_pid(pClient->pid);
+-		list_del(&pClient->node);
+-		kfree(pClient);
+-		TRACE_M("r3964_close - client kfree %p", pClient);
++		client_put(pClient);
+ 	}
+ 	/* Remove jobs from tx_queue: */
+ 	spin_lock_irqsave(&pInfo->lock, flags);
+@@ -1174,6 +1219,7 @@ static ssize_t r3964_read(struct tty_struct *tty, struct file *file,
+ 	ret = -EPERM;
+ unlock:
+ 	mutex_unlock(&pInfo->read_lock);
++	client_put(pClient);
+ 	return ret;
+ }
+ 
+@@ -1182,7 +1228,6 @@ static ssize_t r3964_write(struct tty_struct *tty, struct file *file,
+ {
+ 	struct r3964_info *pInfo = tty->disc_data;
+ 	struct tx_block_header *pHeader;
+-	struct r3964_client_info *pClient;
+ 	unsigned char *new_data;
+ 
+ 	TRACE_L("write request, %d characters", count);
+@@ -1218,12 +1263,12 @@ static ssize_t r3964_write(struct tty_struct *tty, struct file *file,
+ 	pHeader = (struct tx_block_header *)new_data;
+ 	pHeader->data = new_data + sizeof(*pHeader);
+ 	pHeader->length = count;
+-	pHeader->owner = NULL;
+ 
+-	pClient = find_client_current(pInfo);
+-	if (pClient) {
+-		pHeader->owner = pClient;
+-	}
++	/*
++	 * The reference count is left incremented as the last user of
++	 * this pointer will drop it when needed
++	 */
++	pHeader->owner = find_client_current(pInfo);
+ 
+ 	memcpy(pHeader->data, data, count);	/* We already verified this */
+ 
+@@ -1334,6 +1379,7 @@ static __poll_t r3964_poll(struct tty_struct *tty, struct file *file,
+ 		if (!list_empty(&pClient->msgs))
+ 			result |= EPOLLIN | EPOLLRDNORM;
+ 		spin_unlock_irqrestore(&pClient->lock, flags);
++		client_put(pClient);
+ 	} else {
+ 		result = EPOLLNVAL | EPOLLERR;
+ 	}
+-- 
+2.21.0
+

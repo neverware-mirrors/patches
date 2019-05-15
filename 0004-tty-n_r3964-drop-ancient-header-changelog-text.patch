@@ -1,0 +1,74 @@
+From d01e4fbee328ad33555c740d7881129fe6d15175 Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Wed, 23 Jan 2019 20:31:02 +0100
+Subject: [PATCH 04/15] tty: n_r3964: drop ancient header changelog text
+
+No need to keep changelog text from 2001 and earlier in the file itself,
+drop it all.  This keeps the original copyright and author information
+in the file.
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/tty/n_r3964.c | 45 ++++---------------------------------------
+ 1 file changed, 4 insertions(+), 41 deletions(-)
+
+diff --git a/drivers/tty/n_r3964.c b/drivers/tty/n_r3964.c
+index 62a0e869eab5..6c0abb04c4f0 100644
+--- a/drivers/tty/n_r3964.c
++++ b/drivers/tty/n_r3964.c
+@@ -1,48 +1,11 @@
+ // SPDX-License-Identifier: GPL-1.0+
+-/* r3964 linediscipline for linux
++/*
++ * r3964 line discipline
+  *
+- * -----------------------------------------------------------
+- * Copyright by 
+- * Philips Automation Projects
++ * Copyright by Philips Automation Projects
+  * Kassel (Germany)
+- * -----------------------------------------------------------
+- * Author:
+- * L. Haag
+- *
+- * $Log: n_r3964.c,v $
+- * Revision 1.10  2001/03/18 13:02:24  dwmw2
+- * Fix timer usage, use spinlocks properly.
+- *
+- * Revision 1.9  2001/03/18 12:52:14  dwmw2
+- * Merge changes in 2.4.2
+- *
+- * Revision 1.8  2000/03/23 14:14:54  dwmw2
+- * Fix race in sleeping in r3964_read()
+- *
+- * Revision 1.7  1999/28/08 11:41:50  dwmw2
+- * Port to 2.3 kernel
+- *
+- * Revision 1.6  1998/09/30 00:40:40  dwmw2
+- * Fixed compilation on 2.0.x kernels
+- * Updated to newly registered tty-ldisc number 9
+- *
+- * Revision 1.5  1998/09/04 21:57:36  dwmw2
+- * Signal handling bug fixes, port to 2.1.x.
+- *
+- * Revision 1.4  1998/04/02 20:26:59  lhaag
+- * select, blocking, ...
+- *
+- * Revision 1.3  1998/02/12 18:58:43  root
+- * fixed some memory leaks
+- * calculation of checksum characters
+- *
+- * Revision 1.2  1998/02/07 13:03:34  root
+- * ioctl read_telegram
+- *
+- * Revision 1.1  1998/02/06 19:21:03  root
+- * Initial revision
+- *
+  *
++ * Author: L. Haag
+  */
+ 
+ #include <linux/module.h>
+-- 
+2.21.0
+

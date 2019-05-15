@@ -1,0 +1,82 @@
+From 7105eeab4aa73032fe40f5e72f51601da0cd7c4f Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Fri, 25 Jan 2019 16:35:57 +0100
+Subject: [PATCH 13/15] tty: n_r3964: properly protect sig_flags of client
+ structure
+
+This cleans up the remaining users of the sig_flags field in the client
+structure to allways access it under the client structure's lock.
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/tty/n_r3964.c | 20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/tty/n_r3964.c b/drivers/tty/n_r3964.c
+index d3f53fa201b7..a00c34ea9c27 100644
+--- a/drivers/tty/n_r3964.c
++++ b/drivers/tty/n_r3964.c
+@@ -193,7 +193,6 @@ static void transmit_block(struct r3964_info *pInfo);
+ static void receive_char(struct r3964_info *pInfo, const unsigned char c);
+ static void receive_error(struct r3964_info *pInfo, const char flag);
+ static void on_timeout(struct timer_list *t);
+-static int enable_signals(struct r3964_info *pInfo, struct pid *pid, int arg);
+ static void add_msg(struct r3964_client_info *pClient, int msg_id, int arg,
+ 		int error_code, struct rx_block_header *pBlock);
+ static struct r3964_message *remove_msg(struct r3964_client_info *client);
+@@ -548,7 +547,14 @@ static void on_receive_block(struct r3964_info *pInfo)
+ 	/* notify attached client processes: */
+ 	spin_lock_irqsave(&pInfo->lock, flags);
+ 	list_for_each_entry(pClient, &pInfo->clients, node) {
+-		if (pClient->sig_flags & R3964_SIG_DATA) {
++		unsigned long client_flags;
++		unsigned int sig_flags;
++
++		spin_lock_irqsave(&pClient->lock, client_flags);
++		sig_flags = pClient->sig_flags;
++		spin_unlock_irqrestore(&pClient->lock, client_flags);
++
++		if (sig_flags & R3964_SIG_DATA) {
+ 			add_msg(pClient, R3964_MSG_DATA, length, R3964_OK,
+ 				pBlock);
+ 		}
+@@ -799,8 +805,12 @@ static int enable_signals(struct r3964_info *pInfo, struct pid *pid, int arg)
+ 	} else {
+ 		pClient = findClient(pInfo, pid);
+ 		if (pClient) {
++			unsigned long client_flags;
++
+ 			/* update signal options */
++			spin_lock_irqsave(&pClient->lock, client_flags);
+ 			pClient->sig_flags = arg;
++			spin_unlock_irqrestore(&pClient->lock, client_flags);
+ 		} else {
+ 			/* add client to client list */
+ 			pClient = kmalloc(sizeof(struct r3964_client_info),
+@@ -915,6 +925,7 @@ static void add_msg(struct r3964_client_info *pClient, int msg_id, int arg,
+ {
+ 	struct r3964_message *pMsg;
+ 	unsigned long flags;
++	unsigned int sig_flags;
+ 
+ 	spin_lock_irqsave(&pClient->lock, flags);
+ 
+@@ -935,12 +946,13 @@ static void add_msg(struct r3964_client_info *pClient, int msg_id, int arg,
+ 			TRACE_PE("add_msg - queue OVERFLOW-msg");
+ 		}
+ 	}
++
++	sig_flags = pClient->sig_flags;
+ 	spin_unlock_irqrestore(&pClient->lock, flags);
+ 
+ 	/* Send SIGIO signal to client process: */
+-	if (pClient->sig_flags & R3964_USE_SIGIO) {
++	if (sig_flags & R3964_USE_SIGIO)
+ 		kill_pid(pClient->pid, SIGIO, 1);
+-	}
+ }
+ 
+ static struct r3964_message *remove_msg(struct r3964_client_info *client)
+-- 
+2.21.0
+

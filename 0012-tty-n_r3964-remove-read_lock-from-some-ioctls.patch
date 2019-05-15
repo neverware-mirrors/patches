@@ -1,0 +1,92 @@
+From 3e1d022e31e12398690f4f8638453b3929fa73d4 Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Fri, 25 Jan 2019 15:20:31 +0100
+Subject: [PATCH 12/15] tty: n_r3964: remove read_lock from some ioctls
+
+Now that read_telegram() properly grabs the needed locks for its
+operation, we can move the "heavy" read lock away from all ioctls except
+one, the R3964_ENABLE_SIGNALS lock.
+
+When we move this lock away, properly grab the info->lock for the other
+ioctls that need it so that they will not have any problems.
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/tty/n_r3964.c | 28 ++++++++++++++++++----------
+ 1 file changed, 18 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/tty/n_r3964.c b/drivers/tty/n_r3964.c
+index 1514b17f5615..d3f53fa201b7 100644
+--- a/drivers/tty/n_r3964.c
++++ b/drivers/tty/n_r3964.c
+@@ -175,7 +175,8 @@ struct r3964_info {
+ 	unsigned char bcc;
+ 	unsigned int blocks_in_rx_queue;
+ 
+-	struct mutex read_lock;		/* serialize read and ioctl */
++	/* serialize read and R3964_ENABLE_SIGNALS ioctl */
++	struct mutex read_lock;
+ 
+ 	struct list_head clients;
+ 	unsigned int state;
+@@ -1219,33 +1220,41 @@ static int r3964_ioctl(struct tty_struct *tty, struct file *file,
+ 		unsigned int cmd, unsigned long arg)
+ {
+ 	struct r3964_info *pInfo = tty->disc_data;
++	unsigned long flags;
+ 	int retval = 0;
+ 
+ 	if (pInfo == NULL)
+ 		return -EINVAL;
+-	/* Internal serialization of reads and ioctls */
+-	if (file->f_flags & O_NONBLOCK) {
+-		if (!mutex_trylock(&pInfo->read_lock))
+-			return -EAGAIN;
+-	} else {
+-		if (mutex_lock_interruptible(&pInfo->read_lock))
+-			return -ERESTARTSYS;
+-	}
+ 
+ 	switch (cmd) {
+ 	case R3964_ENABLE_SIGNALS:
++		/* Internal serialization of reads and this ioctl */
++		if (file->f_flags & O_NONBLOCK) {
++			if (!mutex_trylock(&pInfo->read_lock))
++				return -EAGAIN;
++		} else {
++			if (mutex_lock_interruptible(&pInfo->read_lock))
++				return -ERESTARTSYS;
++		}
++
+ 		retval = enable_signals(pInfo, task_pid(current), arg);
++
++		mutex_unlock(&pInfo->read_lock);
+ 		break;
+ 	case R3964_SETPRIORITY:
+ 		if (arg < R3964_MASTER || arg > R3964_SLAVE)
+ 			return -EINVAL;
++		spin_lock_irqsave(&pInfo->lock, flags);
+ 		pInfo->priority = arg & 0xff;
++		spin_unlock_irqrestore(&pInfo->lock, flags);
+ 		break;
+ 	case R3964_USE_BCC:
++		spin_lock_irqsave(&pInfo->lock, flags);
+ 		if (arg)
+ 			pInfo->flags |= R3964_BCC;
+ 		else
+ 			pInfo->flags &= ~R3964_BCC;
++		spin_unlock_irqrestore(&pInfo->lock, flags);
+ 		break;
+ 	case R3964_READ_TELEGRAM:
+ 		retval = read_telegram(pInfo, task_pid(current),
+@@ -1256,7 +1265,6 @@ static int r3964_ioctl(struct tty_struct *tty, struct file *file,
+ 		break;
+ 	}
+ 
+-	mutex_unlock(&pInfo->read_lock);
+ 	return retval;
+ }
+ 
+-- 
+2.21.0
+

@@ -1,5 +1,20 @@
 #
 
+0001-tty-n_r3964-locking-fixups.patch
+0002-tty-n_r3964-fix-poll-return-value.patch
+0003-tty-n_r3964-remove-n_r3964.h.patch
+0004-tty-n_r3964-drop-ancient-header-changelog-text.patch
+0005-tty-n_r3964-split-rx-and-tx-header-structures.patch
+0006-tty-n_r3964-for-tx_blocks-use-a-real-kernel-list.patch
+0007-tty-n_r3964-for-rx_blocks-use-a-real-kernel-list.patch
+0008-tty-n_r3964-don-t-hand-roll-a-reference-count.patch
+0009-tty-n_r3964-for-messages-use-a-real-kernel-list.patch
+0010-tty-n_r3964-for-clients-use-a-real-kernel-list.patch
+0011-tty-n_r3964-fix-race-with-add_msg-and-read_telegram.patch
+0012-tty-n_r3964-remove-read_lock-from-some-ioctls.patch
+0013-tty-n_r3964-properly-protect-sig_flags-of-client-str.patch
+0014-tty-n_r3964-properly-reference-count-pids.patch
+0015-tty-n_r3964-add-reference-counting-to-the-client-str.patch
 l.patch
 spdxcheck-print-out-files-without-any-spdx-lines.patch
 p02
