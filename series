@@ -1,4 +1,5 @@
 #
+spdxcheck-print-out-files-without-any-spdx-lines.patch
 
 0001-tty-n_r3964-locking-fixups.patch
 0002-tty-n_r3964-fix-poll-return-value.patch
@@ -16,16 +17,7 @@
 0014-tty-n_r3964-properly-reference-count-pids.patch
 0015-tty-n_r3964-add-reference-counting-to-the-client-str.patch
 l.patch
-spdxcheck-print-out-files-without-any-spdx-lines.patch
-p02
 p04
-p06
-p07
-p08
-p09
-p10
-p11
-p12
 usb_DEVICE_ATTR.patch
 
 

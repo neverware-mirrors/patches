@@ -30,7 +30,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/arch/powerpc/include/asm/kvm_host.h
 +++ b/arch/powerpc/include/asm/kvm_host.h
-@@ -295,8 +295,6 @@ struct kvm_arch {
+@@ -288,8 +288,6 @@ struct kvm_arch {
  	pgd_t *pgtable;
  	u64 process_table;
  	struct dentry *debugfs_dir;
@@ -49,7 +49,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
 --- a/arch/powerpc/kernel/fadump.c
 +++ b/arch/powerpc/kernel/fadump.c
-@@ -1650,7 +1650,6 @@ DEFINE_SHOW_ATTRIBUTE(fadump_region);
+@@ -1637,7 +1637,6 @@ DEFINE_SHOW_ATTRIBUTE(fadump_region);
  
  static void fadump_init_files(void)
  {
@@ -57,7 +57,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	int rc = 0;
  
  	rc = sysfs_create_file(kernel_kobj, &fadump_attr.attr);
-@@ -1663,12 +1662,8 @@ static void fadump_init_files(void)
+@@ -1650,12 +1649,8 @@ static void fadump_init_files(void)
  		printk(KERN_ERR "fadump: unable to create sysfs file"
  			" fadump_registered (%d)\n", rc);
  
@@ -74,7 +74,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		rc = sysfs_create_file(kernel_kobj, &fadump_release_attr.attr);
 --- a/arch/powerpc/kernel/setup-common.c
 +++ b/arch/powerpc/kernel/setup-common.c
-@@ -771,8 +771,7 @@ EXPORT_SYMBOL(powerpc_debugfs_root);
+@@ -767,8 +767,7 @@ EXPORT_SYMBOL(powerpc_debugfs_root);
  static int powerpc_debugfs_init(void)
  {
  	powerpc_debugfs_root = debugfs_create_dir("powerpc", NULL);
@@ -86,7 +86,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  #endif
 --- a/arch/powerpc/kernel/traps.c
 +++ b/arch/powerpc/kernel/traps.c
-@@ -2265,35 +2265,20 @@ void ppc_warn_emulated_print(const char
+@@ -2261,35 +2261,20 @@ void ppc_warn_emulated_print(const char
  
  static int __init ppc_warn_emulated_init(void)
  {
@@ -130,7 +130,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  device_initcall(ppc_warn_emulated_init);
 --- a/arch/powerpc/kvm/book3s_64_mmu_hv.c
 +++ b/arch/powerpc/kvm/book3s_64_mmu_hv.c
-@@ -2160,9 +2160,8 @@ static const struct file_operations debu
+@@ -2149,9 +2149,8 @@ static const struct file_operations debu
  
  void kvmppc_mmu_debugfs_init(struct kvm *kvm)
  {
@@ -144,7 +144,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  void kvmppc_mmu_book3s_hv_init(struct kvm_vcpu *vcpu)
 --- a/arch/powerpc/kvm/book3s_64_mmu_radix.c
 +++ b/arch/powerpc/kvm/book3s_64_mmu_radix.c
-@@ -1361,9 +1361,8 @@ static const struct file_operations debu
+@@ -1353,9 +1353,8 @@ static const struct file_operations debu
  
  void kvmhv_radix_debugfs_init(struct kvm *kvm)
  {
@@ -158,7 +158,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  int kvmppc_radix_init(void)
 --- a/arch/powerpc/kvm/book3s_hv.c
 +++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -2161,14 +2161,9 @@ static void debugfs_vcpu_init(struct kvm
+@@ -2231,14 +2231,9 @@ static void debugfs_vcpu_init(struct kvm
  	struct kvm *kvm = vcpu->kvm;
  
  	snprintf(buf, sizeof(buf), "vcpu%u", id);
@@ -177,7 +177,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  #else /* CONFIG_KVM_BOOK3S_HV_EXIT_TIMING */
 --- a/arch/powerpc/kvm/timing.c
 +++ b/arch/powerpc/kvm/timing.c
-@@ -218,19 +218,12 @@ static const struct file_operations kvmp
+@@ -207,19 +207,12 @@ static const struct file_operations kvmp
  void kvmppc_create_vcpu_debugfs(struct kvm_vcpu *vcpu, unsigned int id)
  {
  	static char dbg_fname[50];
@@ -201,7 +201,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  }
 --- a/arch/powerpc/platforms/4xx/ocm.c
 +++ b/arch/powerpc/platforms/4xx/ocm.c
-@@ -280,22 +280,12 @@ static const struct file_operations ocm_
+@@ -266,22 +266,12 @@ static const struct file_operations ocm_
  	.release = single_release,
  };
  
@@ -228,7 +228,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  void *ppc4xx_ocm_alloc(phys_addr_t *phys, int size, int align,
 --- a/arch/powerpc/platforms/cell/axon_msi.c
 +++ b/arch/powerpc/platforms/cell/axon_msi.c
-@@ -484,10 +484,6 @@ void axon_msi_debug_setup(struct device_
+@@ -480,10 +480,6 @@ void axon_msi_debug_setup(struct device_
  
  	snprintf(name, sizeof(name), "msic_%d", of_node_to_nid(dn));
  
@@ -242,7 +242,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  #endif /* DEBUG */
 --- a/arch/powerpc/platforms/powernv/memtrace.c
 +++ b/arch/powerpc/platforms/powernv/memtrace.c
-@@ -191,11 +191,6 @@ static int memtrace_init_debugfs(void)
+@@ -187,11 +187,6 @@ static int memtrace_init_debugfs(void)
  
  		snprintf(ent->name, 16, "%08x", ent->nid);
  		dir = debugfs_create_dir(ent->name, memtrace_debugfs_dir);
@@ -254,7 +254,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  		ent->dir = dir;
  		debugfs_create_file("trace", 0400, dir, ent, &memtrace_fops);
-@@ -319,8 +314,6 @@ static int memtrace_init(void)
+@@ -314,8 +309,6 @@ static int memtrace_init(void)
  {
  	memtrace_debugfs_dir = debugfs_create_dir("memtrace",
  						  powerpc_debugfs_root);
@@ -265,7 +265,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  			    NULL, &memtrace_init_fops);
 --- a/arch/powerpc/platforms/powernv/opal-imc.c
 +++ b/arch/powerpc/platforms/powernv/opal-imc.c
-@@ -39,11 +39,10 @@ static int imc_mem_set(void *data, u64 v
+@@ -35,11 +35,10 @@ static int imc_mem_set(void *data, u64 v
  }
  DEFINE_DEBUGFS_ATTRIBUTE(fops_imc_x64, imc_mem_get, imc_mem_set, "0x%016llx\n");
  
@@ -280,7 +280,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  }
  
  /*
-@@ -63,13 +62,6 @@ static void export_imc_mode_and_cmd(stru
+@@ -59,13 +58,6 @@ static void export_imc_mode_and_cmd(stru
  
  	imc_debugfs_parent = debugfs_create_dir("imc", powerpc_debugfs_root);
  
@@ -294,7 +294,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	if (of_property_read_u32(node, "cb_offset", &cb_offset))
  		cb_offset = IMC_CNTL_BLK_OFFSET;
  
-@@ -77,21 +69,15 @@ static void export_imc_mode_and_cmd(stru
+@@ -73,21 +65,15 @@ static void export_imc_mode_and_cmd(stru
  		loc = (u64)(pmu_ptr->mem_info[chip].vbase) + cb_offset;
  		imc_mode_addr = (u64 *)(loc + IMC_CNTL_BLK_MODE_OFFSET);
  		sprintf(mode, "imc_mode_%d", nid);
@@ -322,7 +322,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  /*
 --- a/arch/powerpc/platforms/powernv/pci-ioda.c
 +++ b/arch/powerpc/platforms/powernv/pci-ioda.c
-@@ -3108,11 +3108,6 @@ static void pnv_pci_ioda_create_dbgfs(vo
+@@ -3116,11 +3116,6 @@ static void pnv_pci_ioda_create_dbgfs(vo
  
  		sprintf(name, "PCI%04x", hose->global_number);
  		phb->dbgfs = debugfs_create_dir(name, powerpc_debugfs_root);
@@ -336,7 +336,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  				    &pnv_pci_diag_data_fops);
 --- a/arch/powerpc/platforms/powernv/vas-debug.c
 +++ b/arch/powerpc/platforms/powernv/vas-debug.c
-@@ -119,7 +119,7 @@ void vas_window_free_dbgdir(struct vas_w
+@@ -115,7 +115,7 @@ void vas_window_free_dbgdir(struct vas_w
  
  void vas_window_init_dbgdir(struct vas_window *window)
  {
@@ -345,7 +345,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	if (!window->vinst->dbgdir)
  		return;
-@@ -131,28 +131,10 @@ void vas_window_init_dbgdir(struct vas_w
+@@ -127,28 +127,10 @@ void vas_window_init_dbgdir(struct vas_w
  	snprintf(window->dbgname, 16, "w%d", window->winid);
  
  	d = debugfs_create_dir(window->dbgname, window->vinst->dbgdir);
@@ -376,7 +376,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  }
  
  void vas_instance_init_dbgdir(struct vas_instance *vinst)
-@@ -160,8 +142,6 @@ void vas_instance_init_dbgdir(struct vas
+@@ -156,8 +138,6 @@ void vas_instance_init_dbgdir(struct vas
  	struct dentry *d;
  
  	vas_init_dbgdir();
@@ -385,7 +385,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	vinst->dbgname = kzalloc(16, GFP_KERNEL);
  	if (!vinst->dbgname)
-@@ -170,16 +150,7 @@ void vas_instance_init_dbgdir(struct vas
+@@ -166,16 +146,7 @@ void vas_instance_init_dbgdir(struct vas
  	snprintf(vinst->dbgname, 16, "v%d", vinst->vas_id);
  
  	d = debugfs_create_dir(vinst->dbgname, vas_debugfs);
@@ -402,7 +402,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  }
  
  /*
-@@ -195,6 +166,4 @@ void vas_init_dbgdir(void)
+@@ -191,6 +162,4 @@ void vas_init_dbgdir(void)
  
  	first_time = false;
  	vas_debugfs = debugfs_create_dir("vas", NULL);
@@ -411,7 +411,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  }
 --- a/arch/powerpc/platforms/pseries/dtl.c
 +++ b/arch/powerpc/platforms/pseries/dtl.c
-@@ -32,7 +32,6 @@
+@@ -19,7 +19,6 @@
  
  struct dtl {
  	struct dtl_entry	*buf;
@@ -419,7 +419,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	int			cpu;
  	int			buf_entries;
  	u64			last_idx;
-@@ -332,22 +331,16 @@ static const struct file_operations dtl_
+@@ -320,22 +319,16 @@ static const struct file_operations dtl_
  
  static struct dentry *dtl_dir;
  
@@ -444,7 +444,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	int rc, i;
  
  	if (!firmware_has_feature(FW_FEATURE_SPLPAR))
-@@ -357,21 +350,9 @@ static int dtl_init(void)
+@@ -345,21 +338,9 @@ static int dtl_init(void)
  
  	rc = -ENOMEM;
  	dtl_dir = debugfs_create_dir("dtl", powerpc_debugfs_root);
@@ -468,7 +468,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	/* set up the per-cpu log structures */
  	for_each_possible_cpu(i) {
-@@ -379,16 +360,9 @@ static int dtl_init(void)
+@@ -367,16 +348,9 @@ static int dtl_init(void)
  		spin_lock_init(&dtl->lock);
  		dtl->cpu = i;
  
@@ -488,7 +488,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  machine_arch_initcall(pseries, dtl_init);
 --- a/arch/powerpc/platforms/pseries/hvCall_inst.c
 +++ b/arch/powerpc/platforms/pseries/hvCall_inst.c
-@@ -142,7 +142,6 @@ static void probe_hcall_exit(void *ignor
+@@ -129,7 +129,6 @@ static void probe_hcall_exit(void *ignor
  static int __init hcall_inst_init(void)
  {
  	struct dentry *hcall_root;
@@ -496,7 +496,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	char cpu_name_buf[CPU_NAME_BUF_SIZE];
  	int cpu;
  
-@@ -158,17 +157,12 @@ static int __init hcall_inst_init(void)
+@@ -145,17 +144,12 @@ static int __init hcall_inst_init(void)
  	}
  
  	hcall_root = debugfs_create_dir(HCALL_ROOT_DIR, NULL);
@@ -519,7 +519,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	return 0;
 --- a/arch/powerpc/sysdev/scom.c
 +++ b/arch/powerpc/sysdev/scom.c
-@@ -198,12 +198,6 @@ static int scom_debug_init_one(struct de
+@@ -185,12 +185,6 @@ static int scom_debug_init_one(struct de
  	ent->path.size = strlen((char *)ent->path.data);
  
  	dir = debugfs_create_dir(ent->name, root);
@@ -532,7 +532,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	debugfs_create_blob("devspec", 0400, dir, &ent->path);
  	debugfs_create_file("access", 0600, dir, ent, &scom_debug_fops);
-@@ -218,8 +212,6 @@ static int scom_debug_init(void)
+@@ -205,8 +199,6 @@ static int scom_debug_init(void)
  	int i, rc;
  
  	root = debugfs_create_dir("scom", powerpc_debugfs_root);
