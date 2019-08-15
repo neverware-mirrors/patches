@@ -1,4 +1,6 @@
-[PATCH V6] Documentation/admin-guide: Embargoed hardware security issues
+Subject: [PATCH] Documentation/admin-guide: Embargoed hardware security issues
+
+From: Thomas Gleixner <tglx@linutronix.de>
 
 To address the requirements of embargoed hardware issues, like Meltdown,
 Spectre, L1TF etc. it is necessary to define and document a process for
@@ -19,7 +21,7 @@ in the industry as a whole.
 
 The process is designed with the experience of the past incidents in
 mind and tries to address the remaining gaps, so future (hopefully rare)
-incidents can be handled more efficiently. It won’t remove the fact,
+incidents can be handled more efficiently.  It won't remove the fact,
 that most of this has to be done behind closed doors, but it is set up
 to avoid big bureaucratic hurdles for individual developers.
 
@@ -39,19 +41,22 @@ involved in the disclosure of a particular incident.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reviewed-by: Jiri Kosina <jkosina@suse.com>
+Reviewed-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Acked-by: Laura Abbott <labbott@redhat.com>
+Acked-by: Ben Hutchings <ben@decadent.org.uk>
+Reviewed-by: Tyler Hicks <tyhicks@canonical.com>
+Reviewed-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Reviewed-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- Documentation/admin-guide/embargoed-hardware-issues.rst |  281 ++++++++++++++++
+ Documentation/admin-guide/embargoed-hardware-issues.rst |  279 ++++++++++++++++
  Documentation/admin-guide/index.rst                     |    1 
- 2 files changed, 282 insertions(+)
+ 2 files changed, 280 insertions(+)
+ create mode 100644 Documentation/admin-guide/embargoed-hardware-issues.rst
 
 --- /dev/null
 +++ b/Documentation/admin-guide/embargoed-hardware-issues.rst
-@@ -0,0 +1,281 @@
-+.. _embargoedhardwareissues:
-+
+@@ -0,0 +1,279 @@
 +Embargoed hardware issues
 +=========================
 +
@@ -63,7 +68,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +kernel.
 +
 +Hardware issues like Meltdown, Spectre, L1TF etc. must be treated
-+differently because they usually affect all Operating Systems (“OS“) and
++differently because they usually affect all Operating Systems ("OS") and
 +therefore need coordination across different OS vendors, distributions,
 +hardware vendors and other parties. For some of the issues, software
 +mitigations can depend on microcode or firmware updates, which need further
@@ -266,7 +271,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +disclosure of a particular issue, unless requested by a response team or by
 +an involved disclosed party. The current ambassadors list:
 +
-+  ============== ========================================================
++  ============= ========================================================
 +  ARM
 +  AMD
 +  IBM
@@ -277,11 +282,11 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +  VMware
 +  XEN
 +
-+  Canonical
-+  Debian
-+  Oracle
-+  Redhat
-+  Suse           Jiri Kosina <jkosina@suse.com>
++  Canonical	Tyler Hicks <tyhicks@canonical.com>
++  Debian	Ben Hutchings <ben@decadent.org.uk>
++  Oracle	Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
++  Red Hat	Josh Poimboeuf <jpoimboe@redhat.com>
++  SUSE		Jiri Kosina <jkosina@suse.cz>
 +
 +  Amazon
 +  Google
