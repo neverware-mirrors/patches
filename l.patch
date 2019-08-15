@@ -48,14 +48,14 @@ Reviewed-by: Tyler Hicks <tyhicks@canonical.com>
 Reviewed-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Reviewed-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- Documentation/admin-guide/embargoed-hardware-issues.rst |  279 ++++++++++++++++
- Documentation/admin-guide/index.rst                     |    1 
+ Documentation/process/embargoed-hardware-issues.rst |  279 ++++++++++++++++++++
+ Documentation/process/index.rst                     |    1 
  2 files changed, 280 insertions(+)
- create mode 100644 Documentation/admin-guide/embargoed-hardware-issues.rst
 
 --- /dev/null
-+++ b/Documentation/admin-guide/embargoed-hardware-issues.rst
++++ b/Documentation/process/embargoed-hardware-issues.rst
 @@ -0,0 +1,279 @@
 +Embargoed hardware issues
 +=========================
@@ -82,8 +82,8 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +The Linux kernel hardware security team is separate from the regular Linux
 +kernel security team.
 +
-+The team is only handling the coordination of embargoed hardware security
-+issues. Reports of pure software security bugs in the Linux kernel are not
++The team only handles the coordination of embargoed hardware security
++issues.  Reports of pure software security bugs in the Linux kernel are not
 +handled by this team and the reporter will be guided to contact the regular
 +Linux kernel security team (:ref:`Documentation/admin-guide/
 +<securitybugs>`) instead.
@@ -98,8 +98,8 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +https://www.kernel.org/....
 +
 +While hardware security issues are often handled by the affected hardware
-+vendor, we welcome contact from researchers or individuals who identified a
-+potential hardware flaw.
++vendor, we welcome contact from researchers or individuals who have
++identified a potential hardware flaw.
 +
 +Hardware security officers
 +^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -149,10 +149,10 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +initial contact, which oversees the process of handling such issues under
 +embargo rules.
 +
-+The hardware security team identifies the developers (domain experts) which
-+form the initial response team for a particular issue. The initial response
-+team can bring in further developers (domain experts) to address the issue
-+in the best technical way.
++The hardware security team identifies the developers (domain experts) who
++will form the initial response team for a particular issue. The initial
++response team can bring in further developers (domain experts) to address
++the issue in the best technical way.
 +
 +All involved developers pledge to adhere to the embargo rules and to keep
 +the received information confidential. Violation of the pledge will lead to
@@ -168,12 +168,12 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +Process
 +^^^^^^^
 +
-+Due to the globally distributed nature of Linux kernel development, face to
-+face meetings are almost impossible to address hardware security issues.
-+Phone conferences are hard to coordinate due to time zones and other
-+factors and should be only used when absolutely necessary. Encrypted email
-+has been proven to be the most effective and secure communication method
-+for these types of issues.
++Due to the globally distributed nature of Linux kernel development,
++face-to-face meetings are almost impossible to address hardware security
++issues.  Phone conferences are hard to coordinate due to time zones and
++other factors and should be only used when absolutely necessary. Encrypted
++email has been proven to be the most effective and secure communication
++method for these types of issues.
 +
 +Start of Disclosure
 +"""""""""""""""""""
@@ -184,7 +184,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +distributes the affected hardware, we encourage you to also consider what
 +other hardware could be affected.
 +
-+The hardware security team will provide a per incident specific encrypted
++The hardware security team will provide an incident-specific encrypted
 +mailing-list which will be used for initial discussion with the reporter,
 +further disclosure and coordination.
 +
@@ -199,8 +199,8 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +
 +While individual developers might be covered by a non-disclosure agreement
 +via their employer, they cannot enter individual non-disclosure agreements
-+in their role as Linux kernel developers. They will, however, adhere to
-+this documented process and the Memorandum of Understanding.
++in their role as Linux kernel developers. They will, however, agree to
++adhere to this documented process and the Memorandum of Understanding.
 +
 +
 +Disclosure
@@ -336,13 +336,13 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +the PGP key or the S/MIME certificate from the signature so the subscriber
 +can send encrypted email to the list.
 +
---- a/Documentation/admin-guide/index.rst
-+++ b/Documentation/admin-guide/index.rst
-@@ -33,6 +33,7 @@ problems and bugs in particular.
- 
-    reporting-bugs
-    security-bugs
+--- a/Documentation/process/index.rst
++++ b/Documentation/process/index.rst
+@@ -45,6 +45,7 @@ Other guides to the community that are o
+    submit-checklist
+    kernel-docs
+    deprecated
 +   embargoed-hardware-issues
-    bug-hunting
-    bug-bisect
-    tainted-kernels
+ 
+ These are some overall technical guides that have been put here for now for
+ lack of a better place.
