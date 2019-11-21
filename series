@@ -1,5 +1,6 @@
 #
-l.patch
+maintainers-add-entry-for-licenses-and-spdx-stuff.patch
+cp210x.patch
 spdxcheck-print-out-files-without-any-spdx-lines.patch
 
 0001-tty-n_r3964-locking-fixups.patch
