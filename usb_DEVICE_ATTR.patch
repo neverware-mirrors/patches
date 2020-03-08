@@ -12,49 +12,13 @@ future.
 
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
+ drivers/staging/wusbcore/cbaf.c              |   82 +++++++++++----------------
  drivers/usb/gadget/function/f_mass_storage.c |    5 -
  drivers/usb/phy/phy-fsl-usb.c                |    6 -
- drivers/usb/wusbcore/cbaf.c                  |   82 +++++++++++----------------
  3 files changed, 41 insertions(+), 52 deletions(-)
 
---- a/drivers/usb/gadget/function/f_mass_storage.c
-+++ b/drivers/usb/gadget/function/f_mass_storage.c
-@@ -2544,9 +2544,8 @@ static ssize_t file_store(struct device
- }
- 
- static DEVICE_ATTR_RW(nofua);
--/* mode wil be set in fsg_lun_attr_is_visible() */
--static DEVICE_ATTR(ro, 0, ro_show, ro_store);
--static DEVICE_ATTR(file, 0, file_show, file_store);
-+static DEVICE_ATTR_RW(ro);
-+static DEVICE_ATTR_RW(file);
- 
- /****************************** FSG COMMON ******************************/
- 
---- a/drivers/usb/phy/phy-fsl-usb.c
-+++ b/drivers/usb/phy/phy-fsl-usb.c
-@@ -960,8 +960,8 @@ int usb_otg_start(struct platform_device
- /*
-  * state file in sysfs
-  */
--static ssize_t show_fsl_usb2_otg_state(struct device *dev,
--				   struct device_attribute *attr, char *buf)
-+static ssize_t fsl_usb2_otg_state_show(struct device *dev,
-+				       struct device_attribute *attr, char *buf)
- {
- 	struct otg_fsm *fsm = &fsl_otg_dev->fsm;
- 	char *next = buf;
-@@ -1041,7 +1041,7 @@ static ssize_t show_fsl_usb2_otg_state(s
- 	return PAGE_SIZE - size;
- }
- 
--static DEVICE_ATTR(fsl_usb2_otg_state, S_IRUGO, show_fsl_usb2_otg_state, NULL);
-+static DEVICE_ATTR_RO(fsl_usb2_otg_state);
- 
- 
- /* Char driver interface to control some OTG input */
---- a/drivers/usb/wusbcore/cbaf.c
-+++ b/drivers/usb/wusbcore/cbaf.c
+--- a/drivers/staging/wusbcore/cbaf.c
++++ b/drivers/staging/wusbcore/cbaf.c
 @@ -296,9 +296,8 @@ static int cbaf_cdid_get(struct cbaf *cb
  	return 0;
  }
@@ -237,3 +201,39 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  static struct attribute *cbaf_dev_attrs[] = {
  	&dev_attr_wusb_host_name.attr,
+--- a/drivers/usb/gadget/function/f_mass_storage.c
++++ b/drivers/usb/gadget/function/f_mass_storage.c
+@@ -2553,9 +2553,8 @@ static ssize_t file_store(struct device
+ }
+ 
+ static DEVICE_ATTR_RW(nofua);
+-/* mode wil be set in fsg_lun_attr_is_visible() */
+-static DEVICE_ATTR(ro, 0, ro_show, ro_store);
+-static DEVICE_ATTR(file, 0, file_show, file_store);
++static DEVICE_ATTR_RW(ro);
++static DEVICE_ATTR_RW(file);
+ 
+ /****************************** FSG COMMON ******************************/
+ 
+--- a/drivers/usb/phy/phy-fsl-usb.c
++++ b/drivers/usb/phy/phy-fsl-usb.c
+@@ -960,8 +960,8 @@ int usb_otg_start(struct platform_device
+ /*
+  * state file in sysfs
+  */
+-static ssize_t show_fsl_usb2_otg_state(struct device *dev,
+-				   struct device_attribute *attr, char *buf)
++static ssize_t fsl_usb2_otg_state_show(struct device *dev,
++				       struct device_attribute *attr, char *buf)
+ {
+ 	struct otg_fsm *fsm = &fsl_otg_dev->fsm;
+ 	char *next = buf;
+@@ -1041,7 +1041,7 @@ static ssize_t show_fsl_usb2_otg_state(s
+ 	return PAGE_SIZE - size;
+ }
+ 
+-static DEVICE_ATTR(fsl_usb2_otg_state, S_IRUGO, show_fsl_usb2_otg_state, NULL);
++static DEVICE_ATTR_RO(fsl_usb2_otg_state);
+ 
+ static struct attribute *fsl_otg_attrs[] = {
+ 	&dev_attr_fsl_usb2_otg_state.attr,

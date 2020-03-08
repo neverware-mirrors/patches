@@ -1,6 +1,6 @@
 #
-maintainers-add-entry-for-licenses-and-spdx-stuff.patch
-cp210x.patch
+dynamic_debug-allow-to-work-if-debugfs-is-disabled.patch
+lib-raid6-fix-awk-build-warnings.patch
 spdxcheck-print-out-files-without-any-spdx-lines.patch
 
 0001-tty-n_r3964-locking-fixups.patch
@@ -18,7 +18,6 @@ spdxcheck-print-out-files-without-any-spdx-lines.patch
 0013-tty-n_r3964-properly-protect-sig_flags-of-client-str.patch
 0014-tty-n_r3964-properly-reference-count-pids.patch
 0015-tty-n_r3964-add-reference-counting-to-the-client-str.patch
-p04
 usb_DEVICE_ATTR.patch
 
 

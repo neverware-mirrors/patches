@@ -30,15 +30,13 @@ removed again.
 Reported-by: Jann Horn <jannh@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/n_r3964.c   | 54 +++++++++++++++++++++++++++++++----------
- include/linux/n_r3964.h |  2 +-
+ drivers/tty/n_r3964.c   |   54 ++++++++++++++++++++++++++++++++++++------------
+ include/linux/n_r3964.h |    2 -
  2 files changed, 42 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/tty/n_r3964.c b/drivers/tty/n_r3964.c
-index f75696f0ee2d..664b201b9abc 100644
 --- a/drivers/tty/n_r3964.c
 +++ b/drivers/tty/n_r3964.c
-@@ -484,6 +484,7 @@ static void on_receive_block(struct r3964_info *pInfo)
+@@ -484,6 +484,7 @@ static void on_receive_block(struct r396
  	unsigned int length;
  	struct r3964_client_info *pClient;
  	struct r3964_block_header *pBlock;
@@ -46,7 +44,7 @@ index f75696f0ee2d..664b201b9abc 100644
  
  	length = pInfo->rx_position;
  
-@@ -541,12 +542,14 @@ static void on_receive_block(struct r3964_info *pInfo)
+@@ -541,12 +542,14 @@ static void on_receive_block(struct r396
  	add_rx_queue(pInfo, pBlock);
  
  	/* notify attached client processes: */
@@ -61,7 +59,7 @@ index f75696f0ee2d..664b201b9abc 100644
  	wake_up_interruptible(&pInfo->tty->read_wait);
  
  	pInfo->state = R3964_IDLE;
-@@ -743,13 +746,17 @@ static struct r3964_client_info *findClient(struct r3964_info *pInfo,
+@@ -743,13 +746,17 @@ static struct r3964_client_info *findCli
  		struct pid *pid)
  {
  	struct r3964_client_info *pClient;
@@ -81,7 +79,7 @@ index f75696f0ee2d..664b201b9abc 100644
  }
  
  static int enable_signals(struct r3964_info *pInfo, struct pid *pid, int arg)
-@@ -757,8 +764,11 @@ static int enable_signals(struct r3964_info *pInfo, struct pid *pid, int arg)
+@@ -757,8 +764,11 @@ static int enable_signals(struct r3964_i
  	struct r3964_client_info *pClient;
  	struct r3964_client_info **ppClient;
  	struct r3964_message *pMsg;
@@ -93,7 +91,7 @@ index f75696f0ee2d..664b201b9abc 100644
  		/* Remove client from client list */
  		for (ppClient = &pInfo->firstClient; *ppClient;
  		     ppClient = &(*ppClient)->next) {
-@@ -779,9 +789,11 @@ static int enable_signals(struct r3964_info *pInfo, struct pid *pid, int arg)
+@@ -779,9 +789,11 @@ static int enable_signals(struct r3964_i
  				put_pid(pClient->pid);
  				kfree(pClient);
  				TRACE_M("enable_signals - kfree %p", pClient);
@@ -105,7 +103,7 @@ index f75696f0ee2d..664b201b9abc 100644
  		return -EINVAL;
  	} else {
  		pClient = findClient(pInfo, pid);
-@@ -796,6 +808,7 @@ static int enable_signals(struct r3964_info *pInfo, struct pid *pid, int arg)
+@@ -796,6 +808,7 @@ static int enable_signals(struct r3964_i
  			if (pClient == NULL)
  				return -ENOMEM;
  
@@ -113,7 +111,7 @@ index f75696f0ee2d..664b201b9abc 100644
  			TRACE_PS("add client %d to client list", pid_nr(pid));
  			spin_lock_init(&pClient->lock);
  			pClient->sig_flags = arg;
-@@ -806,6 +819,7 @@ static int enable_signals(struct r3964_info *pInfo, struct pid *pid, int arg)
+@@ -806,6 +819,7 @@ static int enable_signals(struct r3964_i
  			pClient->next_block_to_read = NULL;
  			pClient->msg_count = 0;
  			pInfo->firstClient = pClient;
@@ -121,7 +119,7 @@ index f75696f0ee2d..664b201b9abc 100644
  		}
  	}
  
-@@ -850,8 +864,7 @@ static void add_msg(struct r3964_client_info *pClient, int msg_id, int arg,
+@@ -850,8 +864,7 @@ static void add_msg(struct r3964_client_
  	if (pClient->msg_count < R3964_MAX_MSG_COUNT - 1) {
  queue_the_message:
  
@@ -131,7 +129,7 @@ index f75696f0ee2d..664b201b9abc 100644
  		TRACE_M("add_msg - kmalloc %p", pMsg);
  		if (pMsg == NULL) {
  			return;
-@@ -1069,9 +1082,7 @@ static ssize_t r3964_read(struct tty_struct *tty, struct file *file,
+@@ -1069,9 +1082,7 @@ static ssize_t r3964_read(struct tty_str
  
  	TRACE_L("read()");
  
@@ -142,7 +140,7 @@ index f75696f0ee2d..664b201b9abc 100644
  	if (file->f_flags & O_NONBLOCK) {
  		if (!mutex_trylock(&pInfo->read_lock))
  			return -EAGAIN;
-@@ -1193,28 +1204,45 @@ static int r3964_ioctl(struct tty_struct *tty, struct file *file,
+@@ -1193,28 +1204,45 @@ static int r3964_ioctl(struct tty_struct
  		unsigned int cmd, unsigned long arg)
  {
  	struct r3964_info *pInfo = tty->disc_data;
@@ -194,8 +192,6 @@ index f75696f0ee2d..664b201b9abc 100644
  }
  
  #ifdef CONFIG_COMPAT
-diff --git a/include/linux/n_r3964.h b/include/linux/n_r3964.h
-index 90a803aa42e8..9cc0020930ad 100644
 --- a/include/linux/n_r3964.h
 +++ b/include/linux/n_r3964.h
 @@ -162,7 +162,7 @@ struct r3964_info {
@@ -207,6 +203,3 @@ index 90a803aa42e8..9cc0020930ad 100644
  
  	struct r3964_client_info *firstClient;
  	unsigned int state;
--- 
-2.21.0
-
