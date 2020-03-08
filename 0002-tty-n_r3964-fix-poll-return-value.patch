@@ -9,14 +9,12 @@ wanted to have happen did not.
 
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/n_r3964.c | 2 +-
+ drivers/tty/n_r3964.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/tty/n_r3964.c b/drivers/tty/n_r3964.c
-index 664b201b9abc..b4a205f9f8ac 100644
 --- a/drivers/tty/n_r3964.c
 +++ b/drivers/tty/n_r3964.c
-@@ -1286,7 +1286,7 @@ static __poll_t r3964_poll(struct tty_struct *tty, struct file *file,
+@@ -1286,7 +1286,7 @@ static __poll_t r3964_poll(struct tty_st
  		if (pMsg)
  			result |= EPOLLIN | EPOLLRDNORM;
  	} else {
@@ -25,6 +23,3 @@ index 664b201b9abc..b4a205f9f8ac 100644
  	}
  	return result;
  }
--- 
-2.21.0
-

@@ -17,14 +17,12 @@ over a known corruption problems.
 Reported-by: Jann Horn <jannh@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/n_r3964.c | 52 ++++++++++++++++++++++++++++++++++---------
+ drivers/tty/n_r3964.c |   52 ++++++++++++++++++++++++++++++++++++++++----------
  1 file changed, 42 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/tty/n_r3964.c b/drivers/tty/n_r3964.c
-index f752eec92448..1514b17f5615 100644
 --- a/drivers/tty/n_r3964.c
 +++ b/drivers/tty/n_r3964.c
-@@ -193,8 +193,6 @@ static void receive_char(struct r3964_info *pInfo, const unsigned char c);
+@@ -193,8 +193,6 @@ static void receive_char(struct r3964_in
  static void receive_error(struct r3964_info *pInfo, const char flag);
  static void on_timeout(struct timer_list *t);
  static int enable_signals(struct r3964_info *pInfo, struct pid *pid, int arg);
@@ -33,7 +31,7 @@ index f752eec92448..1514b17f5615 100644
  static void add_msg(struct r3964_client_info *pClient, int msg_id, int arg,
  		int error_code, struct rx_block_header *pBlock);
  static struct r3964_message *remove_msg(struct r3964_client_info *client);
-@@ -831,6 +829,10 @@ static int read_telegram(struct r3964_info *pInfo, struct pid *pid,
+@@ -831,6 +829,10 @@ static int read_telegram(struct r3964_in
  {
  	struct r3964_client_info *pClient;
  	struct rx_block_header *block;
@@ -44,7 +42,7 @@ index f752eec92448..1514b17f5615 100644
  
  	if (!buf) {
  		return -EINVAL;
-@@ -841,18 +843,47 @@ static int read_telegram(struct r3964_info *pInfo, struct pid *pid,
+@@ -841,18 +843,47 @@ static int read_telegram(struct r3964_in
  		return -EINVAL;
  	}
  
@@ -79,7 +77,8 @@ index f752eec92448..1514b17f5615 100644
 +		return -EFAULT;
  	}
 +	kfree(data);
-+
+ 
+-	return -EINVAL;
 +	/*
 +	 * Copy succeeded, so grab the lock again, and then drop the buffer, as
 +	 * remove_client_block() has to have the lock held.
@@ -92,15 +91,14 @@ index f752eec92448..1514b17f5615 100644
 +	 */
 +	spin_lock_irqsave(&pClient->lock, flags);
 +	remove_client_block(pClient);
- 
--	return -EINVAL;
++
 +exit:
 +	spin_unlock_irqrestore(&pClient->lock, flags);
 +	return retval;
  }
  
  static void __add_msg(struct r3964_client_info *pClient, int msg_id, int arg,
-@@ -935,6 +966,7 @@ static struct r3964_message *remove_msg(struct r3964_client_info *client)
+@@ -935,6 +966,7 @@ static struct r3964_message *remove_msg(
  }
  
  static void remove_client_block(struct r3964_client_info *client)
@@ -108,6 +106,3 @@ index f752eec92448..1514b17f5615 100644
  {
  	struct rx_block_header *block;
  
--- 
-2.21.0
-

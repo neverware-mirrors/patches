@@ -14,14 +14,12 @@ pid.
 
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/n_r3964.c | 28 ++++++++++++++++++++++------
+ drivers/tty/n_r3964.c |   28 ++++++++++++++++++++++------
  1 file changed, 22 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/tty/n_r3964.c b/drivers/tty/n_r3964.c
-index a00c34ea9c27..aef0befd068d 100644
 --- a/drivers/tty/n_r3964.c
 +++ b/drivers/tty/n_r3964.c
-@@ -770,6 +770,18 @@ static struct r3964_client_info *findClient(struct r3964_info *pInfo,
+@@ -770,6 +770,18 @@ exit:
  	return pClient;
  }
  
@@ -40,7 +38,7 @@ index a00c34ea9c27..aef0befd068d 100644
  static int enable_signals(struct r3964_info *pInfo, struct pid *pid, int arg)
  {
  	struct r3964_client_info *pClient;
-@@ -1121,7 +1133,7 @@ static ssize_t r3964_read(struct tty_struct *tty, struct file *file,
+@@ -1121,7 +1133,7 @@ static ssize_t r3964_read(struct tty_str
  			return -ERESTARTSYS;
  	}
  
@@ -49,7 +47,7 @@ index a00c34ea9c27..aef0befd068d 100644
  	if (pClient) {
  		pMsg = remove_msg(pClient);
  		if (pMsg == NULL) {
-@@ -1208,7 +1220,7 @@ static ssize_t r3964_write(struct tty_struct *tty, struct file *file,
+@@ -1208,7 +1220,7 @@ static ssize_t r3964_write(struct tty_st
  	pHeader->length = count;
  	pHeader->owner = NULL;
  
@@ -58,7 +56,7 @@ index a00c34ea9c27..aef0befd068d 100644
  	if (pClient) {
  		pHeader->owner = pClient;
  	}
-@@ -1232,6 +1244,7 @@ static int r3964_ioctl(struct tty_struct *tty, struct file *file,
+@@ -1232,6 +1244,7 @@ static int r3964_ioctl(struct tty_struct
  		unsigned int cmd, unsigned long arg)
  {
  	struct r3964_info *pInfo = tty->disc_data;
@@ -66,7 +64,7 @@ index a00c34ea9c27..aef0befd068d 100644
  	unsigned long flags;
  	int retval = 0;
  
-@@ -1249,7 +1262,9 @@ static int r3964_ioctl(struct tty_struct *tty, struct file *file,
+@@ -1249,7 +1262,9 @@ static int r3964_ioctl(struct tty_struct
  				return -ERESTARTSYS;
  		}
  
@@ -77,7 +75,7 @@ index a00c34ea9c27..aef0befd068d 100644
  
  		mutex_unlock(&pInfo->read_lock);
  		break;
-@@ -1269,8 +1284,9 @@ static int r3964_ioctl(struct tty_struct *tty, struct file *file,
+@@ -1269,8 +1284,9 @@ static int r3964_ioctl(struct tty_struct
  		spin_unlock_irqrestore(&pInfo->lock, flags);
  		break;
  	case R3964_READ_TELEGRAM:
@@ -89,7 +87,7 @@ index a00c34ea9c27..aef0befd068d 100644
  		break;
  	default:
  		retval = -ENOIOCTLCMD;
-@@ -1311,7 +1327,7 @@ static __poll_t r3964_poll(struct tty_struct *tty, struct file *file,
+@@ -1311,7 +1327,7 @@ static __poll_t r3964_poll(struct tty_st
  
  	TRACE_L("POLL");
  
@@ -98,6 +96,3 @@ index a00c34ea9c27..aef0befd068d 100644
  	if (pClient) {
  		poll_wait(file, &tty->read_wait, wait);
  		spin_lock_irqsave(&pClient->lock, flags);
--- 
-2.21.0
-

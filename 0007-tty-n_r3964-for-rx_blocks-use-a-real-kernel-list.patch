@@ -10,11 +10,9 @@ doing.
 
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/n_r3964.c | 67 +++++++++----------------------------------
+ drivers/tty/n_r3964.c |   67 +++++++++-----------------------------------------
  1 file changed, 13 insertions(+), 54 deletions(-)
 
-diff --git a/drivers/tty/n_r3964.c b/drivers/tty/n_r3964.c
-index 4a9750adcc56..8275fb905aeb 100644
 --- a/drivers/tty/n_r3964.c
 +++ b/drivers/tty/n_r3964.c
 @@ -132,8 +132,7 @@ struct rx_block_header {
@@ -37,7 +35,7 @@ index 4a9750adcc56..8275fb905aeb 100644
  	struct list_head tx_blocks;
  	unsigned int tx_position;
          unsigned int rx_position;
-@@ -355,71 +353,32 @@ static void add_rx_queue(struct r3964_info *pInfo,
+@@ -355,71 +353,32 @@ static void add_rx_queue(struct r3964_in
  	unsigned long flags;
  
  	spin_lock_irqsave(&pInfo->lock, flags);
@@ -118,7 +116,7 @@ index 4a9750adcc56..8275fb905aeb 100644
  }
  
  static void put_char(struct r3964_info *pInfo, unsigned char ch)
-@@ -582,7 +541,7 @@ static void on_receive_block(struct r3964_info *pInfo)
+@@ -582,7 +541,7 @@ static void on_receive_block(struct r396
  	pBlock->length = length;
  	pBlock->data = ((unsigned char *)pBlock) + sizeof(*pBlock);
  	pBlock->locks = 0;
@@ -127,7 +125,7 @@ index 4a9750adcc56..8275fb905aeb 100644
  
  	memcpy(pBlock->data, pInfo->rx_buf, length);
  
-@@ -1047,7 +1006,7 @@ static int r3964_open(struct tty_struct *tty)
+@@ -1047,7 +1006,7 @@ static int r3964_open(struct tty_struct
  	mutex_init(&pInfo->read_lock);
  	pInfo->tty = tty;
  	pInfo->priority = R3964_MASTER;
@@ -136,6 +134,3 @@ index 4a9750adcc56..8275fb905aeb 100644
  	INIT_LIST_HEAD(&pInfo->tx_blocks);
  	pInfo->rx_position = 0;
  	pInfo->tx_position = 0;
--- 
-2.21.0
-

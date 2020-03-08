@@ -13,11 +13,9 @@ accessed.
 
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/n_r3964.c | 132 ++++++++++++++++++++----------------------
- 1 file changed, 62 insertions(+), 70 deletions(-)
+ drivers/tty/n_r3964.c |  136 +++++++++++++++++++++++---------------------------
+ 1 file changed, 64 insertions(+), 72 deletions(-)
 
-diff --git a/drivers/tty/n_r3964.c b/drivers/tty/n_r3964.c
-index a79c8d485030..cf2a3dc3a870 100644
 --- a/drivers/tty/n_r3964.c
 +++ b/drivers/tty/n_r3964.c
 @@ -101,7 +101,6 @@ enum {
@@ -47,7 +45,7 @@ index a79c8d485030..cf2a3dc3a870 100644
  };
  
  /* Header of received block in rx_buf: */
-@@ -200,8 +198,7 @@ static int read_telegram(struct r3964_info *pInfo, struct pid *pid,
+@@ -200,8 +198,7 @@ static int read_telegram(struct r3964_in
  		unsigned char __user * buf);
  static void add_msg(struct r3964_client_info *pClient, int msg_id, int arg,
  		int error_code, struct rx_block_header *pBlock);
@@ -57,7 +55,7 @@ index a79c8d485030..cf2a3dc3a870 100644
  static void remove_client_block(struct r3964_client_info *pClient);
  
  static int r3964_open(struct tty_struct *tty);
-@@ -788,7 +785,7 @@ static int enable_signals(struct r3964_info *pInfo, struct pid *pid, int arg)
+@@ -788,7 +785,7 @@ static int enable_signals(struct r3964_i
  					 pid_nr(pid));
  				*ppClient = pClient->next;
  				while (pClient->msg_count) {
@@ -66,7 +64,7 @@ index a79c8d485030..cf2a3dc3a870 100644
  					if (pMsg) {
  						kfree(pMsg);
  						TRACE_M("enable_signals - msg "
-@@ -823,8 +820,7 @@ static int enable_signals(struct r3964_info *pInfo, struct pid *pid, int arg)
+@@ -823,8 +820,7 @@ static int enable_signals(struct r3964_i
  			pClient->sig_flags = arg;
  			pClient->pid = get_pid(pid);
  			pClient->next = pInfo->firstClient;
@@ -76,7 +74,7 @@ index a79c8d485030..cf2a3dc3a870 100644
  			pClient->next_block_to_read = NULL;
  			pClient->msg_count = 0;
  			pInfo->firstClient = pClient;
-@@ -864,85 +860,83 @@ static int read_telegram(struct r3964_info *pInfo, struct pid *pid,
+@@ -864,85 +860,83 @@ static int read_telegram(struct r3964_in
  	return -EINVAL;
  }
  
@@ -88,34 +86,34 @@ index a79c8d485030..cf2a3dc3a870 100644
  {
  	struct r3964_message *pMsg;
 -	unsigned long flags;
- 
+-
 -	if (pClient->msg_count < R3964_MAX_MSG_COUNT - 1) {
 -queue_the_message:
-+	pMsg = kmalloc(sizeof(*pMsg), GFP_ATOMIC);
-+	if (pMsg == NULL)
-+		return;
  
 -		pMsg = kmalloc(sizeof(*pMsg), GFP_ATOMIC);
 -		TRACE_M("add_msg - kmalloc %p", pMsg);
 -		if (pMsg == NULL) {
 -			return;
 -		}
++	pMsg = kmalloc(sizeof(*pMsg), GFP_ATOMIC);
++	if (pMsg == NULL)
++		return;
+ 
+-		spin_lock_irqsave(&pClient->lock, flags);
 +	pMsg->msg_id = msg_id;
 +	pMsg->arg = arg;
 +	pMsg->error_code = error_code;
 +	pMsg->block = pBlock;
 +	INIT_LIST_HEAD(&pMsg->node);
  
--		spin_lock_irqsave(&pClient->lock, flags);
-+	list_add_tail(&pMsg->node, &pClient->msgs);
-+	pClient->msg_count++;
- 
 -		pMsg->msg_id = msg_id;
 -		pMsg->arg = arg;
 -		pMsg->error_code = error_code;
 -		pMsg->block = pBlock;
 -		pMsg->next = NULL;
--
++	list_add_tail(&pMsg->node, &pClient->msgs);
++	pClient->msg_count++;
+ 
 -		if (pClient->last_msg == NULL) {
 -			pClient->first_msg = pClient->last_msg = pMsg;
 -		} else {
@@ -182,26 +180,28 @@ index a79c8d485030..cf2a3dc3a870 100644
  
 -	if (pClient->first_msg) {
 -		spin_lock_irqsave(&pClient->lock, flags);
-+	spin_lock_irqsave(&client->lock, flags);
-+	if (list_empty(&client->msgs)) {
-+		spin_unlock_irqrestore(&client->lock, flags);
-+		return NULL;
-+	}
- 
+-
 -		pMsg = pClient->first_msg;
 -		pClient->first_msg = pMsg->next;
 -		if (pClient->first_msg == NULL) {
 -			pClient->last_msg = NULL;
 -		}
-+	msg = list_first_entry(&client->msgs, struct r3964_message, node);
-+	list_del(&msg->node);
- 
+-
 -		pClient->msg_count--;
 -		if (pMsg->block) {
 -			remove_client_block(pClient);
 -			pClient->next_block_to_read = pMsg->block;
 -		}
 -		spin_unlock_irqrestore(&pClient->lock, flags);
++	spin_lock_irqsave(&client->lock, flags);
++	if (list_empty(&client->msgs)) {
++		spin_unlock_irqrestore(&client->lock, flags);
++		return NULL;
++	}
++
++	msg = list_first_entry(&client->msgs, struct r3964_message, node);
++	list_del(&msg->node);
++
 +	client->msg_count--;
 +	if (msg->block) {
 +		remove_client_block(client);
@@ -213,7 +213,7 @@ index a79c8d485030..cf2a3dc3a870 100644
  }
  
  static void remove_client_block(struct r3964_client_info *client)
-@@ -1041,7 +1035,7 @@ static void r3964_close(struct tty_struct *tty)
+@@ -1041,7 +1035,7 @@ static void r3964_close(struct tty_struc
  	while (pClient) {
  		pNext = pClient->next;
  		while (pClient->msg_count) {
@@ -222,7 +222,7 @@ index a79c8d485030..cf2a3dc3a870 100644
  			if (pMsg) {
  				kfree(pMsg);
  				TRACE_M("r3964_close - msg kfree %p", pMsg);
-@@ -1091,7 +1085,7 @@ static ssize_t r3964_read(struct tty_struct *tty, struct file *file,
+@@ -1091,7 +1085,7 @@ static ssize_t r3964_read(struct tty_str
  
  	pClient = findClient(pInfo, task_pid(current));
  	if (pClient) {
@@ -231,7 +231,7 @@ index a79c8d485030..cf2a3dc3a870 100644
  		if (pMsg == NULL) {
  			/* no messages available. */
  			if (tty_io_nonblock(tty, file)) {
-@@ -1100,7 +1094,7 @@ static ssize_t r3964_read(struct tty_struct *tty, struct file *file,
+@@ -1100,7 +1094,7 @@ static ssize_t r3964_read(struct tty_str
  			}
  			/* block until there is a message: */
  			wait_event_interruptible(tty->read_wait,
@@ -240,7 +240,7 @@ index a79c8d485030..cf2a3dc3a870 100644
  		}
  
  		/* If we still haven't got a message, we must have been signalled */
-@@ -1267,7 +1261,6 @@ static __poll_t r3964_poll(struct tty_struct *tty, struct file *file,
+@@ -1267,7 +1261,6 @@ static __poll_t r3964_poll(struct tty_st
  {
  	struct r3964_info *pInfo = tty->disc_data;
  	struct r3964_client_info *pClient;
@@ -248,7 +248,7 @@ index a79c8d485030..cf2a3dc3a870 100644
  	unsigned long flags;
  	__poll_t result = EPOLLOUT;
  
-@@ -1276,11 +1269,10 @@ static __poll_t r3964_poll(struct tty_struct *tty, struct file *file,
+@@ -1276,11 +1269,10 @@ static __poll_t r3964_poll(struct tty_st
  	pClient = findClient(pInfo, task_pid(current));
  	if (pClient) {
  		poll_wait(file, &tty->read_wait, wait);
@@ -263,6 +263,3 @@ index a79c8d485030..cf2a3dc3a870 100644
  	} else {
  		result = EPOLLNVAL | EPOLLERR;
  	}
--- 
-2.21.0
-

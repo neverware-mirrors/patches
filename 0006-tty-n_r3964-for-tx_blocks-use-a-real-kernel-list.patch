@@ -10,11 +10,9 @@ doing.
 
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/n_r3964.c | 85 +++++++++++++------------------------------
+ drivers/tty/n_r3964.c |   85 +++++++++++++++-----------------------------------
  1 file changed, 26 insertions(+), 59 deletions(-)
 
-diff --git a/drivers/tty/n_r3964.c b/drivers/tty/n_r3964.c
-index 487aa6a38f7d..4a9750adcc56 100644
 --- a/drivers/tty/n_r3964.c
 +++ b/drivers/tty/n_r3964.c
 @@ -140,7 +140,7 @@ struct rx_block_header {
@@ -36,7 +34,7 @@ index 487aa6a38f7d..4a9750adcc56 100644
  	unsigned int tx_position;
          unsigned int rx_position;
  	unsigned char last_rx;
-@@ -316,42 +315,25 @@ static void add_tx_queue(struct r3964_info *pInfo,
+@@ -316,42 +315,25 @@ static void add_tx_queue(struct r3964_in
  	unsigned long flags;
  
  	spin_lock_irqsave(&pInfo->lock, flags);
@@ -88,7 +86,7 @@ index 487aa6a38f7d..4a9750adcc56 100644
  
  	if (pHeader->owner) {
  		if (error_code) {
-@@ -364,20 +346,7 @@ static void remove_from_tx_queue(struct r3964_info *pInfo, int error_code)
+@@ -364,20 +346,7 @@ static void remove_from_tx_queue(struct
  		wake_up_interruptible(&pInfo->tty->read_wait);
  	}
  
@@ -109,7 +107,7 @@ index 487aa6a38f7d..4a9750adcc56 100644
  }
  
  static void add_rx_queue(struct r3964_info *pInfo,
-@@ -476,7 +445,7 @@ static void trigger_transmit(struct r3964_info *pInfo)
+@@ -476,7 +445,7 @@ static void trigger_transmit(struct r396
  
  	spin_lock_irqsave(&pInfo->lock, flags);
  
@@ -118,7 +116,7 @@ index 487aa6a38f7d..4a9750adcc56 100644
  		pInfo->state = R3964_TX_REQUEST;
  		pInfo->nRetry = 0;
  		pInfo->flags &= ~R3964_ERROR;
-@@ -522,17 +491,19 @@ static void retry_transmit(struct r3964_info *pInfo)
+@@ -522,17 +491,19 @@ static void retry_transmit(struct r3964_
  static void transmit_block(struct r3964_info *pInfo)
  {
  	struct tty_struct *tty = pInfo->tty;
@@ -135,17 +133,17 @@ index 487aa6a38f7d..4a9750adcc56 100644
 -	room = tty_write_room(tty);
 +	if (list_empty(&pInfo->tx_blocks))
 +		return;
-+
-+	pBlock = list_first_entry(&pInfo->tx_blocks, struct tx_block_header,
-+				  node);
  
 -	TRACE_PS("transmit_block %p, room %d, length %d",
 -		 pBlock, room, pBlock->length);
++	pBlock = list_first_entry(&pInfo->tx_blocks, struct tx_block_header,
++				  node);
++
 +	room = tty_write_room(tty);
  
  	while (pInfo->tx_position < pBlock->length) {
  		if (room < 2)
-@@ -1077,7 +1048,7 @@ static int r3964_open(struct tty_struct *tty)
+@@ -1077,7 +1048,7 @@ static int r3964_open(struct tty_struct
  	pInfo->tty = tty;
  	pInfo->priority = R3964_MASTER;
  	pInfo->rx_first = pInfo->rx_last = NULL;
@@ -154,7 +152,7 @@ index 487aa6a38f7d..4a9750adcc56 100644
  	pInfo->rx_position = 0;
  	pInfo->tx_position = 0;
  	pInfo->last_rx = 0;
-@@ -1100,7 +1071,7 @@ static void r3964_close(struct tty_struct *tty)
+@@ -1100,7 +1071,7 @@ static void r3964_close(struct tty_struc
  	struct r3964_info *pInfo = tty->disc_data;
  	struct r3964_client_info *pClient, *pNext;
  	struct r3964_message *pMsg;
@@ -163,7 +161,7 @@ index 487aa6a38f7d..4a9750adcc56 100644
  	unsigned long flags;
  
  	TRACE_L("close");
-@@ -1129,15 +1100,11 @@ static void r3964_close(struct tty_struct *tty)
+@@ -1129,15 +1100,11 @@ static void r3964_close(struct tty_struc
  	}
  	/* Remove jobs from tx_queue: */
  	spin_lock_irqsave(&pInfo->lock, flags);
@@ -182,6 +180,3 @@ index 487aa6a38f7d..4a9750adcc56 100644
  
  	/* Free buffers: */
  	kfree(pInfo->rx_buf);
--- 
-2.21.0
-

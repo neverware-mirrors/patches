@@ -13,11 +13,9 @@ of where.
 
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/n_r3964.c | 78 +++++++++++++++++++++----------------------
+ drivers/tty/n_r3964.c |   78 +++++++++++++++++++++++++-------------------------
  1 file changed, 39 insertions(+), 39 deletions(-)
 
-diff --git a/drivers/tty/n_r3964.c b/drivers/tty/n_r3964.c
-index 6c0abb04c4f0..487aa6a38f7d 100644
 --- a/drivers/tty/n_r3964.c
 +++ b/drivers/tty/n_r3964.c
 @@ -101,6 +101,8 @@ enum {
@@ -97,7 +95,7 @@ index 6c0abb04c4f0..487aa6a38f7d 100644
  static void put_char(struct r3964_info *pInfo, unsigned char ch);
  static void trigger_transmit(struct r3964_info *pInfo);
  static void retry_transmit(struct r3964_info *pInfo);
-@@ -195,7 +200,7 @@ static int enable_signals(struct r3964_info *pInfo, struct pid *pid, int arg);
+@@ -195,7 +200,7 @@ static int enable_signals(struct r3964_i
  static int read_telegram(struct r3964_info *pInfo, struct pid *pid,
  		unsigned char __user * buf);
  static void add_msg(struct r3964_client_info *pClient, int msg_id, int arg,
@@ -115,7 +113,7 @@ index 6c0abb04c4f0..487aa6a38f7d 100644
  {
  	unsigned long flags;
  
-@@ -329,10 +334,10 @@ static void add_tx_queue(struct r3964_info *pInfo,
+@@ -329,10 +334,10 @@ static void add_tx_queue(struct r3964_in
  
  static void remove_from_tx_queue(struct r3964_info *pInfo, int error_code)
  {
@@ -128,7 +126,7 @@ index 6c0abb04c4f0..487aa6a38f7d 100644
  #endif
  
  	pHeader = pInfo->tx_first;
-@@ -376,7 +381,7 @@ static void remove_from_tx_queue(struct r3964_info *pInfo, int error_code)
+@@ -376,7 +381,7 @@ static void remove_from_tx_queue(struct
  }
  
  static void add_rx_queue(struct r3964_info *pInfo,
@@ -137,7 +135,7 @@ index 6c0abb04c4f0..487aa6a38f7d 100644
  {
  	unsigned long flags;
  
-@@ -400,10 +405,10 @@ static void add_rx_queue(struct r3964_info *pInfo,
+@@ -400,10 +405,10 @@ static void add_rx_queue(struct r3964_in
  }
  
  static void remove_from_rx_queue(struct r3964_info *pInfo,
@@ -150,7 +148,7 @@ index 6c0abb04c4f0..487aa6a38f7d 100644
  
  	if (pHeader == NULL)
  		return;
-@@ -517,7 +522,7 @@ static void retry_transmit(struct r3964_info *pInfo)
+@@ -517,7 +522,7 @@ static void retry_transmit(struct r3964_
  static void transmit_block(struct r3964_info *pInfo)
  {
  	struct tty_struct *tty = pInfo->tty;
@@ -159,7 +157,7 @@ index 6c0abb04c4f0..487aa6a38f7d 100644
  	int room = 0;
  
  	if (tty == NULL || pBlock == NULL) {
-@@ -558,7 +563,7 @@ static void on_receive_block(struct r3964_info *pInfo)
+@@ -558,7 +563,7 @@ static void on_receive_block(struct r396
  {
  	unsigned int length;
  	struct r3964_client_info *pClient;
@@ -168,7 +166,7 @@ index 6c0abb04c4f0..487aa6a38f7d 100644
  	unsigned long flags;
  
  	length = pInfo->rx_position;
-@@ -596,20 +601,17 @@ static void on_receive_block(struct r3964_info *pInfo)
+@@ -596,20 +601,17 @@ static void on_receive_block(struct r396
  	del_timer_sync(&pInfo->tmr);
  	TRACE_PS(" rx success: got %d chars", length);
  
@@ -192,7 +190,7 @@ index 6c0abb04c4f0..487aa6a38f7d 100644
  
  	memcpy(pBlock->data, pInfo->rx_buf, length);
  
-@@ -905,7 +907,7 @@ static int read_telegram(struct r3964_info *pInfo, struct pid *pid,
+@@ -905,7 +907,7 @@ static int read_telegram(struct r3964_in
  			 unsigned char __user * buf)
  {
  	struct r3964_client_info *pClient;
@@ -201,7 +199,7 @@ index 6c0abb04c4f0..487aa6a38f7d 100644
  
  	if (!buf) {
  		return -EINVAL;
-@@ -931,7 +933,7 @@ static int read_telegram(struct r3964_info *pInfo, struct pid *pid,
+@@ -931,7 +933,7 @@ static int read_telegram(struct r3964_in
  }
  
  static void add_msg(struct r3964_client_info *pClient, int msg_id, int arg,
@@ -210,7 +208,7 @@ index 6c0abb04c4f0..487aa6a38f7d 100644
  {
  	struct r3964_message *pMsg;
  	unsigned long flags;
-@@ -1014,7 +1016,7 @@ static struct r3964_message *remove_msg(struct r3964_info *pInfo,
+@@ -1014,7 +1016,7 @@ static struct r3964_message *remove_msg(
  static void remove_client_block(struct r3964_info *pInfo,
  				struct r3964_client_info *pClient)
  {
@@ -219,7 +217,7 @@ index 6c0abb04c4f0..487aa6a38f7d 100644
  
  	TRACE_PS("remove_client_block PID %d", pid_nr(pClient->pid));
  
-@@ -1098,7 +1100,7 @@ static void r3964_close(struct tty_struct *tty)
+@@ -1098,7 +1100,7 @@ static void r3964_close(struct tty_struc
  	struct r3964_info *pInfo = tty->disc_data;
  	struct r3964_client_info *pClient, *pNext;
  	struct r3964_message *pMsg;
@@ -228,7 +226,7 @@ index 6c0abb04c4f0..487aa6a38f7d 100644
  	unsigned long flags;
  
  	TRACE_L("close");
-@@ -1214,7 +1216,7 @@ static ssize_t r3964_write(struct tty_struct *tty, struct file *file,
+@@ -1214,7 +1216,7 @@ static ssize_t r3964_write(struct tty_st
  			   const unsigned char *data, size_t count)
  {
  	struct r3964_info *pInfo = tty->disc_data;
@@ -237,7 +235,7 @@ index 6c0abb04c4f0..487aa6a38f7d 100644
  	struct r3964_client_info *pClient;
  	unsigned char *new_data;
  
-@@ -1239,8 +1241,7 @@ static ssize_t r3964_write(struct tty_struct *tty, struct file *file,
+@@ -1239,8 +1241,7 @@ static ssize_t r3964_write(struct tty_st
  /*
   * Allocate a buffer for the data and copy it from the buffer with header prepended
   */
@@ -247,7 +245,7 @@ index 6c0abb04c4f0..487aa6a38f7d 100644
  	TRACE_M("r3964_write - kmalloc %p", new_data);
  	if (new_data == NULL) {
  		if (pInfo->flags & R3964_DEBUG) {
-@@ -1249,10 +1250,9 @@ static ssize_t r3964_write(struct tty_struct *tty, struct file *file,
+@@ -1249,10 +1250,9 @@ static ssize_t r3964_write(struct tty_st
  		return -ENOSPC;
  	}
  
@@ -260,6 +258,3 @@ index 6c0abb04c4f0..487aa6a38f7d 100644
  	pHeader->owner = NULL;
  
  	pClient = findClient(pInfo, task_pid(current));
--- 
-2.21.0
-

@@ -12,11 +12,9 @@ ioctls that need it so that they will not have any problems.
 
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/n_r3964.c | 28 ++++++++++++++++++----------
+ drivers/tty/n_r3964.c |   28 ++++++++++++++++++----------
  1 file changed, 18 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/tty/n_r3964.c b/drivers/tty/n_r3964.c
-index 1514b17f5615..d3f53fa201b7 100644
 --- a/drivers/tty/n_r3964.c
 +++ b/drivers/tty/n_r3964.c
 @@ -175,7 +175,8 @@ struct r3964_info {
@@ -29,7 +27,7 @@ index 1514b17f5615..d3f53fa201b7 100644
  
  	struct list_head clients;
  	unsigned int state;
-@@ -1219,33 +1220,41 @@ static int r3964_ioctl(struct tty_struct *tty, struct file *file,
+@@ -1219,33 +1220,41 @@ static int r3964_ioctl(struct tty_struct
  		unsigned int cmd, unsigned long arg)
  {
  	struct r3964_info *pInfo = tty->disc_data;
@@ -79,7 +77,7 @@ index 1514b17f5615..d3f53fa201b7 100644
  		break;
  	case R3964_READ_TELEGRAM:
  		retval = read_telegram(pInfo, task_pid(current),
-@@ -1256,7 +1265,6 @@ static int r3964_ioctl(struct tty_struct *tty, struct file *file,
+@@ -1256,7 +1265,6 @@ static int r3964_ioctl(struct tty_struct
  		break;
  	}
  
@@ -87,6 +85,3 @@ index 1514b17f5615..d3f53fa201b7 100644
  	return retval;
  }
  
--- 
-2.21.0
-

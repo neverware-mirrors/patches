@@ -10,11 +10,9 @@ doing reference counting properly.
 
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/n_r3964.c | 61 ++++++++++++++++++++-----------------------
+ drivers/tty/n_r3964.c |   61 ++++++++++++++++++++++----------------------------
  1 file changed, 28 insertions(+), 33 deletions(-)
 
-diff --git a/drivers/tty/n_r3964.c b/drivers/tty/n_r3964.c
-index 8275fb905aeb..a79c8d485030 100644
 --- a/drivers/tty/n_r3964.c
 +++ b/drivers/tty/n_r3964.c
 @@ -26,6 +26,7 @@
@@ -36,7 +34,7 @@ index 8275fb905aeb..a79c8d485030 100644
  };
  
  /* Header of received block in tx_buf: */
-@@ -200,8 +202,7 @@ static void add_msg(struct r3964_client_info *pClient, int msg_id, int arg,
+@@ -200,8 +202,7 @@ static void add_msg(struct r3964_client_
  		int error_code, struct rx_block_header *pBlock);
  static struct r3964_message *remove_msg(struct r3964_info *pInfo,
  		struct r3964_client_info *pClient);
@@ -46,7 +44,7 @@ index 8275fb905aeb..a79c8d485030 100644
  
  static int r3964_open(struct tty_struct *tty);
  static void r3964_close(struct tty_struct *tty);
-@@ -357,28 +358,28 @@ static void add_rx_queue(struct r3964_info *pInfo,
+@@ -357,28 +358,28 @@ static void add_rx_queue(struct r3964_in
  	spin_unlock_irqrestore(&pInfo->lock, flags);
  }
  
@@ -87,7 +85,7 @@ index 8275fb905aeb..a79c8d485030 100644
  }
  
  static void put_char(struct r3964_info *pInfo, unsigned char ch)
-@@ -540,7 +541,8 @@ static void on_receive_block(struct r3964_info *pInfo)
+@@ -540,7 +541,8 @@ static void on_receive_block(struct r396
  
  	pBlock->length = length;
  	pBlock->data = ((unsigned char *)pBlock) + sizeof(*pBlock);
@@ -97,7 +95,7 @@ index 8275fb905aeb..a79c8d485030 100644
  	INIT_LIST_HEAD(&pBlock->node);
  
  	memcpy(pBlock->data, pInfo->rx_buf, length);
-@@ -855,7 +857,7 @@ static int read_telegram(struct r3964_info *pInfo, struct pid *pid,
+@@ -855,7 +857,7 @@ static int read_telegram(struct r3964_in
  		if (copy_to_user(buf, block->data, block->length))
  			return -EFAULT;
  
@@ -106,7 +104,7 @@ index 8275fb905aeb..a79c8d485030 100644
  		return block->length;
  	}
  
-@@ -894,9 +896,9 @@ static void add_msg(struct r3964_client_info *pClient, int msg_id, int arg,
+@@ -894,9 +896,9 @@ queue_the_message:
  
  		pClient->msg_count++;
  
@@ -119,7 +117,7 @@ index 8275fb905aeb..a79c8d485030 100644
  		spin_unlock_irqrestore(&pClient->lock, flags);
  	} else {
  		if ((pClient->last_msg->msg_id == R3964_MSG_ACK)
-@@ -935,7 +937,7 @@ static struct r3964_message *remove_msg(struct r3964_info *pInfo,
+@@ -935,7 +937,7 @@ static struct r3964_message *remove_msg(
  
  		pClient->msg_count--;
  		if (pMsg->block) {
@@ -128,7 +126,7 @@ index 8275fb905aeb..a79c8d485030 100644
  			pClient->next_block_to_read = pMsg->block;
  		}
  		spin_unlock_irqrestore(&pClient->lock, flags);
-@@ -943,21 +945,14 @@ static struct r3964_message *remove_msg(struct r3964_info *pInfo,
+@@ -943,21 +945,14 @@ static struct r3964_message *remove_msg(
  	return pMsg;
  }
  
@@ -155,6 +153,3 @@ index 8275fb905aeb..a79c8d485030 100644
  }
  
  /*************************************************************
--- 
-2.21.0
-

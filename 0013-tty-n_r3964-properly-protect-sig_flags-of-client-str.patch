@@ -9,14 +9,12 @@ structure to allways access it under the client structure's lock.
 
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/n_r3964.c | 20 ++++++++++++++++----
+ drivers/tty/n_r3964.c |   20 ++++++++++++++++----
  1 file changed, 16 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/tty/n_r3964.c b/drivers/tty/n_r3964.c
-index d3f53fa201b7..a00c34ea9c27 100644
 --- a/drivers/tty/n_r3964.c
 +++ b/drivers/tty/n_r3964.c
-@@ -193,7 +193,6 @@ static void transmit_block(struct r3964_info *pInfo);
+@@ -193,7 +193,6 @@ static void transmit_block(struct r3964_
  static void receive_char(struct r3964_info *pInfo, const unsigned char c);
  static void receive_error(struct r3964_info *pInfo, const char flag);
  static void on_timeout(struct timer_list *t);
@@ -24,7 +22,7 @@ index d3f53fa201b7..a00c34ea9c27 100644
  static void add_msg(struct r3964_client_info *pClient, int msg_id, int arg,
  		int error_code, struct rx_block_header *pBlock);
  static struct r3964_message *remove_msg(struct r3964_client_info *client);
-@@ -548,7 +547,14 @@ static void on_receive_block(struct r3964_info *pInfo)
+@@ -548,7 +547,14 @@ static void on_receive_block(struct r396
  	/* notify attached client processes: */
  	spin_lock_irqsave(&pInfo->lock, flags);
  	list_for_each_entry(pClient, &pInfo->clients, node) {
@@ -40,7 +38,7 @@ index d3f53fa201b7..a00c34ea9c27 100644
  			add_msg(pClient, R3964_MSG_DATA, length, R3964_OK,
  				pBlock);
  		}
-@@ -799,8 +805,12 @@ static int enable_signals(struct r3964_info *pInfo, struct pid *pid, int arg)
+@@ -799,8 +805,12 @@ static int enable_signals(struct r3964_i
  	} else {
  		pClient = findClient(pInfo, pid);
  		if (pClient) {
@@ -53,7 +51,7 @@ index d3f53fa201b7..a00c34ea9c27 100644
  		} else {
  			/* add client to client list */
  			pClient = kmalloc(sizeof(struct r3964_client_info),
-@@ -915,6 +925,7 @@ static void add_msg(struct r3964_client_info *pClient, int msg_id, int arg,
+@@ -915,6 +925,7 @@ static void add_msg(struct r3964_client_
  {
  	struct r3964_message *pMsg;
  	unsigned long flags;
@@ -61,7 +59,7 @@ index d3f53fa201b7..a00c34ea9c27 100644
  
  	spin_lock_irqsave(&pClient->lock, flags);
  
-@@ -935,12 +946,13 @@ static void add_msg(struct r3964_client_info *pClient, int msg_id, int arg,
+@@ -935,12 +946,13 @@ static void add_msg(struct r3964_client_
  			TRACE_PE("add_msg - queue OVERFLOW-msg");
  		}
  	}
@@ -77,6 +75,3 @@ index d3f53fa201b7..a00c34ea9c27 100644
  }
  
  static struct r3964_message *remove_msg(struct r3964_client_info *client)
--- 
-2.21.0
-

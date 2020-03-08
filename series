@@ -1,6 +1,5 @@
 #
 dynamic_debug-allow-to-work-if-debugfs-is-disabled.patch
-lib-raid6-fix-awk-build-warnings.patch
 spdxcheck-print-out-files-without-any-spdx-lines.patch
 
 0001-tty-n_r3964-locking-fixups.patch

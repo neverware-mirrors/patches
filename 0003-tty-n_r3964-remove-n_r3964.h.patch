@@ -11,13 +11,11 @@ drivers/tty/n_r3964.c
 
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/n_r3964.c   | 114 +++++++++++++++++++++++++-
- include/linux/n_r3964.h | 175 ----------------------------------------
+ drivers/tty/n_r3964.c   |  114 ++++++++++++++++++++++++++++++-
+ include/linux/n_r3964.h |  175 ------------------------------------------------
  2 files changed, 113 insertions(+), 176 deletions(-)
  delete mode 100644 include/linux/n_r3964.h
 
-diff --git a/drivers/tty/n_r3964.c b/drivers/tty/n_r3964.c
-index b4a205f9f8ac..62a0e869eab5 100644
 --- a/drivers/tty/n_r3964.c
 +++ b/drivers/tty/n_r3964.c
 @@ -60,10 +60,11 @@
@@ -151,9 +149,6 @@ index b4a205f9f8ac..62a0e869eab5 100644
  static void add_tx_queue(struct r3964_info *, struct r3964_block_header *);
  static void remove_from_tx_queue(struct r3964_info *pInfo, int error_code);
  static void put_char(struct r3964_info *pInfo, unsigned char ch);
-diff --git a/include/linux/n_r3964.h b/include/linux/n_r3964.h
-deleted file mode 100644
-index 9cc0020930ad..000000000000
 --- a/include/linux/n_r3964.h
 +++ /dev/null
 @@ -1,175 +0,0 @@
@@ -332,6 +327,3 @@ index 9cc0020930ad..000000000000
 -};
 -
 -#endif
--- 
-2.21.0
-

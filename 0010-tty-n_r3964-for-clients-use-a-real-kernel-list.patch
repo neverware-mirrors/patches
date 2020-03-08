@@ -9,11 +9,9 @@ making the logic a lot simpler and easier to understand.
 
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/n_r3964.c | 31 ++++++++++++-------------------
+ drivers/tty/n_r3964.c |   31 ++++++++++++-------------------
  1 file changed, 12 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/tty/n_r3964.c b/drivers/tty/n_r3964.c
-index cf2a3dc3a870..f752eec92448 100644
 --- a/drivers/tty/n_r3964.c
 +++ b/drivers/tty/n_r3964.c
 @@ -109,8 +109,7 @@ struct r3964_client_info {
@@ -35,7 +33,7 @@ index cf2a3dc3a870..f752eec92448 100644
  	unsigned int state;
  	unsigned int flags;
  
-@@ -549,7 +548,7 @@ static void on_receive_block(struct r3964_info *pInfo)
+@@ -549,7 +548,7 @@ static void on_receive_block(struct r396
  
  	/* notify attached client processes: */
  	spin_lock_irqsave(&pInfo->lock, flags);
@@ -44,7 +42,7 @@ index cf2a3dc3a870..f752eec92448 100644
  		if (pClient->sig_flags & R3964_SIG_DATA) {
  			add_msg(pClient, R3964_MSG_DATA, length, R3964_OK,
  				pBlock);
-@@ -755,11 +754,12 @@ static struct r3964_client_info *findClient(struct r3964_info *pInfo,
+@@ -755,11 +754,12 @@ static struct r3964_client_info *findCli
  	unsigned long flags;
  
  	spin_lock_irqsave(&pInfo->lock, flags);
@@ -58,7 +56,7 @@ index cf2a3dc3a870..f752eec92448 100644
  exit:
  	spin_unlock_irqrestore(&pInfo->lock, flags);
  	return pClient;
-@@ -768,7 +768,6 @@ static struct r3964_client_info *findClient(struct r3964_info *pInfo,
+@@ -768,7 +768,6 @@ exit:
  static int enable_signals(struct r3964_info *pInfo, struct pid *pid, int arg)
  {
  	struct r3964_client_info *pClient;
@@ -66,7 +64,7 @@ index cf2a3dc3a870..f752eec92448 100644
  	struct r3964_message *pMsg;
  	unsigned long flags;
  
-@@ -776,14 +775,10 @@ static int enable_signals(struct r3964_info *pInfo, struct pid *pid, int arg)
+@@ -776,14 +775,10 @@ static int enable_signals(struct r3964_i
  		spin_lock_irqsave(&pInfo->lock, flags);
  
  		/* Remove client from client list */
@@ -82,7 +80,7 @@ index cf2a3dc3a870..f752eec92448 100644
  				while (pClient->msg_count) {
  					pMsg = remove_msg(pClient);
  					if (pMsg) {
-@@ -793,6 +788,7 @@ static int enable_signals(struct r3964_info *pInfo, struct pid *pid, int arg)
+@@ -793,6 +788,7 @@ static int enable_signals(struct r3964_i
  					}
  				}
  				put_pid(pClient->pid);
@@ -90,7 +88,7 @@ index cf2a3dc3a870..f752eec92448 100644
  				kfree(pClient);
  				TRACE_M("enable_signals - kfree %p", pClient);
  				spin_unlock_irqrestore(&pInfo->lock, flags);
-@@ -819,11 +815,10 @@ static int enable_signals(struct r3964_info *pInfo, struct pid *pid, int arg)
+@@ -819,11 +815,10 @@ static int enable_signals(struct r3964_i
  			spin_lock_init(&pClient->lock);
  			pClient->sig_flags = arg;
  			pClient->pid = get_pid(pid);
@@ -103,7 +101,7 @@ index cf2a3dc3a870..f752eec92448 100644
  			spin_unlock_irqrestore(&pInfo->lock, flags);
  		}
  	}
-@@ -1001,7 +996,7 @@ static int r3964_open(struct tty_struct *tty)
+@@ -1001,7 +996,7 @@ static int r3964_open(struct tty_struct
  	pInfo->tx_position = 0;
  	pInfo->last_rx = 0;
  	pInfo->blocks_in_rx_queue = 0;
@@ -112,7 +110,7 @@ index cf2a3dc3a870..f752eec92448 100644
  	pInfo->state = R3964_IDLE;
  	pInfo->flags = R3964_DEBUG;
  	pInfo->nRetry = 0;
-@@ -1017,7 +1012,7 @@ static int r3964_open(struct tty_struct *tty)
+@@ -1017,7 +1012,7 @@ static int r3964_open(struct tty_struct
  static void r3964_close(struct tty_struct *tty)
  {
  	struct r3964_info *pInfo = tty->disc_data;
@@ -121,7 +119,7 @@ index cf2a3dc3a870..f752eec92448 100644
  	struct r3964_message *pMsg;
  	struct tx_block_header *pHeader, *tmp;
  	unsigned long flags;
-@@ -1031,9 +1026,7 @@ static void r3964_close(struct tty_struct *tty)
+@@ -1031,9 +1026,7 @@ static void r3964_close(struct tty_struc
  	del_timer_sync(&pInfo->tmr);
  
  	/* Remove client-structs and message queues: */
@@ -132,7 +130,7 @@ index cf2a3dc3a870..f752eec92448 100644
  		while (pClient->msg_count) {
  			pMsg = remove_msg(pClient);
  			if (pMsg) {
-@@ -1042,9 +1035,9 @@ static void r3964_close(struct tty_struct *tty)
+@@ -1042,9 +1035,9 @@ static void r3964_close(struct tty_struc
  			}
  		}
  		put_pid(pClient->pid);
@@ -143,6 +141,3 @@ index cf2a3dc3a870..f752eec92448 100644
  	}
  	/* Remove jobs from tx_queue: */
  	spin_lock_irqsave(&pInfo->lock, flags);
--- 
-2.21.0
-

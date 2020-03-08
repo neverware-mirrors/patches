@@ -9,11 +9,9 @@ in the file.
 
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/n_r3964.c | 45 ++++---------------------------------------
+ drivers/tty/n_r3964.c |   45 ++++-----------------------------------------
  1 file changed, 4 insertions(+), 41 deletions(-)
 
-diff --git a/drivers/tty/n_r3964.c b/drivers/tty/n_r3964.c
-index 62a0e869eab5..6c0abb04c4f0 100644
 --- a/drivers/tty/n_r3964.c
 +++ b/drivers/tty/n_r3964.c
 @@ -1,48 +1,11 @@
@@ -69,6 +67,3 @@ index 62a0e869eab5..6c0abb04c4f0 100644
   */
  
  #include <linux/module.h>
--- 
-2.21.0
-

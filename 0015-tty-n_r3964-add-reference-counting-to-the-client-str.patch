@@ -18,11 +18,9 @@ time.
 Reported-by: Jann Horn <jannh@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/n_r3964.c | 82 +++++++++++++++++++++++++++++++++----------
+ drivers/tty/n_r3964.c |   82 +++++++++++++++++++++++++++++++++++++++-----------
  1 file changed, 64 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/tty/n_r3964.c b/drivers/tty/n_r3964.c
-index aef0befd068d..37d03ef8e75d 100644
 --- a/drivers/tty/n_r3964.c
 +++ b/drivers/tty/n_r3964.c
 @@ -106,6 +106,7 @@ struct tx_block_header;
@@ -64,7 +62,7 @@ index aef0befd068d..37d03ef8e75d 100644
  /*************************************************************
   * Protocol implementation routines
   *************************************************************/
-@@ -339,6 +364,7 @@ static void remove_from_tx_queue(struct r3964_info *pInfo, int error_code)
+@@ -339,6 +364,7 @@ static void remove_from_tx_queue(struct
  		wake_up_interruptible(&pInfo->tty->read_wait);
  	}
  
@@ -72,7 +70,7 @@ index aef0befd068d..37d03ef8e75d 100644
  	kfree(pHeader);
  }
  
-@@ -550,6 +576,7 @@ static void on_receive_block(struct r3964_info *pInfo)
+@@ -550,6 +576,7 @@ static void on_receive_block(struct r396
  		unsigned long client_flags;
  		unsigned int sig_flags;
  
@@ -80,7 +78,7 @@ index aef0befd068d..37d03ef8e75d 100644
  		spin_lock_irqsave(&pClient->lock, client_flags);
  		sig_flags = pClient->sig_flags;
  		spin_unlock_irqrestore(&pClient->lock, client_flags);
-@@ -558,6 +585,7 @@ static void on_receive_block(struct r3964_info *pInfo)
+@@ -558,6 +585,7 @@ static void on_receive_block(struct r396
  			add_msg(pClient, R3964_MSG_DATA, length, R3964_OK,
  				pBlock);
  		}
@@ -88,7 +86,7 @@ index aef0befd068d..37d03ef8e75d 100644
  	}
  	spin_unlock_irqrestore(&pInfo->lock, flags);
  	wake_up_interruptible(&pInfo->tty->read_wait);
-@@ -752,25 +780,40 @@ static void on_timeout(struct timer_list *t)
+@@ -752,25 +780,40 @@ static void on_timeout(struct timer_list
  	}
  }
  
@@ -133,7 +131,7 @@ index aef0befd068d..37d03ef8e75d 100644
  static struct r3964_client_info *find_client_current(struct r3964_info *info)
  {
  	struct r3964_client_info *client;
-@@ -793,6 +836,7 @@ static int enable_signals(struct r3964_info *pInfo, struct pid *pid, int arg)
+@@ -793,6 +836,7 @@ static int enable_signals(struct r3964_i
  
  		/* Remove client from client list */
  		list_for_each_entry(pClient, &pInfo->clients, node) {
@@ -141,7 +139,7 @@ index aef0befd068d..37d03ef8e75d 100644
  			if (pClient->pid == pid) {
  				TRACE_PS("removing client %d from client list",
  					 pid_nr(pid));
-@@ -804,13 +848,13 @@ static int enable_signals(struct r3964_info *pInfo, struct pid *pid, int arg)
+@@ -804,13 +848,13 @@ static int enable_signals(struct r3964_i
  							"kfree %p", pMsg);
  					}
  				}
@@ -159,7 +157,7 @@ index aef0befd068d..37d03ef8e75d 100644
  		}
  		spin_unlock_irqrestore(&pInfo->lock, flags);
  		return -EINVAL;
-@@ -823,6 +867,7 @@ static int enable_signals(struct r3964_info *pInfo, struct pid *pid, int arg)
+@@ -823,6 +867,7 @@ static int enable_signals(struct r3964_i
  			spin_lock_irqsave(&pClient->lock, client_flags);
  			pClient->sig_flags = arg;
  			spin_unlock_irqrestore(&pClient->lock, client_flags);
@@ -167,7 +165,7 @@ index aef0befd068d..37d03ef8e75d 100644
  		} else {
  			/* add client to client list */
  			pClient = kmalloc(sizeof(struct r3964_client_info),
-@@ -834,6 +879,7 @@ static int enable_signals(struct r3964_info *pInfo, struct pid *pid, int arg)
+@@ -834,6 +879,7 @@ static int enable_signals(struct r3964_i
  			spin_lock_irqsave(&pInfo->lock, flags);
  			TRACE_PS("add client %d to client list", pid_nr(pid));
  			spin_lock_init(&pClient->lock);
@@ -175,7 +173,7 @@ index aef0befd068d..37d03ef8e75d 100644
  			pClient->sig_flags = arg;
  			pClient->pid = get_pid(pid);
  			INIT_LIST_HEAD(&pClient->msgs);
-@@ -887,6 +933,7 @@ static int read_telegram(struct r3964_info *pInfo, struct pid *pid,
+@@ -887,6 +933,7 @@ static int read_telegram(struct r3964_in
  
  	if (copy_to_user(buf, data, length)) {
  		kfree(data);
@@ -183,7 +181,7 @@ index aef0befd068d..37d03ef8e75d 100644
  		return -EFAULT;
  	}
  	kfree(data);
-@@ -906,6 +953,7 @@ static int read_telegram(struct r3964_info *pInfo, struct pid *pid,
+@@ -906,6 +953,7 @@ static int read_telegram(struct r3964_in
  
  exit:
  	spin_unlock_irqrestore(&pClient->lock, flags);
@@ -191,7 +189,7 @@ index aef0befd068d..37d03ef8e75d 100644
  	return retval;
  }
  
-@@ -1091,10 +1139,7 @@ static void r3964_close(struct tty_struct *tty)
+@@ -1091,10 +1139,7 @@ static void r3964_close(struct tty_struc
  				TRACE_M("r3964_close - msg kfree %p", pMsg);
  			}
  		}
@@ -203,7 +201,7 @@ index aef0befd068d..37d03ef8e75d 100644
  	}
  	/* Remove jobs from tx_queue: */
  	spin_lock_irqsave(&pInfo->lock, flags);
-@@ -1174,6 +1219,7 @@ static ssize_t r3964_read(struct tty_struct *tty, struct file *file,
+@@ -1174,6 +1219,7 @@ static ssize_t r3964_read(struct tty_str
  	ret = -EPERM;
  unlock:
  	mutex_unlock(&pInfo->read_lock);
@@ -211,7 +209,7 @@ index aef0befd068d..37d03ef8e75d 100644
  	return ret;
  }
  
-@@ -1182,7 +1228,6 @@ static ssize_t r3964_write(struct tty_struct *tty, struct file *file,
+@@ -1182,7 +1228,6 @@ static ssize_t r3964_write(struct tty_st
  {
  	struct r3964_info *pInfo = tty->disc_data;
  	struct tx_block_header *pHeader;
@@ -219,7 +217,7 @@ index aef0befd068d..37d03ef8e75d 100644
  	unsigned char *new_data;
  
  	TRACE_L("write request, %d characters", count);
-@@ -1218,12 +1263,12 @@ static ssize_t r3964_write(struct tty_struct *tty, struct file *file,
+@@ -1218,12 +1263,12 @@ static ssize_t r3964_write(struct tty_st
  	pHeader = (struct tx_block_header *)new_data;
  	pHeader->data = new_data + sizeof(*pHeader);
  	pHeader->length = count;
@@ -237,7 +235,7 @@ index aef0befd068d..37d03ef8e75d 100644
  
  	memcpy(pHeader->data, data, count);	/* We already verified this */
  
-@@ -1334,6 +1379,7 @@ static __poll_t r3964_poll(struct tty_struct *tty, struct file *file,
+@@ -1334,6 +1379,7 @@ static __poll_t r3964_poll(struct tty_st
  		if (!list_empty(&pClient->msgs))
  			result |= EPOLLIN | EPOLLRDNORM;
  		spin_unlock_irqrestore(&pClient->lock, flags);
@@ -245,6 +243,3 @@ index aef0befd068d..37d03ef8e75d 100644
  	} else {
  		result = EPOLLNVAL | EPOLLERR;
  	}
--- 
-2.21.0
-
