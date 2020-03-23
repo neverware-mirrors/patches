@@ -1,4 +1,6 @@
 #
+0001-bpf-explicitly-memset-the-bpf_attr-structure.patch
+0002-bpf-explicitly-memset-some-bpf-info-structures-decla.patch
 0001-tty-serial-samsung_tty-build-it-for-any-platform.patch
 0002-tty-serial-samsung_tty-remove-SERIAL_SAMSUNG_DEBUG.patch
 dynamic_debug-allow-to-work-if-debugfs-is-disabled.patch
