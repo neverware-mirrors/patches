@@ -1,0 +1,80 @@
+From 4c20f7981f2ceff4d47fd6d36a12e66785e2107f Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Sun, 8 Mar 2020 09:54:45 +0100
+Subject: [PATCH 2/2] readfile: add test_readfile.c
+
+---
+ test_readfile.c | 61 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 61 insertions(+)
+ create mode 100644 test_readfile.c
+
+diff --git a/test_readfile.c b/test_readfile.c
+new file mode 100644
+index 000000000000..e9fdf999ba91
+--- /dev/null
++++ b/test_readfile.c
+@@ -0,0 +1,61 @@
++// SPDX-License-Identifier: GPL-2.0
++#include <stdlib.h>
++#include <stdio.h>
++#include <linux/types.h>
++#include <sys/syscall.h>
++#include <fcntl.h>
++
++#include <assert.h>
++#include <dirent.h>
++#include <limits.h>
++#include <stdio.h>
++#include <string.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <fcntl.h>
++#include <unistd.h>
++
++
++#define NR_readfile	439
++
++#define TEST_FILE1	"/sys/devices/system/cpu/vulnerabilities/meltdown"
++#define TEST_FILE2	"/sys/devices/system/cpu/vulnerabilities/spectre_v1"
++#define TEST_FILE3	"/proc/self/maps"
++#define TEST_FILE4	"/sys/kernel/debug/usb/devices"
++
++static int sys_readfile(int fd, const char *filename, char *buffer,
++			size_t bufsize, int flags)
++{
++	return syscall(NR_readfile, fd, filename, buffer, bufsize, flags);
++}
++
++void readfile(const char *filename)
++{
++	int root_fd;
++	char buffer[16000];
++	int retval;
++
++	memset(buffer, 0x00, sizeof(buffer));
++
++	root_fd = open("/", O_DIRECTORY);
++	if (root_fd == -1) {
++		printf("error with root_fd\n");
++		return;
++	}
++
++	retval = sys_readfile(root_fd, filename, &buffer[0], sizeof(buffer), 0);
++	printf("filename=%s\n	retval=%d\n	buffer='%s'\n",
++	       filename, retval, &buffer[0]);
++
++	close(root_fd);
++}
++
++int main(void)
++{
++	readfile(TEST_FILE1);
++	readfile(TEST_FILE2);
++	readfile(TEST_FILE3);
++	readfile(TEST_FILE4);
++	return 0;
++}
++
+-- 
+2.26.2
+
