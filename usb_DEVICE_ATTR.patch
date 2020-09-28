@@ -13,12 +13,11 @@ future.
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  drivers/usb/gadget/function/f_mass_storage.c |    5 ++---
- drivers/usb/phy/phy-fsl-usb.c                |    6 +++---
- 2 files changed, 5 insertions(+), 6 deletions(-)
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
 --- a/drivers/usb/gadget/function/f_mass_storage.c
 +++ b/drivers/usb/gadget/function/f_mass_storage.c
-@@ -2554,9 +2554,8 @@ static ssize_t file_store(struct device
+@@ -2553,9 +2553,8 @@ static ssize_t file_store(struct device
  }
  
  static DEVICE_ATTR_RW(nofua);
@@ -30,25 +29,3 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  /****************************** FSG COMMON ******************************/
  
---- a/drivers/usb/phy/phy-fsl-usb.c
-+++ b/drivers/usb/phy/phy-fsl-usb.c
-@@ -960,8 +960,8 @@ int usb_otg_start(struct platform_device
- /*
-  * state file in sysfs
-  */
--static ssize_t show_fsl_usb2_otg_state(struct device *dev,
--				   struct device_attribute *attr, char *buf)
-+static ssize_t fsl_usb2_otg_state_show(struct device *dev,
-+				       struct device_attribute *attr, char *buf)
- {
- 	struct otg_fsm *fsm = &fsl_otg_dev->fsm;
- 	char *next = buf;
-@@ -1041,7 +1041,7 @@ static ssize_t show_fsl_usb2_otg_state(s
- 	return PAGE_SIZE - size;
- }
- 
--static DEVICE_ATTR(fsl_usb2_otg_state, S_IRUGO, show_fsl_usb2_otg_state, NULL);
-+static DEVICE_ATTR_RO(fsl_usb2_otg_state);
- 
- static struct attribute *fsl_otg_attrs[] = {
- 	&dev_attr_fsl_usb2_otg_state.attr,

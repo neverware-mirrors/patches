@@ -23,7 +23,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/tools/testing/selftests/Makefile
 +++ b/tools/testing/selftests/Makefile
-@@ -46,6 +46,7 @@ TARGETS += ptrace
+@@ -49,6 +49,7 @@ TARGETS += ptrace
  TARGETS += openat2
  TARGETS += rseq
  TARGETS += rtc

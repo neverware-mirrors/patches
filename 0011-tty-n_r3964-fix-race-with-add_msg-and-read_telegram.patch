@@ -31,7 +31,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  static void add_msg(struct r3964_client_info *pClient, int msg_id, int arg,
  		int error_code, struct rx_block_header *pBlock);
  static struct r3964_message *remove_msg(struct r3964_client_info *client);
-@@ -831,6 +829,10 @@ static int read_telegram(struct r3964_in
+@@ -830,6 +828,10 @@ static int read_telegram(struct r3964_in
  {
  	struct r3964_client_info *pClient;
  	struct rx_block_header *block;
@@ -42,7 +42,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	if (!buf) {
  		return -EINVAL;
-@@ -841,18 +843,47 @@ static int read_telegram(struct r3964_in
+@@ -840,18 +842,47 @@ static int read_telegram(struct r3964_in
  		return -EINVAL;
  	}
  
@@ -98,7 +98,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  }
  
  static void __add_msg(struct r3964_client_info *pClient, int msg_id, int arg,
-@@ -935,6 +966,7 @@ static struct r3964_message *remove_msg(
+@@ -934,6 +965,7 @@ static struct r3964_message *remove_msg(
  }
  
  static void remove_client_block(struct r3964_client_info *client)

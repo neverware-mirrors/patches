@@ -59,7 +59,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	wake_up_interruptible(&pInfo->tty->read_wait);
  
  	pInfo->state = R3964_IDLE;
-@@ -743,13 +746,17 @@ static struct r3964_client_info *findCli
+@@ -742,13 +745,17 @@ static struct r3964_client_info *findCli
  		struct pid *pid)
  {
  	struct r3964_client_info *pClient;
@@ -79,7 +79,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  }
  
  static int enable_signals(struct r3964_info *pInfo, struct pid *pid, int arg)
-@@ -757,8 +764,11 @@ static int enable_signals(struct r3964_i
+@@ -756,8 +763,11 @@ static int enable_signals(struct r3964_i
  	struct r3964_client_info *pClient;
  	struct r3964_client_info **ppClient;
  	struct r3964_message *pMsg;
@@ -91,7 +91,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		/* Remove client from client list */
  		for (ppClient = &pInfo->firstClient; *ppClient;
  		     ppClient = &(*ppClient)->next) {
-@@ -779,9 +789,11 @@ static int enable_signals(struct r3964_i
+@@ -778,9 +788,11 @@ static int enable_signals(struct r3964_i
  				put_pid(pClient->pid);
  				kfree(pClient);
  				TRACE_M("enable_signals - kfree %p", pClient);
@@ -103,7 +103,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		return -EINVAL;
  	} else {
  		pClient = findClient(pInfo, pid);
-@@ -796,6 +808,7 @@ static int enable_signals(struct r3964_i
+@@ -795,6 +807,7 @@ static int enable_signals(struct r3964_i
  			if (pClient == NULL)
  				return -ENOMEM;
  
@@ -111,7 +111,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  			TRACE_PS("add client %d to client list", pid_nr(pid));
  			spin_lock_init(&pClient->lock);
  			pClient->sig_flags = arg;
-@@ -806,6 +819,7 @@ static int enable_signals(struct r3964_i
+@@ -805,6 +818,7 @@ static int enable_signals(struct r3964_i
  			pClient->next_block_to_read = NULL;
  			pClient->msg_count = 0;
  			pInfo->firstClient = pClient;
@@ -119,7 +119,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		}
  	}
  
-@@ -850,8 +864,7 @@ static void add_msg(struct r3964_client_
+@@ -849,8 +863,7 @@ static void add_msg(struct r3964_client_
  	if (pClient->msg_count < R3964_MAX_MSG_COUNT - 1) {
  queue_the_message:
  
@@ -129,7 +129,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		TRACE_M("add_msg - kmalloc %p", pMsg);
  		if (pMsg == NULL) {
  			return;
-@@ -1069,9 +1082,7 @@ static ssize_t r3964_read(struct tty_str
+@@ -1068,9 +1081,7 @@ static ssize_t r3964_read(struct tty_str
  
  	TRACE_L("read()");
  
@@ -140,7 +140,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	if (file->f_flags & O_NONBLOCK) {
  		if (!mutex_trylock(&pInfo->read_lock))
  			return -EAGAIN;
-@@ -1193,28 +1204,45 @@ static int r3964_ioctl(struct tty_struct
+@@ -1192,28 +1203,45 @@ static int r3964_ioctl(struct tty_struct
  		unsigned int cmd, unsigned long arg)
  {
  	struct r3964_info *pInfo = tty->disc_data;

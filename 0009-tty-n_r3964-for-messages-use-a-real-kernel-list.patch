@@ -55,7 +55,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  static void remove_client_block(struct r3964_client_info *pClient);
  
  static int r3964_open(struct tty_struct *tty);
-@@ -788,7 +785,7 @@ static int enable_signals(struct r3964_i
+@@ -787,7 +784,7 @@ static int enable_signals(struct r3964_i
  					 pid_nr(pid));
  				*ppClient = pClient->next;
  				while (pClient->msg_count) {
@@ -64,7 +64,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  					if (pMsg) {
  						kfree(pMsg);
  						TRACE_M("enable_signals - msg "
-@@ -823,8 +820,7 @@ static int enable_signals(struct r3964_i
+@@ -822,8 +819,7 @@ static int enable_signals(struct r3964_i
  			pClient->sig_flags = arg;
  			pClient->pid = get_pid(pid);
  			pClient->next = pInfo->firstClient;
@@ -74,7 +74,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  			pClient->next_block_to_read = NULL;
  			pClient->msg_count = 0;
  			pInfo->firstClient = pClient;
-@@ -864,85 +860,83 @@ static int read_telegram(struct r3964_in
+@@ -863,85 +859,83 @@ static int read_telegram(struct r3964_in
  	return -EINVAL;
  }
  
@@ -213,7 +213,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  }
  
  static void remove_client_block(struct r3964_client_info *client)
-@@ -1041,7 +1035,7 @@ static void r3964_close(struct tty_struc
+@@ -1040,7 +1034,7 @@ static void r3964_close(struct tty_struc
  	while (pClient) {
  		pNext = pClient->next;
  		while (pClient->msg_count) {
@@ -222,7 +222,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  			if (pMsg) {
  				kfree(pMsg);
  				TRACE_M("r3964_close - msg kfree %p", pMsg);
-@@ -1091,7 +1085,7 @@ static ssize_t r3964_read(struct tty_str
+@@ -1090,7 +1084,7 @@ static ssize_t r3964_read(struct tty_str
  
  	pClient = findClient(pInfo, task_pid(current));
  	if (pClient) {
@@ -231,7 +231,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		if (pMsg == NULL) {
  			/* no messages available. */
  			if (tty_io_nonblock(tty, file)) {
-@@ -1100,7 +1094,7 @@ static ssize_t r3964_read(struct tty_str
+@@ -1099,7 +1093,7 @@ static ssize_t r3964_read(struct tty_str
  			}
  			/* block until there is a message: */
  			wait_event_interruptible(tty->read_wait,
@@ -240,7 +240,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		}
  
  		/* If we still haven't got a message, we must have been signalled */
-@@ -1267,7 +1261,6 @@ static __poll_t r3964_poll(struct tty_st
+@@ -1266,7 +1260,6 @@ static __poll_t r3964_poll(struct tty_st
  {
  	struct r3964_info *pInfo = tty->disc_data;
  	struct r3964_client_info *pClient;
@@ -248,7 +248,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	unsigned long flags;
  	__poll_t result = EPOLLOUT;
  
-@@ -1276,11 +1269,10 @@ static __poll_t r3964_poll(struct tty_st
+@@ -1275,11 +1268,10 @@ static __poll_t r3964_poll(struct tty_st
  	pClient = findClient(pInfo, task_pid(current));
  	if (pClient) {
  		poll_wait(file, &tty->read_wait, wait);

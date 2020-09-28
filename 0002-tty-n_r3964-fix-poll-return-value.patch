@@ -14,7 +14,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/tty/n_r3964.c
 +++ b/drivers/tty/n_r3964.c
-@@ -1286,7 +1286,7 @@ static __poll_t r3964_poll(struct tty_st
+@@ -1285,7 +1285,7 @@ static __poll_t r3964_poll(struct tty_st
  		if (pMsg)
  			result |= EPOLLIN | EPOLLRDNORM;
  	} else {

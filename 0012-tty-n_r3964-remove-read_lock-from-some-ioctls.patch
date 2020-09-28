@@ -27,7 +27,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	struct list_head clients;
  	unsigned int state;
-@@ -1219,33 +1220,41 @@ static int r3964_ioctl(struct tty_struct
+@@ -1218,33 +1219,41 @@ static int r3964_ioctl(struct tty_struct
  		unsigned int cmd, unsigned long arg)
  {
  	struct r3964_info *pInfo = tty->disc_data;
@@ -77,7 +77,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		break;
  	case R3964_READ_TELEGRAM:
  		retval = read_telegram(pInfo, task_pid(current),
-@@ -1256,7 +1265,6 @@ static int r3964_ioctl(struct tty_struct
+@@ -1255,7 +1264,6 @@ static int r3964_ioctl(struct tty_struct
  		break;
  	}
  

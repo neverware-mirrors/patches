@@ -38,7 +38,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  			add_msg(pClient, R3964_MSG_DATA, length, R3964_OK,
  				pBlock);
  		}
-@@ -799,8 +805,12 @@ static int enable_signals(struct r3964_i
+@@ -798,8 +804,12 @@ static int enable_signals(struct r3964_i
  	} else {
  		pClient = findClient(pInfo, pid);
  		if (pClient) {
@@ -51,7 +51,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		} else {
  			/* add client to client list */
  			pClient = kmalloc(sizeof(struct r3964_client_info),
-@@ -915,6 +925,7 @@ static void add_msg(struct r3964_client_
+@@ -914,6 +924,7 @@ static void add_msg(struct r3964_client_
  {
  	struct r3964_message *pMsg;
  	unsigned long flags;
@@ -59,7 +59,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	spin_lock_irqsave(&pClient->lock, flags);
  
-@@ -935,12 +946,13 @@ static void add_msg(struct r3964_client_
+@@ -934,12 +945,13 @@ static void add_msg(struct r3964_client_
  			TRACE_PE("add_msg - queue OVERFLOW-msg");
  		}
  	}

@@ -190,7 +190,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	memcpy(pBlock->data, pInfo->rx_buf, length);
  
-@@ -905,7 +907,7 @@ static int read_telegram(struct r3964_in
+@@ -904,7 +906,7 @@ static int read_telegram(struct r3964_in
  			 unsigned char __user * buf)
  {
  	struct r3964_client_info *pClient;
@@ -199,7 +199,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	if (!buf) {
  		return -EINVAL;
-@@ -931,7 +933,7 @@ static int read_telegram(struct r3964_in
+@@ -930,7 +932,7 @@ static int read_telegram(struct r3964_in
  }
  
  static void add_msg(struct r3964_client_info *pClient, int msg_id, int arg,
@@ -208,7 +208,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  {
  	struct r3964_message *pMsg;
  	unsigned long flags;
-@@ -1014,7 +1016,7 @@ static struct r3964_message *remove_msg(
+@@ -1013,7 +1015,7 @@ static struct r3964_message *remove_msg(
  static void remove_client_block(struct r3964_info *pInfo,
  				struct r3964_client_info *pClient)
  {
@@ -217,7 +217,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	TRACE_PS("remove_client_block PID %d", pid_nr(pClient->pid));
  
-@@ -1098,7 +1100,7 @@ static void r3964_close(struct tty_struc
+@@ -1097,7 +1099,7 @@ static void r3964_close(struct tty_struc
  	struct r3964_info *pInfo = tty->disc_data;
  	struct r3964_client_info *pClient, *pNext;
  	struct r3964_message *pMsg;
@@ -226,7 +226,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	unsigned long flags;
  
  	TRACE_L("close");
-@@ -1214,7 +1216,7 @@ static ssize_t r3964_write(struct tty_st
+@@ -1213,7 +1215,7 @@ static ssize_t r3964_write(struct tty_st
  			   const unsigned char *data, size_t count)
  {
  	struct r3964_info *pInfo = tty->disc_data;
@@ -235,7 +235,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	struct r3964_client_info *pClient;
  	unsigned char *new_data;
  
-@@ -1239,8 +1241,7 @@ static ssize_t r3964_write(struct tty_st
+@@ -1238,8 +1240,7 @@ static ssize_t r3964_write(struct tty_st
  /*
   * Allocate a buffer for the data and copy it from the buffer with header prepended
   */
@@ -245,7 +245,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	TRACE_M("r3964_write - kmalloc %p", new_data);
  	if (new_data == NULL) {
  		if (pInfo->flags & R3964_DEBUG) {
-@@ -1249,10 +1250,9 @@ static ssize_t r3964_write(struct tty_st
+@@ -1248,10 +1249,9 @@ static ssize_t r3964_write(struct tty_st
  		return -ENOSPC;
  	}
  

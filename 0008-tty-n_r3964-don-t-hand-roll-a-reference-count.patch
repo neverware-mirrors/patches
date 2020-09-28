@@ -95,7 +95,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	INIT_LIST_HEAD(&pBlock->node);
  
  	memcpy(pBlock->data, pInfo->rx_buf, length);
-@@ -855,7 +857,7 @@ static int read_telegram(struct r3964_in
+@@ -854,7 +856,7 @@ static int read_telegram(struct r3964_in
  		if (copy_to_user(buf, block->data, block->length))
  			return -EFAULT;
  
@@ -104,7 +104,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		return block->length;
  	}
  
-@@ -894,9 +896,9 @@ queue_the_message:
+@@ -893,9 +895,9 @@ queue_the_message:
  
  		pClient->msg_count++;
  
@@ -117,7 +117,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		spin_unlock_irqrestore(&pClient->lock, flags);
  	} else {
  		if ((pClient->last_msg->msg_id == R3964_MSG_ACK)
-@@ -935,7 +937,7 @@ static struct r3964_message *remove_msg(
+@@ -934,7 +936,7 @@ static struct r3964_message *remove_msg(
  
  		pClient->msg_count--;
  		if (pMsg->block) {
@@ -126,7 +126,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  			pClient->next_block_to_read = pMsg->block;
  		}
  		spin_unlock_irqrestore(&pClient->lock, flags);
-@@ -943,21 +945,14 @@ static struct r3964_message *remove_msg(
+@@ -942,21 +944,14 @@ static struct r3964_message *remove_msg(
  	return pMsg;
  }
  
