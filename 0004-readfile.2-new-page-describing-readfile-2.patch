@@ -1,16 +1,24 @@
-From 1dcacd2cfdce9695c9e66e21d6ec0292d66da400 Mon Sep 17 00:00:00 2001
+From 66476698b6ee9695a1f22870c768575bcb3bde27 Mon Sep 17 00:00:00 2001
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Date: Fri, 12 Jun 2020 12:11:39 +0200
-Subject: [PATCH 4/4] readfile.2
+Subject: [PATCH 4/4] readfile.2: new page describing readfile(2)
 
+readfile(2) is a new syscall to remove the need to do the
+open/read/close dance for small virtual files in places like procfs or
+sysfs.
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- readfile.2 |  229 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 229 insertions(+)
- create mode 100644 readfile.2
+ man2/readfile.2 | 159 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 159 insertions(+)
+ create mode 100644 man2/readfile.2
 
+diff --git a/man2/readfile.2 b/man2/readfile.2
+new file mode 100644
+index 000000000000..449e722c3442
 --- /dev/null
-+++ b/readfile.2
-@@ -0,0 +1,229 @@
++++ b/man2/readfile.2
+@@ -0,0 +1,159 @@
 +.\" This manpage is Copyright (C) 2020 Greg Kroah-Hartman;
 +.\"  and Copyright (C) 2020 The Linux Foundation
 +.\"
@@ -36,7 +44,7 @@ Subject: [PATCH 4/4] readfile.2
 +.\" the source, must acknowledge the copyright and authors of this work.
 +.\" %%%LICENSE_END
 +.\"
-+.TH READFILE 2 2020-06-12 "Linux" "Linux Programmer's Manual"
++.TH READFILE 2 2020-07-04 "Linux" "Linux Programmer's Manual"
 +.SH NAME
 +readfile \- read a file into a buffer
 +.SH SYNOPSIS
@@ -99,7 +107,7 @@ Subject: [PATCH 4/4] readfile.2
 +.I pathname
 +is interpreted relative to the current working
 +directory of the calling process (like
-+.BR open ()).
++.BR openat ()).
 +.PP
 +If
 +.I pathname
@@ -117,33 +125,6 @@ Subject: [PATCH 4/4] readfile.2
 +is set appropriately.
 +.SH ERRORS
 +.TP
-+.B EAGAIN
-+The file descriptor
-+.I fd
-+refers to a file other than a socket and has been marked nonblocking
-+.RB ( O_NONBLOCK ),
-+and the read would block.
-+See
-+.BR open (2)
-+for further details on the
-+.BR O_NONBLOCK
-+flag.
-+.TP
-+.BR EAGAIN " or " EWOULDBLOCK
-+.\" Actually EAGAIN on Linux
-+The file descriptor
-+.I fd
-+refers to a socket and has been marked nonblocking
-+.RB ( O_NONBLOCK ),
-+and the read would block.
-+POSIX.1-2001 allows either error to be returned for this case,
-+and does not require these constants to have the same value,
-+so a portable application should check for both possibilities.
-+.TP
-+.B EBADF
-+.I fd
-+is not a valid file descriptor or is not open for reading.
-+.TP
 +.B EFAULT
 +.I buf
 +is outside your accessible address space.
@@ -153,25 +134,8 @@ Subject: [PATCH 4/4] readfile.2
 +.BR signal (7).
 +.TP
 +.B EINVAL
-+.I fd
-+is attached to an object which is unsuitable for reading;
-+or the file was opened with the
-+.B O_DIRECT
-+flag, and either the address specified in
-+.IR buf ,
-+the value specified in
-+.IR count ,
-+or the file offset is not suitably aligned.
-+.TP
-+.B EINVAL
-+.I fd
-+was created via a call to
-+.BR timerfd_create (2)
-+and the wrong size buffer was given to
-+.BR read ();
-+see
-+.BR timerfd_create (2)
-+for further information.
++.I flags
++was set to a value that is not allowed.
 +.TP
 +.B EIO
 +I/O error.
@@ -192,22 +156,12 @@ Subject: [PATCH 4/4] readfile.2
 +section of
 +.BR fcntl (2)
 +for further details.
-+.TP
-+.B EISDIR
-+.I fd
-+refers to a directory.
-+.PP
-+Other errors may occur, depending on the object connected to
-+.IR fd .
 +.SH CONFORMING TO
-+SVr4, 4.3BSD, POSIX.1-2001.
++None, this is a Linux-specific system call at this point in time.
 +.SH NOTES
-+The types
++The type
 +.I size_t
-+and
-+.I ssize_t
-+are, respectively,
-+unsigned and signed integer data types specified by POSIX.1.
++is an unsigned integer data type specified by POSIX.1.
 +.PP
 +On Linux,
 +.BR read ()
@@ -216,22 +170,6 @@ Subject: [PATCH 4/4] readfile.2
 +returning the number of bytes actually transferred.
 +.\" commit e28cc71572da38a5a12c1cfe4d7032017adccf69
 +(This is true on both 32-bit and 64-bit systems.)
-+.PP
-+On NFS filesystems, reading small amounts of data will update the
-+timestamp only the first time, subsequent calls may not do so.
-+This is caused
-+by client side attribute caching, because most if not all NFS clients
-+leave
-+.I st_atime
-+(last file access time)
-+updates to the server, and client side reads satisfied from the
-+client's cache will not cause
-+.I st_atime
-+updates on the server as there are no
-+server-side reads.
-+UNIX semantics can be obtained by disabling client-side attribute caching,
-+but in most situations this will substantially
-+increase server load and decrease performance.
 +.SH BUGS
 +None yet!
 +.SH SEE ALSO
@@ -240,3 +178,6 @@ Subject: [PATCH 4/4] readfile.2
 +.BR openat (2),
 +.BR read (2),
 +.BR fread (3)
+-- 
+2.29.2
+

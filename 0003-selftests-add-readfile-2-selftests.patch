@@ -1,4 +1,4 @@
-From 8928abbad99c7d3750695998e5fa7ba144da3300 Mon Sep 17 00:00:00 2001
+From 3e95be22367650a45fcbfd8c8da95e8a6db7a8f7 Mon Sep 17 00:00:00 2001
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Date: Sun, 8 Mar 2020 09:54:45 +0100
 Subject: [PATCH 3/4] selftests: add readfile(2) selftests
@@ -10,17 +10,19 @@ instead of using open()/read()/close().
 
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/Makefile                  |    1 
- tools/testing/selftests/readfile/.gitignore       |    3 
- tools/testing/selftests/readfile/Makefile         |    7 
- tools/testing/selftests/readfile/readfile.c       |  285 ++++++++++++++++++++++
- tools/testing/selftests/readfile/readfile_speed.c |  221 +++++++++++++++++
- 5 files changed, 517 insertions(+)
+ tools/testing/selftests/Makefile              |   1 +
+ tools/testing/selftests/readfile/.gitignore   |   3 +
+ tools/testing/selftests/readfile/Makefile     |   7 +
+ tools/testing/selftests/readfile/readfile.c   | 285 +++++++++++++++++
+ .../selftests/readfile/readfile_speed.c       | 301 ++++++++++++++++++
+ 5 files changed, 597 insertions(+)
  create mode 100644 tools/testing/selftests/readfile/.gitignore
  create mode 100644 tools/testing/selftests/readfile/Makefile
  create mode 100644 tools/testing/selftests/readfile/readfile.c
  create mode 100644 tools/testing/selftests/readfile/readfile_speed.c
 
+diff --git a/tools/testing/selftests/Makefile b/tools/testing/selftests/Makefile
+index d9c283503159..0788bf87408f 100644
 --- a/tools/testing/selftests/Makefile
 +++ b/tools/testing/selftests/Makefile
 @@ -49,6 +49,7 @@ TARGETS += ptrace
@@ -31,12 +33,18 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  TARGETS += seccomp
  TARGETS += sigaltstack
  TARGETS += size
+diff --git a/tools/testing/selftests/readfile/.gitignore b/tools/testing/selftests/readfile/.gitignore
+new file mode 100644
+index 000000000000..f0e758d437e4
 --- /dev/null
 +++ b/tools/testing/selftests/readfile/.gitignore
 @@ -0,0 +1,3 @@
 +# SPDX-License-Identifier: GPL-2.0
 +readfile
 +readfile_speed
+diff --git a/tools/testing/selftests/readfile/Makefile b/tools/testing/selftests/readfile/Makefile
+new file mode 100644
+index 000000000000..1bf1bdec40f8
 --- /dev/null
 +++ b/tools/testing/selftests/readfile/Makefile
 @@ -0,0 +1,7 @@
@@ -47,6 +55,9 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +TEST_GEN_PROGS := readfile readfile_speed
 +
 +include ../lib.mk
+diff --git a/tools/testing/selftests/readfile/readfile.c b/tools/testing/selftests/readfile/readfile.c
+new file mode 100644
+index 000000000000..ddaf57896b2f
 --- /dev/null
 +++ b/tools/testing/selftests/readfile/readfile.c
 @@ -0,0 +1,285 @@
@@ -74,7 +85,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +//#define __NR_readfile	-1
 +//#endif
 +
-+#define __NR_readfile	440
++#define __NR_readfile	441
 +
 +#define TEST_FILE1	"/sys/devices/system/cpu/vulnerabilities/meltdown"
 +#define TEST_FILE2	"/sys/devices/system/cpu/vulnerabilities/spectre_v1"
@@ -335,44 +346,97 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +	return ksft_exit_pass();
 +}
 +
+diff --git a/tools/testing/selftests/readfile/readfile_speed.c b/tools/testing/selftests/readfile/readfile_speed.c
+new file mode 100644
+index 000000000000..a9c6badf67a2
 --- /dev/null
 +++ b/tools/testing/selftests/readfile/readfile_speed.c
-@@ -0,0 +1,221 @@
+@@ -0,0 +1,301 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (c) 2020 Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 + * Copyright (c) 2020 The Linux Foundation
 + *
 + * Tiny test program to try to benchmark the speed of the readfile syscall vs.
-+ * the open/read/close sequence it replaces.
++ * the open/read/close sequence it can replace.
 + */
 +#define _GNU_SOURCE
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <sys/syscall.h>
-+#include <sys/types.h>
-+#include <sys/stat.h>
 +#include <dirent.h>
++#include <errno.h>
 +#include <fcntl.h>
 +#include <limits.h>
-+#include <string.h>
-+#include <syscall.h>
-+#include <errno.h>
-+#include <unistd.h>
 +#include <stdarg.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <sys/stat.h>
++#include <sys/syscall.h>
++#include <sys/types.h>
++#include <syscall.h>
++#include <time.h>
++#include <unistd.h>
 +
++/* Default test file if no one wants to pick something else */
++#define DEFAULT_TEST_FILE	"/sys/devices/system/cpu/vulnerabilities/meltdown"
++
++#define DEFAULT_TEST_LOOPS	1000
++
++#define DEFAULT_TEST_TYPE	"both"
++
++/* Max number of bytes that will be read from the file */
++#define TEST_BUFFER_SIZE	10000
++static unsigned char test_buffer[TEST_BUFFER_SIZE];
++
++enum test_type {
++	TEST_READFILE,
++	TEST_OPENREADCLOSE,
++	TEST_BOTH,
++};
++
++/* Find the readfile syscall number */
 +//#ifndef __NR_readfile
 +//#define __NR_readfile	-1
 +//#endif
-+
-+#define __NR_readfile	440
-+
-+#define TEST_FILE	"/sys/devices/system/cpu/vulnerabilities/meltdown"
++#define __NR_readfile	441
 +
 +static int sys_readfile(int fd, const char *filename, unsigned char *buffer,
 +			size_t bufsize, int flags)
 +{
 +	return syscall(__NR_readfile, fd, filename, buffer, bufsize, flags);
++}
++
++/* Test that readfile() is even in the running kernel or not.  */
++static void test_readfile_supported(void)
++{
++	const char *proc_map = "/proc/self/maps";
++	unsigned char buffer[10];
++	int retval;
++
++	if (__NR_readfile < 0) {
++		fprintf(stderr,
++			"readfile() syscall is not defined for the kernel this test was built against.\n");
++		exit(1);
++	}
++
++	/*
++	 * Do a simple test to see if the syscall really is present in the
++	 * running kernel
++	 */
++	retval = sys_readfile(0, proc_map, &buffer[0], sizeof(buffer), 0);
++	if (retval == -1) {
++		fprintf(stderr,
++			"readfile() syscall not present on running kernel.\n");
++		exit(1);
++	}
++}
++
++static inline long long get_time_ns(void)
++{
++        struct timespec t;
++
++        clock_gettime(CLOCK_MONOTONIC, &t);
++
++        return (long long)t.tv_sec * 1000000000 + t.tv_nsec;
 +}
 +
 +/* taken from all-io.h from util-linux repo */
@@ -382,7 +446,6 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +	ssize_t c = 0;
 +	int tries = 0;
 +
-+	//memset(buf, 0, count);
 +	while (count > 0) {
 +		ret = read(fd, buf, count);
 +		if (ret <= 0) {
@@ -422,54 +485,80 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +	return count;
 +}
 +
-+enum test_type {
-+	READFILE,
-+	OPENREADCLOSE,
++static int run_test(enum test_type test_type, const char *filename)
++{
++	switch (test_type) {
++	case TEST_READFILE:
++		return sys_readfile(0, filename, &test_buffer[0],
++				    TEST_BUFFER_SIZE, O_RDONLY);
++
++	case TEST_OPENREADCLOSE:
++		return openreadclose(filename, &test_buffer[0],
++				     TEST_BUFFER_SIZE);
++	default:
++		return -EINVAL;
++	}
++}
++
++static const char * const test_names[] = {
++	[TEST_READFILE]		= "readfile",
++	[TEST_OPENREADCLOSE]	= "open/read/close",
 +};
 +
-+static int do_read_file_test(int loops, enum test_type test_type,
-+			     const char *filename,
-+			     unsigned char *buffer, size_t bufsize)
++static int run_test_loop(int loops, enum test_type test_type,
++			 const char *filename)
 +{
-+	char *test;
-+	int retval;
++	long long time_start;
++	long long time_end;
++	long long time_elapsed;
++	int retval = 0;
 +	int i;
-+
-+	switch (test_type) {
-+	case READFILE:
-+		test = "readfile";
-+		break;
-+
-+	case OPENREADCLOSE:
-+		test = "open/read/close";
-+		break;
-+	default:
-+		fprintf(stderr, "wrong test type");
-+		return -1;
-+	}
 +
 +	fprintf(stdout,
 +		"Running %s test on file %s for %d loops...\n",
-+		test, filename, loops);
++		test_names[test_type], filename, loops);
++
++	/* Fill the cache with one run of the read first */
++	retval = run_test(test_type, filename);
++	if (retval < 0) {
++		fprintf(stderr,
++			"test %s was unable to run with error %d\n",
++			test_names[test_type], retval);
++		return retval;
++	}
++
++	time_start = get_time_ns();
 +
 +	for (i = 0; i < loops; ++i) {
-+		switch (test_type) {
-+		case READFILE:
-+			retval = sys_readfile(0, filename, buffer, bufsize, O_RDONLY);
-+			break;
++		retval = run_test(test_type, filename);
 +
-+		case OPENREADCLOSE:
-+			retval = openreadclose(filename, buffer, bufsize);
-+			break;
-+		}
 +		if (retval < 0) {
 +			fprintf(stderr,
 +				"test failed on loop %d with error %d\n",
 +				i, retval);
-+			return retval;
++			break;
 +		}
 +	}
-+	return 0;
++	time_end = get_time_ns();
++
++	time_elapsed = time_end - time_start;
++
++	fprintf(stdout, "Took %lld ns\n", time_elapsed);
++
++	return retval;
++}
++
++static int do_read_file_test(int loops, enum test_type test_type,
++			     const char *filename)
++{
++	int retval;
++
++	if (test_type == TEST_BOTH) {
++		retval = do_read_file_test(loops, TEST_READFILE, filename);
++		retval = do_read_file_test(loops, TEST_OPENREADCLOSE, filename);
++		return retval;
++	}
++	return run_test_loop(loops, test_type, filename);
 +}
 +
 +static int check_file_present(const char *filename)
@@ -498,28 +587,30 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +	fprintf(stderr,
 +		"usage: %s [options]\n"
 +		" -l loops     Number of loops to run the test for.\n"
-+		"              default is 10'000\n"
-+		" -t testtype  Test type to run\n"
-+		"              types are: readfile, openreadclose\n"
-+		"              default is readfile\n",
-+		progname);
++		"              default is %d\n"
++		" -t testtype  Test type to run.\n"
++		"              types are: readfile, openreadclose, both\n"
++		"              default is %s\n"
++		" -f filename  Filename to read from, full path, not relative.\n"
++		"              default is %s\n",
++		progname,
++		DEFAULT_TEST_LOOPS, DEFAULT_TEST_TYPE, DEFAULT_TEST_FILE);
 +}
 +
 +int main(int argc, char *argv[])
 +{
-+	int loops = 10000;
-+	unsigned char buffer[10000];
-+	char c;
-+	char *testtype = "readfile";
 +	char *progname;
-+	char *filename;
++	char *testtype = DEFAULT_TEST_TYPE;
++	char *filename = DEFAULT_TEST_FILE;
++	int loops = DEFAULT_TEST_LOOPS;
 +	enum test_type test_type;
 +	int retval;
++	char c;
 +
 +	progname = strrchr(argv[0], '/');
 +	progname = progname ? 1+progname : argv[0];
 +
-+	while (EOF != (c = getopt(argc, argv, "t:hl:"))) {
++	while (EOF != (c = getopt(argc, argv, "t:l:f:h"))) {
 +		switch (c) {
 +		case 'l':
 +			loops = atoi(optarg);
@@ -527,6 +618,10 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +
 +		case 't':
 +			testtype = optarg;
++			break;
++
++		case 'f':
++			filename = optarg;
 +			break;
 +
 +		case 'h':
@@ -540,22 +635,24 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +	}
 +
 +	if (strcmp(testtype, "readfile") == 0)
-+		test_type = READFILE;
++		test_type = TEST_READFILE;
 +	else if (strcmp(testtype, "openreadclose") == 0)
-+		test_type = OPENREADCLOSE;
++		test_type = TEST_OPENREADCLOSE;
++	else if (strcmp(testtype, "both") == 0)
++		test_type = TEST_BOTH;
 +	else {
 +		usage(progname);
 +		return -1;
 +	}
 +
-+	filename = TEST_FILE;
++	test_readfile_supported();
 +
 +	retval = check_file_present(filename);
 +	if (retval)
 +		return retval;
 +
-+	retval = do_read_file_test(loops, test_type, TEST_FILE,
-+				   &buffer[0], sizeof(buffer));
-+
-+	return retval;
++	return do_read_file_test(loops, test_type, filename);
 +}
+-- 
+2.29.2
+

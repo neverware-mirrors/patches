@@ -1,4 +1,4 @@
-From 654540d453a03efc0fe7fc0e0d155981051b10c4 Mon Sep 17 00:00:00 2001
+From 0b91def003b129b2f80bb374ad0a5aaf391bff03 Mon Sep 17 00:00:00 2001
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Date: Sun, 24 May 2020 12:37:15 +0200
 Subject: [PATCH 1/4] readfile: implement readfile syscall
@@ -15,12 +15,14 @@ overhead.
 
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/open.c |   50 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ fs/open.c | 50 ++++++++++++++++++++++++++++++++++++++++++++++++++
  1 file changed, 50 insertions(+)
 
+diff --git a/fs/open.c b/fs/open.c
+index 9af548fb841b..b411c2b3ebd6 100644
 --- a/fs/open.c
 +++ b/fs/open.c
-@@ -1381,3 +1381,53 @@ int stream_open(struct inode *inode, str
+@@ -1381,3 +1381,53 @@ int stream_open(struct inode *inode, struct file *filp)
  }
  
  EXPORT_SYMBOL(stream_open);
@@ -53,7 +55,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +	int retval;
 +
 +	/* only accept a small subset of O_ flags that make sense */
-+	if ((flags | O_NOFOLLOW | O_NOATIME) != flags)
++	if ((flags & (O_NOFOLLOW | O_NOATIME)) != flags)
 +		return -EINVAL;
 +
 +	/* add some needed flags to be able to open the file properly */
@@ -74,3 +76,6 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +
 +	return retval;
 +}
+-- 
+2.29.2
+
